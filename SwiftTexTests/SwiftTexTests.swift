@@ -423,5 +423,12 @@ class SwiftTexTests: XCTestCase {
 
         XCTAssertNotNil(body.lhs as? VariableNode)
         XCTAssertNotNil(body.rhs as? NumberNode)
+
+        XCTAssertNotNil(ast.last as? CallNode)
+
+        guard let call = ast.last as? CallNode else { XCTFail(); return }
+
+        XCTAssertEqual(call.callee.name, "f")
+        XCTAssertNotNil(call.arguments.first as? NumberNode)
     }
 }
