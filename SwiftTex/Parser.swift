@@ -16,6 +16,7 @@ enum Errors: Error {
     case ExpectedExpression(token: Token)
     case ExpectedArgumentList(token: Token)
     case ExpectedFunctionName(token: Token)
+    case InvalidArgumentCount(token: Token)
     case EOF
 }
 
@@ -127,6 +128,18 @@ class Parser {
 
         let arguments = try parseBraceList()
 
+        if name == "\\frac" {
+            guard
+                arguments.count == 2,
+                let numerator = arguments.first?.unwrap(),
+                let denominator = arguments.last?.unwrap()
+            else {
+                throw Errors.InvalidArgumentCount(token: token)
+            }
+
+            return BinaryOpNode(op: "/", lhs: numerator, rhs: denominator)
+        }
+
         return TexNode(name: name, arguments: arguments)
 
     }
@@ -172,11 +185,12 @@ class Parser {
     }
 
     let operatorPrecedence: [String: Int] = [
+        "=": 10,
         "+": 20,
         "-": 20,
         "*": 40,
         "/": 40,
-        "=": 10
+        "^": 60,
     ]
 
     func getCurrentTokenPrecedence() throws -> Int {

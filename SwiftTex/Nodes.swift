@@ -23,6 +23,15 @@ public struct BracedNode: ExprNode {
     public var description: String {
         return "BracedNode(\(expressions))"
     }
+    public func unwrap() -> ExprNode? {
+        if expressions.isEmpty {
+            return nil
+        } else if expressions.count == 1,
+           let expr = expressions.first {
+            return expr
+        }
+        return self
+    }
 }
 
 public struct VariableNode: ExprNode {
