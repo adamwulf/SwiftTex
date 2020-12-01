@@ -50,11 +50,6 @@ class Parser {
         return NumberNode(value: value)
     }
 
-    func parseExpression() throws -> ExprNode {
-        let node = try parsePrimary()
-        return try parseBinaryOp(node: node)
-    }
-
     func parseParens() throws -> ExprNode {
         var token = try popCurrentToken()
         guard case Token.Case.ParensOpen = token.type else {
@@ -168,22 +163,6 @@ class Parser {
         return VariableNode(name: name, subscripts: subscripts)
     }
 
-    func parsePrimary() throws -> ExprNode {
-        guard let token = peekCurrentToken() else { throw Errors.EOF }
-        switch token.type {
-        case .Tex:
-            return try parseTex()
-        case .Identifier:
-            return try parseIdentifier()
-        case .Number:
-            return try parseNumber()
-        case .ParensOpen:
-            return try parseParens()
-        default:
-            throw Errors.ExpectedExpression(token: token)
-        }
-    }
-
     let operatorPrecedence: [String: Int] = [
         "=": 10,
         "+": 20,
@@ -281,6 +260,27 @@ class Parser {
         let prototype = PrototypeNode(name: "", argumentNames: [])
         let body = try parseExpression()
         return FunctionNode(prototype: prototype, body: body)
+    }
+
+    func parsePrimary() throws -> ExprNode {
+        guard let token = peekCurrentToken() else { throw Errors.EOF }
+        switch token.type {
+        case .Tex:
+            return try parseTex()
+        case .Identifier:
+            return try parseIdentifier()
+        case .Number:
+            return try parseNumber()
+        case .ParensOpen:
+            return try parseParens()
+        default:
+            throw Errors.ExpectedExpression(token: token)
+        }
+    }
+
+    func parseExpression() throws -> ExprNode {
+        let node = try parsePrimary()
+        return try parseBinaryOp(node: node)
     }
 
     func parse() throws -> [Any] {

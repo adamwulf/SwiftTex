@@ -349,4 +349,30 @@ class SwiftTexTests: XCTestCase {
         XCTAssertEqual((exp.lhs as? VariableNode)?.name, "x")
         XCTAssertEqual((exp.rhs as? VariableNode)?.name, "y")
     }
+
+    func testExponent3() throws {
+        let source = multiline(
+            "x ^ y ^ z"
+        )
+
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = try parser.parse()
+
+        XCTAssertEqual(tokens.count, 5)
+        XCTAssertNotNil(ast.first as? BinaryOpNode)
+
+        guard let exp2 = ast.first as? BinaryOpNode else { return }
+
+        XCTAssertEqual(exp2.op, "^")
+        XCTAssertNotNil(exp2.lhs as? BinaryOpNode)
+        XCTAssertEqual((exp2.rhs as? VariableNode)?.name, "z")
+
+        guard let exp1 = exp2.lhs as? BinaryOpNode else { return }
+
+        XCTAssertEqual(exp1.op, "^")
+        XCTAssertEqual((exp1.lhs as? VariableNode)?.name, "x")
+        XCTAssertEqual((exp1.rhs as? VariableNode)?.name, "y")
+    }
 }
