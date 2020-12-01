@@ -20,6 +20,7 @@ public struct NumberNode: ExprNode {
 
 public struct VariableNode: ExprNode {
     public let name: String
+    public let subscripts: [ExprNode]
     public var description: String {
         return "VariableNode(\(name))"
     }

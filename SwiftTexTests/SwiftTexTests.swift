@@ -10,23 +10,6 @@ import XCTest
 
 class SwiftTexTests: XCTestCase {
 
-    func testExample() throws {
-        let source = multiline(
-            "def foo(x, y)",
-            "  x + y * 2 + (4 + 5) / 3",
-            "",
-            "foo(3, 4)"
-        )
-
-        let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
-        let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
-
-        XCTAssertEqual(tokens.count, 26)
-        XCTAssertNotNil(ast.first as? FunctionNode)
-    }
-
     func testAddition() throws {
         let source = multiline(
             "x + y"
@@ -106,11 +89,11 @@ class SwiftTexTests: XCTestCase {
         let parser = Parser(tokens: tokens)
         let ast = try parser.parse()
 
-        XCTAssertNotNil(ast.first as? BinaryOpNode)
+        XCTAssertNotNil(ast.first as? VariableNode)
 
-        guard let plus = ast.first as? BinaryOpNode else { return }
+        guard let variable = ast.first as? VariableNode else { return }
 
-        XCTAssertEqual(plus.op, "+")
+        XCTAssertEqual(variable.name, "z")
     }
 
     func testTex() throws {

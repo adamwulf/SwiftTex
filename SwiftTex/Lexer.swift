@@ -16,6 +16,7 @@ public enum Token {
     case ParensClose
     case BraceOpen
     case BraceClose
+    case Subscript
     case Comma
     case Other(String)
     case EOF
@@ -24,13 +25,14 @@ public enum Token {
 typealias TokenGenerator = (String) -> Token?
 let tokenList: [(String, TokenGenerator)] = [
     ("[ \t\n]", { _ in nil }),
-    ("\\\\[a-zA-Z][a-zA-Z0-9]*", { .Tex($0) }),
-    ("[a-zA-Z][a-zA-Z0-9]*", { .Identifier($0) }),
+    ("\\\\[a-zA-Z]+", { .Tex($0) }),
+    ("[a-zA-Z]+", { .Identifier($0) }),
     ("[0-9.]+", { (r: String) in .Number((r as NSString).floatValue) }),
     ("\\(", { _ in .ParensOpen }),
     ("\\)", { _ in .ParensClose }),
     ("\\{", { _ in .BraceOpen }),
     ("\\}", { _ in .BraceClose }),
+    ("_", { _ in .Subscript }),
     (",", { _ in .Comma }),
 ]
 

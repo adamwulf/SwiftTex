@@ -65,15 +65,7 @@ class Parser {
         return exp
     }
 
-    func parseTex() throws -> ExprNode {
-        guard case let Token.Tex(name) = popCurrentToken() else {
-            throw Errors.UnexpectedToken
-        }
-
-        guard case Token.BraceOpen = peekCurrentToken() else {
-            return TexNode(name: name, arguments: [])
-        }
-
+    func parseBraceList() throws -> [ExprNode] {
         var arguments = [ExprNode]()
         while case Token.BraceOpen = peekCurrentToken() {
             popCurrentToken()
@@ -92,6 +84,20 @@ class Parser {
         // pop the }
         popCurrentToken()
 
+        return arguments
+    }
+
+    func parseTex() throws -> ExprNode {
+        guard case let Token.Tex(name) = popCurrentToken() else {
+            throw Errors.UnexpectedToken
+        }
+
+        guard case Token.BraceOpen = peekCurrentToken() else {
+            return TexNode(name: name, arguments: [])
+        }
+
+        let arguments = try parseBraceList()
+
         return TexNode(name: name, arguments: arguments)
 
     }
@@ -101,30 +107,20 @@ class Parser {
             throw Errors.UnexpectedToken
         }
 
-        guard case Token.ParensOpen = peekCurrentToken() else {
-            return VariableNode(name: name)
+        guard case Token.Subscript = peekCurrentToken() else {
+            return VariableNode(name: name, subscripts: [])
         }
+
         popCurrentToken()
 
-        var arguments = [ExprNode]()
-        if case Token.ParensClose = peekCurrentToken() {
+        var subscripts = [ExprNode]()
+        if case Token.BraceOpen = peekCurrentToken() {
+            subscripts.append(contentsOf: try parseBraceList())
         } else {
-            while true {
-                let argument = try parseExpression()
-                arguments.append(argument)
-
-                if case Token.ParensClose = peekCurrentToken() {
-                    break
-                }
-
-                guard case Token.Comma = popCurrentToken() else {
-                    throw Errors.ExpectedArgumentList
-                }
-            }
+            subscripts.append(try parseExpression())
         }
 
-        popCurrentToken()
-        return CallNode(callee: name, arguments: arguments)
+        return VariableNode(name: name, subscripts: subscripts)
     }
 
     func parsePrimary() throws -> ExprNode {
