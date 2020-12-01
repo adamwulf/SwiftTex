@@ -60,7 +60,7 @@ public struct BinaryOpNode: ExprNode {
 }
 
 public struct CallNode: ExprNode {
-    public let callee: String
+    public let callee: VariableNode
     public let arguments: [ExprNode]
     public var description: String {
         return "CallNode(name: \(callee), argument: \(arguments))"
@@ -68,7 +68,7 @@ public struct CallNode: ExprNode {
 }
 
 public struct PrototypeNode: CustomStringConvertible {
-    public let name: String
+    public let name: VariableNode
     public let argumentNames: [VariableNode]
     public var description: String {
         return "PrototypeNode(name: \(name), argumentNames: \(argumentNames))"

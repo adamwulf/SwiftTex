@@ -17,12 +17,15 @@ enum Errors: Error {
     case ExpectedArgumentList(token: Token)
     case ExpectedFunctionName(token: Token)
     case InvalidArgumentCount(token: Token)
+    case InvalidFunctionBody(token: Token)
+    case InvalidSubscript(token: Token)
     case EOF
 }
 
 class Parser {
     let tokens: [Token]
     var index = 0
+    var functions: [PrototypeNode] = []
 
     init(tokens: [Token]) {
         self.tokens = tokens
@@ -125,15 +128,23 @@ class Parser {
             name != "\\func"
         else {
             // pop the {
-            try popCurrentToken()
+            let brace = try popCurrentToken()
             let prototype = try parsePrototype()
             let closeBrace = try popCurrentToken()
             guard Token.Case.BraceClose == closeBrace.type else {
                 throw Errors.UnexpectedToken(token: closeBrace)
             }
 
+            functions.append(prototype)
+
             let body = try parseBraceExpr()
-            return FunctionNode(prototype: prototype, body: body)
+            if
+                let body = body.unwrap(),
+                body as? BracedNode == nil {
+                return FunctionNode(prototype: prototype, body: body)
+            }
+
+            throw Errors.InvalidFunctionBody(token: brace)
         }
 
         let arguments = try parseBraceList()
@@ -167,15 +178,21 @@ class Parser {
             Token.Case.Subscript == sub.type {
             try popCurrentToken()
 
-            let maybeToken = peekCurrentToken()
-            if Token.Case.BraceOpen == maybeToken?.type {
+            guard let maybeToken = peekCurrentToken() else {
+                throw Errors.EOF
+            }
+            if Token.Case.BraceOpen == maybeToken.type {
                 let braced = try parseBraceExpr()
                 guard let unwrapped = braced.unwrap() else {
                     throw Errors.ExpectedExpression(token: token)
                 }
                 subscripts.append(unwrapped)
+            } else if case Token.Case.Identifier = maybeToken.type {
+                subscripts.append(try parseIdentifier())
+            } else if case Token.Case.Number = maybeToken.type {
+                subscripts.append(try parseNumber())
             } else {
-                subscripts.append(try parseExpression())
+                throw Errors.InvalidSubscript(token: maybeToken)
             }
         }
 
@@ -233,12 +250,14 @@ class Parser {
     }
 
     func parsePrototype() throws -> PrototypeNode {
-        var token = try popCurrentToken()
-        guard case let Token.Case.Identifier(name) = token.type else {
-            throw Errors.ExpectedFunctionName(token: token)
+        guard let maybeToken = peekCurrentToken() else { throw Errors.EOF }
+        guard case Token.Case.Identifier = maybeToken.type else {
+            throw Errors.ExpectedFunctionName(token: maybeToken)
         }
 
-        token = try popCurrentToken()
+        let name = try parseIdentifier()
+
+        let token = try popCurrentToken()
         guard case Token.Case.ParensOpen = token.type else {
             throw Errors.ExpectedCharacter("(", token: token)
         }
@@ -267,15 +286,8 @@ class Parser {
         return PrototypeNode(name: name, argumentNames: argumentNames)
     }
 
-    func parseDefinition() throws -> FunctionNode {
-        try popCurrentToken()
-        let prototype = try parsePrototype()
-        let body = try parseExpression()
-        return FunctionNode(prototype: prototype, body: body)
-    }
-
     func parseTopLevelExpr() throws -> FunctionNode {
-        let prototype = PrototypeNode(name: "", argumentNames: [])
+        let prototype = PrototypeNode(name: VariableNode(name: "", subscripts: []), argumentNames: [])
         let body = try parseExpression()
         return FunctionNode(prototype: prototype, body: body)
     }
@@ -296,8 +308,45 @@ class Parser {
         }
     }
 
+    func parseCall(function: VariableNode) throws -> ExprNode {
+        let token = try popCurrentToken()
+        guard case Token.Case.ParensOpen = token.type else {
+            throw Errors.ExpectedCharacter("(", token: token)
+        }
+
+        var parameters: [ExprNode] = []
+        while true {
+            parameters.append(try parseExpression())
+
+            if
+                let token = peekCurrentToken(),
+                case Token.Case.ParensClose = token.type {
+                break
+            }
+
+            let token = try popCurrentToken()
+            guard case Token.Case.Comma = token.type else {
+                throw Errors.ExpectedArgumentList(token: token)
+            }
+        }
+
+        // remove ")"
+        try popCurrentToken()
+
+        return CallNode(callee: function, arguments: parameters)
+    }
+
     func parseExpression() throws -> ExprNode {
         let node = try parsePrimary()
+
+        if
+            let function = node as? VariableNode,
+            functions.contains(where: { $0.name.name == function.name }) {
+            return try parseCall(function: function)
+        } else if node as? FunctionNode != nil {
+            return node
+        }
+
         return try parseBinaryOp(node: node)
     }
 
@@ -310,6 +359,7 @@ class Parser {
             // ignore line endings between statements
             while Token.Case.EOL == peekCurrentToken()?.type {
                 nodes.append(contentsOf: condense(line))
+                line.removeAll()
                 try popCurrentToken()
             }
 
