@@ -27,11 +27,13 @@ class Parser {
     }
 
     func peekCurrentToken() -> Token {
+        guard index < tokens.count else { return .EOF }
         return tokens[index]
     }
 
     @discardableResult
     func popCurrentToken() -> Token {
+        guard index < tokens.count else { return .EOF }
         let token = tokens[index]
         index += 1
         return token
@@ -61,6 +63,37 @@ class Parser {
         }
 
         return exp
+    }
+
+    func parseTex() throws -> ExprNode {
+        guard case let Token.Tex(name) = popCurrentToken() else {
+            throw Errors.UnexpectedToken
+        }
+
+        guard case Token.BraceOpen = peekCurrentToken() else {
+            return TexNode(name: name, arguments: [])
+        }
+
+        var arguments = [ExprNode]()
+        while case Token.BraceOpen = peekCurrentToken() {
+            popCurrentToken()
+
+            if case Token.BraceClose = peekCurrentToken() {
+            } else {
+                let argument = try parseExpression()
+                arguments.append(argument)
+
+                if case Token.BraceClose = peekCurrentToken() {
+                    break
+                }
+            }
+        }
+
+        // pop the }
+        popCurrentToken()
+
+        return TexNode(name: name, arguments: arguments)
+
     }
 
     func parseIdentifier() throws -> ExprNode {
@@ -96,6 +129,8 @@ class Parser {
 
     func parsePrimary() throws -> ExprNode {
         switch peekCurrentToken() {
+        case .Tex:
+            return try parseTex()
         case .Identifier:
             return try parseIdentifier()
         case .Number:
@@ -111,7 +146,8 @@ class Parser {
         "+": 20,
         "-": 20,
         "*": 40,
-        "/": 40
+        "/": 40,
+        "=": 10
     ]
 
     func getCurrentTokenPrecedence() throws -> Int {
@@ -199,14 +235,8 @@ class Parser {
 
         var nodes = [Any]()
         while index < tokens.count {
-            switch peekCurrentToken() {
-            case .Define:
-                let node = try parseDefinition()
-                nodes.append(node)
-            default:
-                let expr = try parseExpression()
-                nodes.append(expr)
-            }
+            let expr = try parseExpression()
+            nodes.append(expr)
         }
 
         return nodes

@@ -25,6 +25,14 @@ public struct VariableNode: ExprNode {
     }
 }
 
+public struct TexNode: ExprNode {
+    public let name: String
+    public let arguments: [ExprNode]
+    public var description: String {
+        return "TexNode(\(name))"
+    }
+}
+
 public struct BinaryOpNode: ExprNode {
     public let op: String
     public let lhs: ExprNode

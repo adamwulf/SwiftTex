@@ -9,22 +9,28 @@
 import Foundation
 
 public enum Token {
-    case Define
+    case Tex(String)
     case Identifier(String)
     case Number(Float)
     case ParensOpen
     case ParensClose
+    case BraceOpen
+    case BraceClose
     case Comma
     case Other(String)
+    case EOF
 }
 
 typealias TokenGenerator = (String) -> Token?
 let tokenList: [(String, TokenGenerator)] = [
     ("[ \t\n]", { _ in nil }),
-    ("[a-zA-Z][a-zA-Z0-9]*", { $0 == "def" ? .Define : .Identifier($0) }),
+    ("\\\\[a-zA-Z][a-zA-Z0-9]*", { .Tex($0) }),
+    ("[a-zA-Z][a-zA-Z0-9]*", { .Identifier($0) }),
     ("[0-9.]+", { (r: String) in .Number((r as NSString).floatValue) }),
     ("\\(", { _ in .ParensOpen }),
     ("\\)", { _ in .ParensClose }),
+    ("\\{", { _ in .BraceOpen }),
+    ("\\}", { _ in .BraceClose }),
     (",", { _ in .Comma }),
 ]
 
