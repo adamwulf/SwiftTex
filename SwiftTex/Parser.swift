@@ -107,7 +107,7 @@ class Parser {
         // pop the }
         try popCurrentToken()
 
-        return BracedNode(expressions: expressions)
+        return BracedNode(expressions: condense(expressions) )
     }
 
     func parseTex() throws -> ExprNode {
@@ -169,7 +169,11 @@ class Parser {
 
             let maybeToken = peekCurrentToken()
             if Token.Case.BraceOpen == maybeToken?.type {
-                subscripts.append(try parseBraceExpr())
+                let braced = try parseBraceExpr()
+                guard let unwrapped = braced.unwrap() else {
+                    throw Errors.ExpectedExpression(token: token)
+                }
+                subscripts.append(unwrapped)
             } else {
                 subscripts.append(try parseExpression())
             }
@@ -242,7 +246,7 @@ class Parser {
         var argumentNames: [VariableNode] = []
         while
             let token = peekCurrentToken(),
-            case let Token.Case.Identifier(name) = token.type {
+            case Token.Case.Identifier = token.type {
             argumentNames.append(try parseIdentifier())
 
             if
@@ -300,17 +304,30 @@ class Parser {
     func parse() throws -> [Any] {
         index = 0
 
-        var nodes = [Any]()
+        var nodes: [ExprNode] = []
+        var line: [ExprNode] = []
         while index < tokens.count {
             // ignore line endings between statements
             while Token.Case.EOL == peekCurrentToken()?.type {
+                nodes.append(contentsOf: condense(line))
                 try popCurrentToken()
             }
 
             let expr = try parseExpression()
-            nodes.append(expr)
+            line.append(expr)
         }
 
+        nodes.append(contentsOf: condense(line))
+
         return nodes
+    }
+
+    func condense(_ expressions: [ExprNode]) -> [ExprNode] {
+        return expressions.reduce([]) { (result, node) -> [ExprNode] in
+            guard let last = result.last else { return [node] }
+            guard last as? FunctionNode == nil else { return result + [node] }
+
+            return Array(result[0..<result.count - 1]) + [BinaryOpNode(op: "*", lhs: last, rhs: node)]
+        }
     }
 }

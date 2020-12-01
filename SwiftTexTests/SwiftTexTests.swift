@@ -79,9 +79,13 @@ class SwiftTexTests: XCTestCase {
         let ast = try parser.parse()
 
         XCTAssertNotNil(ast.first as? BinaryOpNode)
-        XCTAssertEqual(ast.count, 2)
+        XCTAssertEqual(ast.count, 1)
 
-        guard let plus = ast.first as? BinaryOpNode else { return }
+        guard let mult = ast.first as? BinaryOpNode else { return }
+
+        XCTAssertEqual(mult.op, "*")
+
+        guard let plus = mult.lhs as? BinaryOpNode else { return }
 
         XCTAssertEqual(plus.op, "+")
     }
@@ -96,12 +100,16 @@ class SwiftTexTests: XCTestCase {
         let parser = Parser(tokens: tokens)
         let ast = try parser.parse()
 
-        XCTAssertNotNil(ast.first as? VariableNode)
-        XCTAssertEqual(ast.count, 2)
+        XCTAssertNotNil(ast.first as? BinaryOpNode)
+        XCTAssertEqual(ast.count, 1)
 
-        guard let variable = ast.first as? VariableNode else { return }
+        guard let mult = ast.first as? BinaryOpNode else { return }
 
-        XCTAssertEqual(variable.name, "z")
+        XCTAssertEqual(mult.op, "*")
+
+        guard let plus = mult.rhs as? BinaryOpNode else { return }
+
+        XCTAssertEqual(plus.op, "+")
     }
 
     func testTex() throws {
@@ -201,16 +209,22 @@ class SwiftTexTests: XCTestCase {
         let parser = Parser(tokens: tokens)
         let ast = try parser.parse()
 
-        XCTAssertNotNil(ast.first as? VariableNode)
-        XCTAssertEqual(ast.count, 2)
+        XCTAssertNotNil(ast.first as? BinaryOpNode)
+        XCTAssertEqual(ast.count, 1)
 
-        guard let x = ast.first as? VariableNode else { return }
+        guard let mult = ast.first as? BinaryOpNode else { return }
+
+        XCTAssertNotNil(mult.lhs as? VariableNode)
+
+        guard let x = mult.lhs as? VariableNode else { return }
 
         XCTAssertEqual(x.name, "x")
 
         XCTAssertNotNil(x.subscripts.first as? NumberNode)
 
-        guard let y = ast.last as? VariableNode else { return }
+        XCTAssertNotNil(mult.rhs as? VariableNode)
+
+        guard let y = mult.rhs as? VariableNode else { return }
 
         XCTAssertEqual(y.name, "y")
     }
@@ -232,12 +246,12 @@ class SwiftTexTests: XCTestCase {
 
         XCTAssertEqual(variable.name, "x")
 
-        XCTAssertNotNil(variable.subscripts.first as? BracedNode)
+        XCTAssertNotNil(variable.subscripts.first as? BinaryOpNode)
 
-        guard let sub = ast.first as? BracedNode else { return }
+        guard let sub = variable.subscripts.first as? BinaryOpNode else { return }
 
-        XCTAssertNotNil(sub.expressions.first as? NumberNode)
-        XCTAssertNotNil(sub.expressions.last as? VariableNode)
+        XCTAssertNotNil(sub.lhs as? NumberNode)
+        XCTAssertNotNil(sub.rhs as? VariableNode)
     }
 
     func testSubscript4() throws {
@@ -258,7 +272,7 @@ class SwiftTexTests: XCTestCase {
         XCTAssertEqual(variable.name, "x")
 
         XCTAssertEqual(variable.subscripts.count, 2)
-        XCTAssertNotNil(variable.subscripts.first as? BracedNode)
+        XCTAssertNotNil(variable.subscripts.first as? VariableNode)
         XCTAssertNotNil(variable.subscripts.last as? NumberNode)
     }
 
@@ -272,13 +286,19 @@ class SwiftTexTests: XCTestCase {
         let parser = Parser(tokens: tokens)
         let ast = try parser.parse()
 
-        XCTAssertEqual(ast.count, 2)
+        XCTAssertEqual(ast.count, 1)
 
         XCTAssertNotNil(ast.first as? BinaryOpNode)
-        XCTAssertEqual((ast.first as? BinaryOpNode)?.op, "+")
 
-        XCTAssertNotNil(ast.last as? BinaryOpNode)
-        XCTAssertEqual((ast.last as? BinaryOpNode)?.op, "-")
+        guard let mult = ast.first as? BinaryOpNode else { return }
+
+        XCTAssertEqual(mult.op, "*")
+
+        XCTAssertNotNil(mult.lhs as? BinaryOpNode)
+        XCTAssertEqual((mult.lhs as? BinaryOpNode)?.op, "+")
+
+        XCTAssertNotNil(mult.rhs as? BinaryOpNode)
+        XCTAssertEqual((mult.rhs as? BinaryOpNode)?.op, "-")
     }
 
     func testFraction() throws {
