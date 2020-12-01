@@ -18,6 +18,13 @@ public struct NumberNode: ExprNode {
     }
 }
 
+public struct BracedNode: ExprNode {
+    public let expressions: [ExprNode]
+    public var description: String {
+        return "BracedNode(\(expressions))"
+    }
+}
+
 public struct VariableNode: ExprNode {
     public let name: String
     public let subscripts: [ExprNode]
