@@ -69,13 +69,13 @@ public struct CallNode: ExprNode {
 
 public struct PrototypeNode: CustomStringConvertible {
     public let name: String
-    public let argumentNames: [String]
+    public let argumentNames: [VariableNode]
     public var description: String {
         return "PrototypeNode(name: \(name), argumentNames: \(argumentNames))"
     }
 }
 
-public struct FunctionNode: CustomStringConvertible {
+public struct FunctionNode: ExprNode {
     public let prototype: PrototypeNode
     public let body: ExprNode
     public var description: String {

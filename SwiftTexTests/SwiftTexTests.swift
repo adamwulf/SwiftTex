@@ -375,4 +375,36 @@ class SwiftTexTests: XCTestCase {
         XCTAssertEqual((exp1.lhs as? VariableNode)?.name, "x")
         XCTAssertEqual((exp1.rhs as? VariableNode)?.name, "y")
     }
+
+    func testDefineFunction() throws {
+        let source = multiline(
+            "\\func{ f(x_1) }{ x_1^2 }",
+            "f(4)"
+        )
+
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = try parser.parse()
+
+        XCTAssertNotNil(ast.first as? FunctionNode)
+
+        guard let thunk = ast.first as? FunctionNode else { return }
+
+        XCTAssertEqual(thunk.prototype.name, "f")
+        XCTAssertEqual(thunk.prototype.argumentNames.count, 1)
+
+        guard let arg1 = thunk.prototype.argumentNames.first else { return }
+
+        XCTAssertEqual(arg1.name, "x")
+
+        guard let body = thunk.body as? BracedNode else { return }
+
+        XCTAssertEqual(body.expressions.count, 1)
+
+        guard let expr = body.expressions.first as? BinaryOpNode else { return }
+
+        XCTAssertNotNil(expr.lhs as? VariableNode)
+        XCTAssertNotNil(expr.rhs as? NumberNode)
+    }
 }

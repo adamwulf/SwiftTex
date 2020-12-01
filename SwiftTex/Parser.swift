@@ -121,6 +121,21 @@ class Parser {
             return TexNode(name: name, arguments: [])
         }
 
+        guard
+            name != "\\func"
+        else {
+            // pop the {
+            try popCurrentToken()
+            let prototype = try parsePrototype()
+            let closeBrace = try popCurrentToken()
+            guard Token.Case.BraceClose == closeBrace.type else {
+                throw Errors.UnexpectedToken(token: closeBrace)
+            }
+
+            let body = try parseBraceExpr()
+            return FunctionNode(prototype: prototype, body: body)
+        }
+
         let arguments = try parseBraceList()
 
         if name == "\\frac" {
@@ -139,7 +154,7 @@ class Parser {
 
     }
 
-    func parseIdentifier() throws -> ExprNode {
+    func parseIdentifier() throws -> VariableNode {
         let token = try popCurrentToken()
         guard case let Token.Case.Identifier(name) = token.type else {
             throw Errors.UnexpectedToken(token: token)
@@ -224,12 +239,11 @@ class Parser {
             throw Errors.ExpectedCharacter("(", token: token)
         }
 
-        var argumentNames = [String]()
+        var argumentNames: [VariableNode] = []
         while
             let token = peekCurrentToken(),
             case let Token.Case.Identifier(name) = token.type {
-            try popCurrentToken()
-            argumentNames.append(name)
+            argumentNames.append(try parseIdentifier())
 
             if
                 let token = peekCurrentToken(),
@@ -288,6 +302,11 @@ class Parser {
 
         var nodes = [Any]()
         while index < tokens.count {
+            // ignore line endings between statements
+            while Token.Case.EOL == peekCurrentToken()?.type {
+                try popCurrentToken()
+            }
+
             let expr = try parseExpression()
             nodes.append(expr)
         }
