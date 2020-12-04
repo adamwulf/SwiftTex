@@ -308,6 +308,7 @@ class Parser {
     func parseBinaryOp(node: ExprNode, exprPrecedence: Int = 0) throws -> ExprNode {
         var lhs = node
         while true {
+            try popEOLs()
             let tokenPrecedence = try getCurrentTokenPrecedence()
             if tokenPrecedence < exprPrecedence {
                 return lhs
@@ -325,7 +326,10 @@ class Parser {
                 opToken = Token(type: .Other("*"), line: opToken.line, col: opToken.col, raw: "")
             }
 
+            try popEOLs()
             var rhs = try parsePrimary()
+
+            try popEOLs()
             let nextPrecedence = try getCurrentTokenPrecedence()
 
             if tokenPrecedence < nextPrecedence {
@@ -448,6 +452,11 @@ class Parser {
                 nodes.append(contentsOf: line)
                 line.removeAll()
                 try popCurrentToken()
+            }
+
+            if index >= tokens.count {
+                // we might have only EOLs left
+                break
             }
 
             let expr = try parseExpression()

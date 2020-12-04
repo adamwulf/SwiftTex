@@ -538,7 +538,13 @@ class SwiftTexTests: XCTestCase {
         let parser = Parser(tokens: tokens)
         let ast = try parser.parse()
 
-        XCTAssertNotNil(ast.first as? FunctionNode)
-
+        XCTAssertEqual(ast.count, 7)
+        XCTAssertNotNil(ast[0] as? TexNode)
+        XCTAssertNotNil(ast[1] as? TexNode)
+        XCTAssertNotNil(ast[2] as? TexNode)
+        XCTAssertNotNil(ast[3] as? TexNode)
+        XCTAssertNotNil(ast[4] as? TexNode)
+        XCTAssertNotNil(ast[5] as? TexNode)
+        XCTAssertNotNil(ast[6] as? FunctionNode)
     }
 }

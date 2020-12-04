@@ -99,7 +99,7 @@ public class Lexer {
     public func tokenize() -> [Token] {
         var tokens: [Token] = []
         var content = input
-        var line = 0
+        var line = 1
         var col = 0
 
         while content.lengthOfBytes(using: .utf8) > 0 {
