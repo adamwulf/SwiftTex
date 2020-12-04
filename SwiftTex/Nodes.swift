@@ -9,10 +9,12 @@
 import Foundation
 
 public protocol ExprNode: CustomStringConvertible {
+    var startToken: Token { get }
 }
 
 public struct NumberNode: ExprNode {
     public let value: Float
+    public let startToken: Token
     public var description: String {
         return "NumberNode(\(value))"
     }
@@ -20,6 +22,7 @@ public struct NumberNode: ExprNode {
 
 public struct BracedNode: ExprNode {
     public let expressions: [ExprNode]
+    public let startToken: Token
     public var description: String {
         return "BracedNode(\(expressions))"
     }
@@ -37,6 +40,7 @@ public struct BracedNode: ExprNode {
 public struct VariableNode: ExprNode {
     public let name: String
     public let subscripts: [ExprNode]
+    public let startToken: Token
     public var description: String {
         return "VariableNode(\(name))"
     }
@@ -45,8 +49,28 @@ public struct VariableNode: ExprNode {
 public struct TexNode: ExprNode {
     public let name: String
     public let arguments: [ExprNode]
+    public let startToken: Token
     public var description: String {
         return "TexNode(\(name))"
+    }
+}
+
+public struct TexListNode: ExprNode {
+    public let name: String
+    public let arguments: [String]
+    public let expressions: [ExprNode]
+    public let startToken: Token
+    public var description: String {
+        return "TexListNode(\(name))"
+    }
+
+    public struct TexListSuffix: ExprNode {
+        public let name: String
+        public let arguments: [String]
+        public let startToken: Token
+        public var description: String {
+            return "TexListSuffix(\(name))"
+        }
     }
 }
 
@@ -54,6 +78,7 @@ public struct BinaryOpNode: ExprNode {
     public let op: String
     public let lhs: ExprNode
     public let rhs: ExprNode
+    public let startToken: Token
     public var description: String {
         return "BinaryOpNode(\(op), lhs: \(lhs), rhs: \(rhs))"
     }
@@ -62,6 +87,7 @@ public struct BinaryOpNode: ExprNode {
 public struct CallNode: ExprNode {
     public let callee: VariableNode
     public let arguments: [ExprNode]
+    public let startToken: Token
     public var description: String {
         return "CallNode(name: \(callee), argument: \(arguments))"
     }
@@ -70,6 +96,7 @@ public struct CallNode: ExprNode {
 public struct PrototypeNode: CustomStringConvertible {
     public let name: VariableNode
     public let argumentNames: [VariableNode]
+    public let startToken: Token
     public var description: String {
         return "PrototypeNode(name: \(name), argumentNames: \(argumentNames))"
     }
@@ -78,6 +105,7 @@ public struct PrototypeNode: CustomStringConvertible {
 public struct FunctionNode: ExprNode {
     public let prototype: PrototypeNode
     public let body: ExprNode
+    public let startToken: Token
     public var description: String {
         return "FunctionNode(prototype: \(prototype), body: \(body))"
     }

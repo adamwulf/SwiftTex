@@ -16,6 +16,7 @@
 		C50EE8042575B80600FA85D5 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50EE7FF2575B80600FA85D5 /* Parser.swift */; };
 		C50EE8052575B80600FA85D5 /* Regex.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50EE8002575B80600FA85D5 /* Regex.swift */; };
 		C50EE80B2575B82100FA85D5 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = C50EE80A2575B82100FA85D5 /* README.md */; };
+		C51146432579FACA00256E46 /* simple.mtex in Resources */ = {isa = PBXBuildFile; fileRef = C51146332579F97D00256E46 /* simple.mtex */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -41,6 +42,7 @@
 		C50EE7FF2575B80600FA85D5 /* Parser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
 		C50EE8002575B80600FA85D5 /* Regex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Regex.swift; sourceTree = "<group>"; };
 		C50EE80A2575B82100FA85D5 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		C51146332579F97D00256E46 /* simple.mtex */ = {isa = PBXFileReference; lastKnownFileType = text; path = simple.mtex; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,10 +100,19 @@
 		C50EE7E12575B6D300FA85D5 /* SwiftTexTests */ = {
 			isa = PBXGroup;
 			children = (
+				C51146322579F96B00256E46 /* Test Files */,
 				C50EE7E22575B6D300FA85D5 /* SwiftTexTests.swift */,
 				C50EE7E42575B6D300FA85D5 /* Info.plist */,
 			);
 			path = SwiftTexTests;
+			sourceTree = "<group>";
+		};
+		C51146322579F96B00256E46 /* Test Files */ = {
+			isa = PBXGroup;
+			children = (
+				C51146332579F97D00256E46 /* simple.mtex */,
+			);
+			path = "Test Files";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -205,6 +216,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C51146432579FACA00256E46 /* simple.mtex in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

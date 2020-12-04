@@ -27,6 +27,7 @@ public struct Token {
     let type: Case
     let line: Int
     let col: Int
+    let raw: String
 }
 
 extension Token.Case: Equatable {
@@ -78,16 +79,16 @@ extension Token.Case: Equatable {
 typealias TokenGenerator = (String, Int, Int) -> Token?
 let tokenList: [(String, TokenGenerator)] = [
     ("[ \t]", { _, _, _ in nil }),
-    ("[\n]", { s, l, c in Token(type: .EOL, line: l, col: c) }),
-    ("\\\\[a-zA-Z]+", { s, l, c in Token(type: .Tex(s), line: l, col: c) }),
-    ("[a-zA-Z]+", { s, l, c in Token(type: .Identifier(s), line: l, col: c) }),
-    ("[0-9.]+", { s, l, c in Token(type: .Number((s as NSString).floatValue), line: l, col: c) }),
-    ("\\(", { s, l, c in Token(type: .ParensOpen, line: l, col: c) }),
-    ("\\)", { s, l, c in Token(type: .ParensClose, line: l, col: c) }),
-    ("\\{", { s, l, c in Token(type: .BraceOpen, line: l, col: c) }),
-    ("\\}", { s, l, c in Token(type: .BraceClose, line: l, col: c) }),
-    ("_", { s, l, c in Token(type: .Subscript, line: l, col: c) }),
-    (",", { s, l, c in Token(type: .Comma, line: l, col: c) }),
+    ("[\n]", { s, l, c in Token(type: .EOL, line: l, col: c, raw: s) }),
+    ("\\\\[a-zA-Z]+", { s, l, c in Token(type: .Tex(s), line: l, col: c, raw: s) }),
+    ("[a-zA-Z]+", { s, l, c in Token(type: .Identifier(s), line: l, col: c, raw: s) }),
+    ("[0-9.]+", { s, l, c in Token(type: .Number((s as NSString).floatValue), line: l, col: c, raw: s) }),
+    ("\\(", { s, l, c in Token(type: .ParensOpen, line: l, col: c, raw: s) }),
+    ("\\)", { s, l, c in Token(type: .ParensClose, line: l, col: c, raw: s) }),
+    ("\\{", { s, l, c in Token(type: .BraceOpen, line: l, col: c, raw: s) }),
+    ("\\}", { s, l, c in Token(type: .BraceClose, line: l, col: c, raw: s) }),
+    ("_", { s, l, c in Token(type: .Subscript, line: l, col: c, raw: s) }),
+    (",", { s, l, c in Token(type: .Comma, line: l, col: c, raw: s) }),
 ]
 
 public class Lexer {
@@ -126,7 +127,8 @@ public class Lexer {
 
             if !matched {
                 let index = content.index(after: content.startIndex)
-                tokens.append(Token(type: .Other(String(content[..<index])), line: line, col: col))
+                let str = String(content[..<index])
+                tokens.append(Token(type: .Other(str), line: line, col: col, raw: str))
                 content = String(content[index...])
 
                 col += 1

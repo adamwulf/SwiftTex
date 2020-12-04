@@ -431,4 +431,41 @@ class SwiftTexTests: XCTestCase {
         XCTAssertEqual(call.callee.name, "f")
         XCTAssertNotNil(call.arguments.first as? NumberNode)
     }
+
+    func testBeginEndTex() throws {
+        let source = multiline(
+            "\\begin{align}",
+            "\\func{ f(x_1) }{ x_1^2 }",
+            "\\func{ f(x_1) }{ x_1^3 }",
+            "\\end{align}"
+        )
+
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = try parser.parse()
+
+        XCTAssertNotNil(ast.first as? TexListNode)
+
+        guard let texList = ast.first as? TexListNode else { XCTFail(); return }
+
+        XCTAssertEqual(texList.arguments.count, 1)
+        XCTAssertEqual(texList.expressions.count, 2)
+    }
+
+    func testFileInput() throws {
+        guard
+            let url = Bundle(for: SwiftTexTests.self).url(forResource: "simple", withExtension: "mtex"),
+            let data = FileManager.default.contents(atPath: url.path),
+            let source = String(data: data, encoding: .utf8)
+        else { XCTFail(); return }
+
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = try parser.parse()
+
+        XCTAssertNotNil(ast.first as? FunctionNode)
+
+    }
 }

@@ -16,6 +16,7 @@ enum Errors: Error {
     case ExpectedExpression(token: Token)
     case ExpectedArgumentList(token: Token)
     case ExpectedFunctionName(token: Token)
+    case MismatchedName(token: Token)
     case InvalidArgumentCount(token: Token)
     case InvalidFunctionBody(token: Token)
     case InvalidSubscript(token: Token)
@@ -50,7 +51,7 @@ class Parser {
         else {
             throw Errors.UnexpectedToken(token: token)
         }
-        return NumberNode(value: value)
+        return NumberNode(value: value, startToken: token)
     }
 
     func parseParens() throws -> ExprNode {
@@ -69,6 +70,7 @@ class Parser {
         return exp
     }
 
+    /// Parses a list of braced expressions `{a}{b}{c}`
     func parseBraceList() throws -> [BracedNode] {
         var arguments: [BracedNode] = []
 
@@ -81,6 +83,31 @@ class Parser {
         return arguments
     }
 
+    /// Parses a list of braced expressions `{mumble}{jumble}{bumble}`
+    func parseBraceTextList() throws -> [String] {
+        var arguments: [String] = []
+
+        while
+            let token = peekCurrentToken(),
+            case Token.Case.BraceOpen = token.type {
+            try popCurrentToken()
+            var text = ""
+            while let next = peekCurrentToken(),
+                  next.type != .BraceClose {
+                text += next.raw
+                try popCurrentToken()
+            }
+
+            let closed = try popCurrentToken()
+
+            guard closed.type == Token.Case.BraceClose else { throw Errors.ExpectedCharacter("}", token: closed) }
+            arguments.append(text)
+        }
+
+        return arguments
+    }
+
+    /// Parses a single `{a}`
     func parseBraceExpr() throws -> BracedNode {
         guard let token = peekCurrentToken() else {
             throw Errors.EOF
@@ -110,7 +137,7 @@ class Parser {
         // pop the }
         try popCurrentToken()
 
-        return BracedNode(expressions: condense(expressions) )
+        return BracedNode(expressions: condense(expressions), startToken: token)
     }
 
     func parseTex() throws -> ExprNode {
@@ -119,14 +146,47 @@ class Parser {
             throw Errors.UnexpectedToken(token: token)
         }
 
-        let maybeToken = peekCurrentToken()
-        guard Token.Case.BraceOpen == maybeToken?.type else {
-            return TexNode(name: name, arguments: [])
+        func popEOLs() throws {
+            while Token.Case.EOL == peekCurrentToken()?.type {
+                try popCurrentToken()
+            }
         }
 
-        guard
-            name != "\\func"
-        else {
+        if name == "\\end" {
+            let arguments = try parseBraceTextList()
+
+            return TexListNode.TexListSuffix(name: name, arguments: arguments, startToken: token)
+        } else if name == "\\begin" {
+            let arguments = try parseBraceTextList()
+
+            guard let beginName = arguments.first else { throw Errors.ExpectedArgumentList(token: token)}
+            var expressions: [ExprNode] = []
+
+            repeat {
+                try popEOLs()
+                expressions.append(try parseExpression())
+            } while expressions.last as? TexListNode.TexListSuffix == nil
+
+            guard
+                let endNode = expressions.last as? TexListNode.TexListSuffix,
+                let endName = endNode.arguments.first,
+                endName == beginName
+            else {
+                throw Errors.MismatchedName(token: expressions.last!.startToken )
+            }
+
+            expressions.removeLast()
+
+            return TexListNode(name: beginName, arguments: arguments, expressions: expressions, startToken: token)
+        }
+
+        try popEOLs()
+        let maybeToken = peekCurrentToken()
+        guard Token.Case.BraceOpen == maybeToken?.type else {
+            return TexNode(name: name, arguments: [], startToken: token)
+        }
+
+        if name == "\\func" {
             // pop the {
             let brace = try popCurrentToken()
             let prototype = try parsePrototype()
@@ -141,7 +201,7 @@ class Parser {
             if
                 let body = body.unwrap(),
                 body as? BracedNode == nil {
-                return FunctionNode(prototype: prototype, body: body)
+                return FunctionNode(prototype: prototype, body: body, startToken: token)
             }
 
             throw Errors.InvalidFunctionBody(token: brace)
@@ -158,11 +218,10 @@ class Parser {
                 throw Errors.InvalidArgumentCount(token: token)
             }
 
-            return BinaryOpNode(op: "/", lhs: numerator, rhs: denominator)
+            return BinaryOpNode(op: "/", lhs: numerator, rhs: denominator, startToken: token)
         }
 
-        return TexNode(name: name, arguments: arguments)
-
+        return TexNode(name: name, arguments: arguments, startToken: token)
     }
 
     func parseIdentifier() throws -> VariableNode {
@@ -196,7 +255,7 @@ class Parser {
             }
         }
 
-        return VariableNode(name: name, subscripts: subscripts)
+        return VariableNode(name: name, subscripts: subscripts, startToken: token)
     }
 
     let operatorPrecedence: [String: Int] = [
@@ -245,7 +304,7 @@ class Parser {
             if tokenPrecedence < nextPrecedence {
                 rhs = try parseBinaryOp(node: rhs, exprPrecedence: tokenPrecedence + 1)
             }
-            lhs = BinaryOpNode(op: op, lhs: lhs, rhs: rhs)
+            lhs = BinaryOpNode(op: op, lhs: lhs, rhs: rhs, startToken: token)
         }
     }
 
@@ -283,29 +342,14 @@ class Parser {
         // remove ")"
         try popCurrentToken()
 
-        return PrototypeNode(name: name, argumentNames: argumentNames)
+        return PrototypeNode(name: name, argumentNames: argumentNames, startToken: token)
     }
 
     func parseTopLevelExpr() throws -> FunctionNode {
-        let prototype = PrototypeNode(name: VariableNode(name: "", subscripts: []), argumentNames: [])
         let body = try parseExpression()
-        return FunctionNode(prototype: prototype, body: body)
-    }
-
-    func parsePrimary() throws -> ExprNode {
-        guard let token = peekCurrentToken() else { throw Errors.EOF }
-        switch token.type {
-        case .Tex:
-            return try parseTex()
-        case .Identifier:
-            return try parseIdentifier()
-        case .Number:
-            return try parseNumber()
-        case .ParensOpen:
-            return try parseParens()
-        default:
-            throw Errors.ExpectedExpression(token: token)
-        }
+        let token = body.startToken
+        let prototype = PrototypeNode(name: VariableNode(name: "", subscripts: [], startToken: token), argumentNames: [], startToken: token)
+        return FunctionNode(prototype: prototype, body: body, startToken: token)
     }
 
     func parseCall(function: VariableNode) throws -> ExprNode {
@@ -333,7 +377,23 @@ class Parser {
         // remove ")"
         try popCurrentToken()
 
-        return CallNode(callee: function, arguments: parameters)
+        return CallNode(callee: function, arguments: parameters, startToken: token)
+    }
+
+    func parsePrimary() throws -> ExprNode {
+        guard let token = peekCurrentToken() else { throw Errors.EOF }
+        switch token.type {
+        case .Tex:
+            return try parseTex()
+        case .Identifier:
+            return try parseIdentifier()
+        case .Number:
+            return try parseNumber()
+        case .ParensOpen:
+            return try parseParens()
+        default:
+            throw Errors.ExpectedExpression(token: token)
+        }
     }
 
     func parseExpression() throws -> ExprNode {
@@ -377,7 +437,7 @@ class Parser {
             guard let last = result.last else { return [node] }
             guard last as? FunctionNode == nil else { return result + [node] }
 
-            return Array(result[0..<result.count - 1]) + [BinaryOpNode(op: "*", lhs: last, rhs: node)]
+            return Array(result[0..<result.count - 1]) + [BinaryOpNode(op: "*", lhs: last, rhs: node, startToken: last.startToken)]
         }
     }
 }
