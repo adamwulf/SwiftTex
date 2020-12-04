@@ -45,6 +45,12 @@ class Parser {
         return token
     }
 
+    func popEOLs() throws {
+        while Token.Case.EOL == peekCurrentToken()?.type {
+            try popCurrentToken()
+        }
+    }
+
     func parseNumber() throws -> ExprNode {
         let token = try popCurrentToken()
         guard case let Token.Case.Number(value) = token.type
@@ -78,6 +84,7 @@ class Parser {
             let token = peekCurrentToken(),
             case Token.Case.BraceOpen = token.type {
             arguments.append(try parseBraceExpr())
+            try popEOLs()
         }
 
         return arguments
@@ -126,6 +133,7 @@ class Parser {
                 let token = peekCurrentToken(),
                 Token.Case.BraceClose != token.type {
                 let argument = try parseExpression()
+                try popEOLs()
                 expressions.append(argument)
             }
 
@@ -137,19 +145,13 @@ class Parser {
         // pop the }
         try popCurrentToken()
 
-        return BracedNode(expressions: condense(expressions), startToken: token)
+        return BracedNode(expressions: expressions, startToken: token)
     }
 
     func parseTex() throws -> ExprNode {
         let token = try popCurrentToken()
         guard case let Token.Case.Tex(name) = token.type else {
             throw Errors.UnexpectedToken(token: token)
-        }
-
-        func popEOLs() throws {
-            while Token.Case.EOL == peekCurrentToken()?.type {
-                try popCurrentToken()
-            }
         }
 
         if name == "\\end" {
@@ -189,7 +191,9 @@ class Parser {
         if name == "\\func" {
             // pop the {
             let brace = try popCurrentToken()
+            try popEOLs()
             let prototype = try parsePrototype()
+            try popEOLs()
             let closeBrace = try popCurrentToken()
             guard Token.Case.BraceClose == closeBrace.type else {
                 throw Errors.UnexpectedToken(token: closeBrace)
@@ -197,6 +201,7 @@ class Parser {
 
             functions.append(prototype)
 
+            try popEOLs()
             let body = try parseBraceExpr()
             if
                 let body = body.unwrap(),
@@ -272,17 +277,32 @@ class Parser {
             return -1
         }
 
-        guard let token = peekCurrentToken(),
-              case let Token.Case.Other(op) = token.type
+        guard let token = peekCurrentToken()
         else {
             return -1
         }
 
-        guard let precedence = operatorPrecedence[op] else {
-            throw Errors.UndefinedOperator(op, token: token)
+        if case let Token.Case.Other(op) = token.type {
+            guard let precedence = operatorPrecedence[op] else {
+                throw Errors.UndefinedOperator(op, token: token)
+            }
+            return precedence
         }
 
-        return precedence
+        switch token.type {
+        case Token.Case.Identifier:
+            fallthrough
+        case Token.Case.Number:
+            fallthrough
+        case Token.Case.ParensOpen:
+            let op = "*"
+            guard let precedence = operatorPrecedence[op] else {
+                throw Errors.UndefinedOperator(op, token: token)
+            }
+            return precedence
+        default:
+            return -1
+        }
     }
 
     func parseBinaryOp(node: ExprNode, exprPrecedence: Int = 0) throws -> ExprNode {
@@ -293,9 +313,16 @@ class Parser {
                 return lhs
             }
 
-            let token = try popCurrentToken()
-            guard case let Token.Case.Other(op) = token.type else {
-                throw Errors.UnexpectedToken(token: token)
+            guard var opToken = peekCurrentToken() else { throw Errors.EOF }
+            var op = "*"
+
+            if let opToken = peekCurrentToken(),
+               case let Token.Case.Other(trueOp) = opToken.type {
+                try popCurrentToken()
+                op = trueOp
+            } else {
+                // inferred multiplication
+                opToken = Token(type: .Other("*"), line: opToken.line, col: opToken.col, raw: "")
             }
 
             var rhs = try parsePrimary()
@@ -304,7 +331,7 @@ class Parser {
             if tokenPrecedence < nextPrecedence {
                 rhs = try parseBinaryOp(node: rhs, exprPrecedence: tokenPrecedence + 1)
             }
-            lhs = BinaryOpNode(op: op, lhs: lhs, rhs: rhs, startToken: token)
+            lhs = BinaryOpNode(op: op, lhs: lhs, rhs: rhs, startToken: opToken)
         }
     }
 
@@ -418,7 +445,7 @@ class Parser {
         while index < tokens.count {
             // ignore line endings between statements
             while Token.Case.EOL == peekCurrentToken()?.type {
-                nodes.append(contentsOf: condense(line))
+                nodes.append(contentsOf: line)
                 line.removeAll()
                 try popCurrentToken()
             }
@@ -427,17 +454,8 @@ class Parser {
             line.append(expr)
         }
 
-        nodes.append(contentsOf: condense(line))
+        nodes.append(contentsOf: line)
 
         return nodes
-    }
-
-    func condense(_ expressions: [ExprNode]) -> [ExprNode] {
-        return expressions.reduce([]) { (result, node) -> [ExprNode] in
-            guard let last = result.last else { return [node] }
-            guard last as? FunctionNode == nil else { return result + [node] }
-
-            return Array(result[0..<result.count - 1]) + [BinaryOpNode(op: "*", lhs: last, rhs: node, startToken: last.startToken)]
-        }
     }
 }

@@ -1,4 +1,5 @@
 disabled_rules: # rule identifiers to exclude from running
+  - no_fallthrough_only
   - trailing_comma
   - force_cast
   - identifier_name

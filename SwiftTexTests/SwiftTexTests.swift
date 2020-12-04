@@ -112,6 +112,56 @@ class SwiftTexTests: XCTestCase {
         XCTAssertEqual(plus.op, "+")
     }
 
+    func testImplicitMultiplication() throws {
+        let source = multiline(
+            "2p_{1x}"
+        )
+
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = try parser.parse()
+
+        XCTAssertNotNil(ast.first as? BinaryOpNode)
+
+        guard let plus = ast.first as? BinaryOpNode else { XCTFail(); return }
+
+        XCTAssertEqual(plus.op, "*")
+        XCTAssertEqual((plus.lhs as? NumberNode)?.value, 2)
+        XCTAssertEqual((plus.rhs as? VariableNode)?.name, "p")
+    }
+
+    func testImplicitMultiplication2() throws {
+        let source = multiline(
+            "p_{0x} - 2p_{1x} + p_{2x}"
+        )
+
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = try parser.parse()
+
+        XCTAssertNotNil(ast.first as? BinaryOpNode)
+
+        guard let plus = ast.first as? BinaryOpNode else { XCTFail(); return }
+
+        XCTAssertEqual(plus.op, "+")
+        XCTAssertEqual((plus.lhs as? BinaryOpNode)?.op, "-")
+        XCTAssertEqual((plus.rhs as? VariableNode)?.name, "p")
+
+        guard let minus = plus.lhs as? BinaryOpNode else { XCTFail(); return }
+
+        XCTAssertEqual(minus.op, "-")
+        XCTAssertEqual((minus.lhs as? VariableNode)?.name, "p")
+        XCTAssertEqual((minus.rhs as? BinaryOpNode)?.op, "*")
+
+        guard let mult = minus.rhs as? BinaryOpNode else { XCTFail(); return }
+
+        XCTAssertEqual(mult.op, "*")
+        XCTAssertEqual((mult.lhs as? NumberNode)?.value, 2)
+        XCTAssertEqual((mult.rhs as? VariableNode)?.name, "p")
+    }
+
     func testTex() throws {
         let source = multiline(
             "\\mumble{4}"
@@ -451,6 +501,29 @@ class SwiftTexTests: XCTestCase {
 
         XCTAssertEqual(texList.arguments.count, 1)
         XCTAssertEqual(texList.expressions.count, 2)
+    }
+
+    func testMultilineFunc() throws {
+        let source = multiline(
+            "\\func",
+            "  { f(x_1) }",
+            "  { x_1^2 }"
+        )
+
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = try parser.parse()
+
+        XCTAssertNotNil(ast.first as? FunctionNode)
+
+        guard
+            let texList = ast.first as? FunctionNode
+        else { XCTFail(); return }
+
+        XCTAssertEqual(texList.prototype.name.name, "f")
+        XCTAssertEqual(texList.prototype.argumentNames.count, 1)
+        XCTAssertNotNil(texList.body as? BinaryOpNode)
     }
 
     func testFileInput() throws {
