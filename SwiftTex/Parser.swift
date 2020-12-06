@@ -308,7 +308,7 @@ class Parser {
             }
 
             guard var opToken = peekCurrentToken() else { throw Errors.EOF }
-            var op = "*"
+            var op = " "
 
             if let opToken = peekCurrentToken(),
                case let Token.Case.Other(trueOp) = opToken.type {
@@ -316,7 +316,7 @@ class Parser {
                 op = trueOp
             } else {
                 // inferred multiplication
-                opToken = Token(type: .Other("*"), line: opToken.line, col: opToken.col, raw: "")
+                opToken = Token(type: .Other(op), line: opToken.line, col: opToken.col, raw: op)
             }
 
             var rhs = try parsePrimary()
@@ -326,7 +326,7 @@ class Parser {
             if tokenPrecedence < nextPrecedence {
                 rhs = try parseBinaryOp(node: rhs, exprPrecedence: tokenPrecedence + 1)
             }
-            lhs = BinaryOpNode(op: op, lhs: lhs, rhs: rhs, startToken: opToken)
+            lhs = BinaryOpNode(op: opToken.raw, lhs: lhs, rhs: rhs, startToken: opToken)
         }
     }
 

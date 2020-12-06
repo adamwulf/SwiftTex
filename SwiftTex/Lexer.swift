@@ -78,9 +78,10 @@ extension Token.Case: Equatable {
 
 typealias TokenGenerator = (String, Int, Int) -> Token?
 let tokenList: [(String, TokenGenerator)] = [
-    ("[ \t]", { _, _, _ in nil }),
-    ("[\n][\\s]+", { _, _, _ in nil }),
-    ("[\n]", { s, l, c in Token(type: .EOL, line: l, col: c, raw: s) }),
+    ("\n\n", { s, l, c in Token(type: .EOL, line: l, col: c, raw: s) }),
+    ("[ \t\n]", { _, _, _ in nil }),
+//    ("[\n][\\s]+", { _, _, _ in nil }),
+//    ("[\n]", { s, l, c in Token(type: .EOL, line: l, col: c, raw: s) }),
     ("\\\\[a-zA-Z]+", { s, l, c in Token(type: .Tex(s), line: l, col: c, raw: s) }),
     ("[a-zA-Z]+", { s, l, c in Token(type: .Identifier(s), line: l, col: c, raw: s) }),
     ("[0-9.]+", { s, l, c in Token(type: .Number((s as NSString).floatValue), line: l, col: c, raw: s) }),
@@ -103,11 +104,15 @@ public class Lexer {
         var line = 1
         var col = 0
 
+        while let (_, range) = content.match(regex: "%[^\n]*[ \t\n]*", mustStart: false) {
+            content = (content as NSString).replacingCharacters(in: range, with: "")
+        }
+
         while content.lengthOfBytes(using: .utf8) > 0 {
             var matched = false
 
             for (pattern, generator) in tokenList {
-                if let m = content.match(regex: pattern) {
+                if let (m, _) = content.match(regex: pattern, mustStart: true) {
                     if let t = generator(m, line, col) {
                         tokens.append(t)
 

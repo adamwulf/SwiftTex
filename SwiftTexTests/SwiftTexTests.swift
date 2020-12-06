@@ -83,7 +83,8 @@ class SwiftTexTests: XCTestCase {
 
         guard let mult = ast.first as? BinaryOpNode else { XCTFail(); return }
 
-        XCTAssertEqual(mult.op, "*")
+        // implied multiplication
+        XCTAssertEqual(mult.op, " ")
 
         guard let plus = mult.lhs as? BinaryOpNode else { XCTFail(); return }
 
@@ -105,7 +106,8 @@ class SwiftTexTests: XCTestCase {
 
         guard let mult = ast.first as? BinaryOpNode else { XCTFail(); return }
 
-        XCTAssertEqual(mult.op, "*")
+        // implied multiplication
+        XCTAssertEqual(mult.op, " ")
 
         guard let plus = mult.rhs as? BinaryOpNode else { XCTFail(); return }
 
@@ -126,7 +128,8 @@ class SwiftTexTests: XCTestCase {
 
         guard let plus = ast.first as? BinaryOpNode else { XCTFail(); return }
 
-        XCTAssertEqual(plus.op, "*")
+        // implied multiplication
+        XCTAssertEqual(plus.op, " ")
         XCTAssertEqual((plus.lhs as? NumberNode)?.value, 2)
         XCTAssertEqual((plus.rhs as? VariableNode)?.name, "p")
     }
@@ -153,11 +156,13 @@ class SwiftTexTests: XCTestCase {
 
         XCTAssertEqual(minus.op, "-")
         XCTAssertEqual((minus.lhs as? VariableNode)?.name, "p")
-        XCTAssertEqual((minus.rhs as? BinaryOpNode)?.op, "*")
+        // implied multiplication
+        XCTAssertEqual((minus.rhs as? BinaryOpNode)?.op, " ")
 
         guard let mult = minus.rhs as? BinaryOpNode else { XCTFail(); return }
 
-        XCTAssertEqual(mult.op, "*")
+        // implied multiplication
+        XCTAssertEqual(mult.op, " ")
         XCTAssertEqual((mult.lhs as? NumberNode)?.value, 2)
         XCTAssertEqual((mult.rhs as? VariableNode)?.name, "p")
     }
@@ -342,7 +347,8 @@ class SwiftTexTests: XCTestCase {
 
         guard let mult = ast.first as? BinaryOpNode else { XCTFail(); return }
 
-        XCTAssertEqual(mult.op, "*")
+        // implied multiplication
+        XCTAssertEqual(mult.op, " ")
 
         XCTAssertNotNil(mult.lhs as? BinaryOpNode)
         XCTAssertEqual((mult.lhs as? BinaryOpNode)?.op, "+")
@@ -565,5 +571,24 @@ class SwiftTexTests: XCTestCase {
         XCTAssertNotNil(ast[1] as? VariableNode)
         XCTAssertNotNil(ast[2] as? NumberNode)
         XCTAssertNotNil(ast[3] as? NumberNode)
+    }
+
+    func testLineSplitter() throws {
+        let source = multiline(
+            "This is an % stupid",
+            "% Better: instructive <----",
+            "example Supercal%",
+            "          ifragilist%",
+            "icexpialidocious"
+        )
+
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = try parser.parse()
+
+        XCTAssertNotNil(ast)
+        XCTAssertEqual(tokens.count, 5)
+        XCTAssertEqual(tokens.last!.raw, "Supercalifragilisticexpialidocious")
     }
 }
