@@ -30,7 +30,22 @@ class PrintVisitor: Visitor {
             if case .mult(let implicit) = item.op,
                implicit {
                 // implicit multiplication
-                return "(" + item.lhs.accept(visitor: self) + ")(" + item.rhs.accept(visitor: self) + ")"
+                func needsParens(_ expr: ExprNode) -> Bool {
+                    if let bin = expr as? BinaryOpNode {
+                        return item.op.precedence > bin.op.precedence
+                    }
+                    if item.lhs as? NumberNode != nil,
+                       item.rhs as? NumberNode != nil {
+                        return true
+                    }
+                    return false
+                }
+                let lhs = item.lhs.accept(visitor: self)
+                let rhs = item.rhs.accept(visitor: self)
+                let plhs = needsParens(item.lhs) ? "(\(lhs))" : lhs
+                let prhs = needsParens(item.rhs) ? "(\(rhs))" : rhs
+
+                return plhs + prhs
             } else {
                 func needsParens(_ expr: ExprNode) -> Bool {
                     if let bin = expr as? BinaryOpNode {
