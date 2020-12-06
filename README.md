@@ -51,3 +51,14 @@ f(a) = 9 + 4*3 + 4          \\
 f(a) = 13 + 12              \\
 f(a) = 25                   \\
 $$
+
+
+## Next Items
+
+- Support prefix operators
+
+$$
+f(a) = b^2 * -2bc      \\
+$$
+
+- match newlines followed by spaces/tabs to use line identents to continue previous line, or otherwise solve line endings

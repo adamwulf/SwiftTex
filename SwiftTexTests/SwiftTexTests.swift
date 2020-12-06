@@ -547,4 +547,23 @@ class SwiftTexTests: XCTestCase {
         XCTAssertNotNil(ast[5] as? TexNode)
         XCTAssertNotNil(ast[6] as? FunctionNode)
     }
+
+    func testFileInput2() throws {
+        guard
+            let url = Bundle(for: SwiftTexTests.self).url(forResource: "simple2", withExtension: "mtex"),
+            let data = FileManager.default.contents(atPath: url.path),
+            let source = String(data: data, encoding: .utf8)
+        else { XCTFail(); return }
+
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = try parser.parse()
+
+        XCTAssertEqual(ast.count, 4)
+        XCTAssertNotNil(ast[0] as? VariableNode)
+        XCTAssertNotNil(ast[1] as? VariableNode)
+        XCTAssertNotNil(ast[2] as? NumberNode)
+        XCTAssertNotNil(ast[3] as? NumberNode)
+    }
 }

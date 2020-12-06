@@ -17,6 +17,7 @@
 		C50EE8052575B80600FA85D5 /* Regex.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50EE8002575B80600FA85D5 /* Regex.swift */; };
 		C50EE80B2575B82100FA85D5 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = C50EE80A2575B82100FA85D5 /* README.md */; };
 		C51146432579FACA00256E46 /* simple.mtex in Resources */ = {isa = PBXBuildFile; fileRef = C51146332579F97D00256E46 /* simple.mtex */; };
+		C5114660257A146B00256E46 /* simple2.mtex in Resources */ = {isa = PBXBuildFile; fileRef = C511465F257A146B00256E46 /* simple2.mtex */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,6 +44,7 @@
 		C50EE8002575B80600FA85D5 /* Regex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Regex.swift; sourceTree = "<group>"; };
 		C50EE80A2575B82100FA85D5 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		C51146332579F97D00256E46 /* simple.mtex */ = {isa = PBXFileReference; lastKnownFileType = text; path = simple.mtex; sourceTree = "<group>"; };
+		C511465F257A146B00256E46 /* simple2.mtex */ = {isa = PBXFileReference; lastKnownFileType = text; path = simple2.mtex; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -111,6 +113,7 @@
 			isa = PBXGroup;
 			children = (
 				C51146332579F97D00256E46 /* simple.mtex */,
+				C511465F257A146B00256E46 /* simple2.mtex */,
 			);
 			path = "Test Files";
 			sourceTree = "<group>";
@@ -216,6 +219,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C5114660257A146B00256E46 /* simple2.mtex in Resources */,
 				C51146432579FACA00256E46 /* simple.mtex in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

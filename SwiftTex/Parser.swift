@@ -45,12 +45,6 @@ class Parser {
         return token
     }
 
-    func popEOLs() throws {
-        while Token.Case.EOL == peekCurrentToken()?.type {
-            try popCurrentToken()
-        }
-    }
-
     func parseNumber() throws -> ExprNode {
         let token = try popCurrentToken()
         guard case let Token.Case.Number(value) = token.type
@@ -84,7 +78,6 @@ class Parser {
             let token = peekCurrentToken(),
             case Token.Case.BraceOpen = token.type {
             arguments.append(try parseBraceExpr())
-            try popEOLs()
         }
 
         return arguments
@@ -133,7 +126,6 @@ class Parser {
                 let token = peekCurrentToken(),
                 Token.Case.BraceClose != token.type {
                 let argument = try parseExpression()
-                try popEOLs()
                 expressions.append(argument)
             }
 
@@ -164,10 +156,16 @@ class Parser {
             guard let beginName = arguments.first else { throw Errors.ExpectedArgumentList(token: token)}
             var expressions: [ExprNode] = []
 
-            repeat {
-                try popEOLs()
-                expressions.append(try parseExpression())
-            } while expressions.last as? TexListNode.TexListSuffix == nil
+            while
+                let expression = try parseTopLevelExpression() {
+                expressions.append(expression)
+
+                // add the \end node to our expression list so we can
+                // verify it below and confirm correct begin/end matching
+                if expression as? TexListNode.TexListSuffix != nil {
+                    break
+                }
+            }
 
             guard
                 let endNode = expressions.last as? TexListNode.TexListSuffix,
@@ -182,7 +180,6 @@ class Parser {
             return TexListNode(name: beginName, arguments: arguments, expressions: expressions, startToken: token)
         }
 
-        try popEOLs()
         let maybeToken = peekCurrentToken()
         guard Token.Case.BraceOpen == maybeToken?.type else {
             return TexNode(name: name, arguments: [], startToken: token)
@@ -191,9 +188,7 @@ class Parser {
         if name == "\\func" {
             // pop the {
             let brace = try popCurrentToken()
-            try popEOLs()
             let prototype = try parsePrototype()
-            try popEOLs()
             let closeBrace = try popCurrentToken()
             guard Token.Case.BraceClose == closeBrace.type else {
                 throw Errors.UnexpectedToken(token: closeBrace)
@@ -201,7 +196,6 @@ class Parser {
 
             functions.append(prototype)
 
-            try popEOLs()
             let body = try parseBraceExpr()
             if
                 let body = body.unwrap(),
@@ -308,7 +302,6 @@ class Parser {
     func parseBinaryOp(node: ExprNode, exprPrecedence: Int = 0) throws -> ExprNode {
         var lhs = node
         while true {
-            try popEOLs()
             let tokenPrecedence = try getCurrentTokenPrecedence()
             if tokenPrecedence < exprPrecedence {
                 return lhs
@@ -326,10 +319,8 @@ class Parser {
                 opToken = Token(type: .Other("*"), line: opToken.line, col: opToken.col, raw: "")
             }
 
-            try popEOLs()
             var rhs = try parsePrimary()
 
-            try popEOLs()
             let nextPrecedence = try getCurrentTokenPrecedence()
 
             if tokenPrecedence < nextPrecedence {
@@ -376,7 +367,7 @@ class Parser {
         return PrototypeNode(name: name, argumentNames: argumentNames, startToken: token)
     }
 
-    func parseTopLevelExpr() throws -> FunctionNode {
+    func parseFunction() throws -> FunctionNode {
         let body = try parseExpression()
         let token = body.startToken
         let prototype = PrototypeNode(name: VariableNode(name: "", subscripts: [], startToken: token), argumentNames: [], startToken: token)
@@ -441,29 +432,27 @@ class Parser {
         return try parseBinaryOp(node: node)
     }
 
+    func parseTopLevelExpression() throws -> ExprNode? {
+        // ignore line endings between statements
+        while Token.Case.EOL == peekCurrentToken()?.type {
+            try popCurrentToken()
+        }
+
+        guard peekCurrentToken() != nil else { return nil }
+
+        return try parseExpression()
+    }
+
     func parse() throws -> [Any] {
         index = 0
 
         var nodes: [ExprNode] = []
-        var line: [ExprNode] = []
-        while index < tokens.count {
-            // ignore line endings between statements
-            while Token.Case.EOL == peekCurrentToken()?.type {
-                nodes.append(contentsOf: line)
-                line.removeAll()
-                try popCurrentToken()
-            }
+        while
+            index < tokens.count,
+            let expression = try parseTopLevelExpression() {
 
-            if index >= tokens.count {
-                // we might have only EOLs left
-                break
-            }
-
-            let expr = try parseExpression()
-            line.append(expr)
+            nodes.append(expression)
         }
-
-        nodes.append(contentsOf: line)
 
         return nodes
     }

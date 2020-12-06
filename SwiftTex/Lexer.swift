@@ -79,6 +79,7 @@ extension Token.Case: Equatable {
 typealias TokenGenerator = (String, Int, Int) -> Token?
 let tokenList: [(String, TokenGenerator)] = [
     ("[ \t]", { _, _, _ in nil }),
+    ("[\n][\\s]+", { _, _, _ in nil }),
     ("[\n]", { s, l, c in Token(type: .EOL, line: l, col: c, raw: s) }),
     ("\\\\[a-zA-Z]+", { s, l, c in Token(type: .Tex(s), line: l, col: c, raw: s) }),
     ("[a-zA-Z]+", { s, l, c in Token(type: .Identifier(s), line: l, col: c, raw: s) }),
