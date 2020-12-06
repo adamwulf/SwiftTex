@@ -18,6 +18,8 @@
 		C50EE80B2575B82100FA85D5 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = C50EE80A2575B82100FA85D5 /* README.md */; };
 		C51146432579FACA00256E46 /* simple.mtex in Resources */ = {isa = PBXBuildFile; fileRef = C51146332579F97D00256E46 /* simple.mtex */; };
 		C5114660257A146B00256E46 /* simple2.mtex in Resources */ = {isa = PBXBuildFile; fileRef = C511465F257A146B00256E46 /* simple2.mtex */; };
+		C5AC7A3A257CB44500FD2307 /* PrintVisitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AC7A39257CB44500FD2307 /* PrintVisitor.swift */; };
+		C5AC7A3E257CB58300FD2307 /* VisitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AC7A3D257CB58300FD2307 /* VisitorTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,6 +47,8 @@
 		C50EE80A2575B82100FA85D5 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		C51146332579F97D00256E46 /* simple.mtex */ = {isa = PBXFileReference; lastKnownFileType = text; path = simple.mtex; sourceTree = "<group>"; };
 		C511465F257A146B00256E46 /* simple2.mtex */ = {isa = PBXFileReference; lastKnownFileType = text; path = simple2.mtex; sourceTree = "<group>"; };
+		C5AC7A39257CB44500FD2307 /* PrintVisitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintVisitor.swift; sourceTree = "<group>"; };
+		C5AC7A3D257CB58300FD2307 /* VisitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitorTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,6 +97,7 @@
 				C50EE7FF2575B80600FA85D5 /* Parser.swift */,
 				C50EE8002575B80600FA85D5 /* Regex.swift */,
 				C50EE7FC2575B80600FA85D5 /* String.swift */,
+				C5AC7A39257CB44500FD2307 /* PrintVisitor.swift */,
 				C50EE7D82575B6D300FA85D5 /* Info.plist */,
 				C50EE80A2575B82100FA85D5 /* README.md */,
 			);
@@ -104,6 +109,7 @@
 			children = (
 				C51146322579F96B00256E46 /* Test Files */,
 				C50EE7E22575B6D300FA85D5 /* SwiftTexTests.swift */,
+				C5AC7A3D257CB58300FD2307 /* VisitorTests.swift */,
 				C50EE7E42575B6D300FA85D5 /* Info.plist */,
 			);
 			path = SwiftTexTests;
@@ -254,6 +260,7 @@
 			files = (
 				C50EE8042575B80600FA85D5 /* Parser.swift in Sources */,
 				C50EE8052575B80600FA85D5 /* Regex.swift in Sources */,
+				C5AC7A3A257CB44500FD2307 /* PrintVisitor.swift in Sources */,
 				C50EE8022575B80600FA85D5 /* Lexer.swift in Sources */,
 				C50EE8032575B80600FA85D5 /* Nodes.swift in Sources */,
 				C50EE8012575B80600FA85D5 /* String.swift in Sources */,
@@ -264,6 +271,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C5AC7A3E257CB58300FD2307 /* VisitorTests.swift in Sources */,
 				C50EE7E32575B6D300FA85D5 /* SwiftTexTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

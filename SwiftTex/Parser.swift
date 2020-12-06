@@ -443,7 +443,7 @@ class Parser {
         return try parseExpression()
     }
 
-    func parse() throws -> [Any] {
+    func parse() throws -> [ExprNode] {
         index = 0
 
         var nodes: [ExprNode] = []

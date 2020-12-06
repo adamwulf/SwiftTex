@@ -8,8 +8,24 @@
 
 import Foundation
 
-public protocol ExprNode: CustomStringConvertible {
+public protocol ExprNode: Visitable, CustomStringConvertible {
     var startToken: Token { get }
+}
+
+public protocol Visitor {
+    associatedtype Result
+
+    func visit<ItemType: Visitable>(_ item: ItemType) -> Result
+}
+
+public protocol Visitable {
+    func accept<T: Visitor>(visitor: T) -> T.Result
+}
+
+extension ExprNode {
+    public func accept<T: Visitor>(visitor: T) -> T.Result {
+        return visitor.visit(self)
+    }
 }
 
 public struct NumberNode: ExprNode {
