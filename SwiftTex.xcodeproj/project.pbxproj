@@ -21,6 +21,7 @@
 		C5AC7A3A257CB44500FD2307 /* PrintVisitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AC7A39257CB44500FD2307 /* PrintVisitor.swift */; };
 		C5AC7A3E257CB58300FD2307 /* VisitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AC7A3D257CB58300FD2307 /* VisitorTests.swift */; };
 		C5AC7A42257CC82900FD2307 /* ExprNode+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AC7A41257CC82900FD2307 /* ExprNode+Extensions.swift */; };
+		C5AC7A46257CC9D500FD2307 /* SwapBinaryVisitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AC7A45257CC9D500FD2307 /* SwapBinaryVisitor.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +52,7 @@
 		C5AC7A39257CB44500FD2307 /* PrintVisitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintVisitor.swift; sourceTree = "<group>"; };
 		C5AC7A3D257CB58300FD2307 /* VisitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitorTests.swift; sourceTree = "<group>"; };
 		C5AC7A41257CC82900FD2307 /* ExprNode+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ExprNode+Extensions.swift"; sourceTree = "<group>"; };
+		C5AC7A45257CC9D500FD2307 /* SwapBinaryVisitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapBinaryVisitor.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,6 +102,7 @@
 				C50EE8002575B80600FA85D5 /* Regex.swift */,
 				C50EE7FC2575B80600FA85D5 /* String.swift */,
 				C5AC7A39257CB44500FD2307 /* PrintVisitor.swift */,
+				C5AC7A45257CC9D500FD2307 /* SwapBinaryVisitor.swift */,
 				C5AC7A41257CC82900FD2307 /* ExprNode+Extensions.swift */,
 				C50EE7D82575B6D300FA85D5 /* Info.plist */,
 				C50EE80A2575B82100FA85D5 /* README.md */,
@@ -263,6 +266,7 @@
 			files = (
 				C5AC7A42257CC82900FD2307 /* ExprNode+Extensions.swift in Sources */,
 				C50EE8042575B80600FA85D5 /* Parser.swift in Sources */,
+				C5AC7A46257CC9D500FD2307 /* SwapBinaryVisitor.swift in Sources */,
 				C50EE8052575B80600FA85D5 /* Regex.swift in Sources */,
 				C5AC7A3A257CB44500FD2307 /* PrintVisitor.swift in Sources */,
 				C50EE8022575B80600FA85D5 /* Lexer.swift in Sources */,

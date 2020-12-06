@@ -27,6 +27,31 @@ class VisitorTests: XCTestCase {
         XCTAssertEqual(str, "7 + x")
     }
 
+    func testSimpleSwap() throws {
+        let source = multiline(
+            "7 + x",
+            "",
+            "7 * 3 + x"
+        )
+
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = try parser.parse()
+        let swapVisitor = SwapBinaryVisitor()
+        let printVisitor = PrintVisitor()
+
+        var str = ast.first!.accept(visitor: swapVisitor).accept(visitor: printVisitor)
+
+        XCTAssertNotNil(str)
+        XCTAssertEqual(str, "x + 7")
+
+        str = ast.last!.accept(visitor: swapVisitor).accept(visitor: printVisitor)
+
+        XCTAssertNotNil(str)
+        XCTAssertEqual(str, "x + 3 * 7")
+    }
+
     func testManyBinaryNodes() throws {
         let source = multiline(
             "p_{0x} - 2p_{1x} + p_{2x}"

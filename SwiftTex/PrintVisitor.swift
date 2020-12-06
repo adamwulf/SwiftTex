@@ -14,7 +14,7 @@ class PrintVisitor: Visitor {
         return items.map({ $0.accept(visitor: self) })
     }
 
-    func visit<ItemType>(_ item: ItemType) -> String where ItemType: Visitable {
+    func visit(_ item: ExprNode) -> String {
         switch item {
         case let item as NumberNode:
             let formatter = NumberFormatter()

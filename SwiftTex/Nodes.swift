@@ -15,7 +15,7 @@ public protocol ExprNode: Visitable, CustomStringConvertible {
 public protocol Visitor {
     associatedtype Result
 
-    func visit<ItemType: Visitable>(_ item: ItemType) -> Result
+    func visit(_ item: ExprNode) -> Result
 }
 
 public protocol Visitable {
