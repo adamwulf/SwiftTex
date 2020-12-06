@@ -301,12 +301,9 @@ class SwiftTexTests: XCTestCase {
 
         XCTAssertEqual(variable.name, "x")
 
-        XCTAssertNotNil(variable.subscripts.first as? BinaryOpNode)
-
-        guard let sub = variable.subscripts.first as? BinaryOpNode else { XCTFail(); return }
-
-        XCTAssertNotNil(sub.lhs as? NumberNode)
-        XCTAssertNotNil(sub.rhs as? VariableNode)
+        XCTAssertEqual(variable.subscripts.count, 2)
+        XCTAssertNotNil(variable.subscripts.first as? NumberNode)
+        XCTAssertNotNil(variable.subscripts.last as? VariableNode)
     }
 
     func testSubscript4() throws {

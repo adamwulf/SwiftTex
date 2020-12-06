@@ -59,7 +59,7 @@ class VisitorTests: XCTestCase {
         let str = ast.first!.accept(visitor: printVisitor)
 
         XCTAssertNotNil(str)
-        XCTAssertEqual(str, "p_{0 x} - 2 p_{1 x} + p_{2 x}")
+        XCTAssertEqual(str, "p_{0x} - 2 p_{1x} + p_{2x}")
     }
 
     func testNumberFormatting() throws {

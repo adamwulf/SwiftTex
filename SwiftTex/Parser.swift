@@ -28,9 +28,39 @@ class Parser {
     var index = 0
     var functions: [PrototypeNode] = []
 
+    // MARK: - Settings
+
+    private var settingsStack: [Settings]
+    private var settings: Settings {
+        settingsStack.last!
+    }
+
+    private func pushSettings(_ settings: Settings) {
+        settingsStack.append(settings)
+    }
+
+    private func popSettings() {
+        settingsStack.removeLast()
+    }
+
+    private func useSettings(_ settings: Settings, during block: (() throws -> Void)) throws {
+        pushSettings(settings)
+        try block()
+        popSettings()
+    }
+
+    private struct Settings {
+        let allowImplicitMult: Bool
+    }
+
+    // MARK: - Init
+
     init(tokens: [Token]) {
+        self.settingsStack = [Settings(allowImplicitMult: true)]
         self.tokens = tokens
     }
+
+    // MARK: - Tokens
 
     func peekCurrentToken() -> Token? {
         guard index < tokens.count else { return nil }
@@ -44,6 +74,8 @@ class Parser {
         index += 1
         return token
     }
+
+    // MARK: - Parse Methods
 
     func parseNumber() throws -> ExprNode {
         let token = try popCurrentToken()
@@ -240,11 +272,10 @@ class Parser {
                 throw Errors.EOF
             }
             if Token.Case.BraceOpen == maybeToken.type {
-                let braced = try parseBraceExpr()
-                guard let unwrapped = braced.unwrap() else {
-                    throw Errors.ExpectedExpression(token: token)
+                try useSettings(Settings(allowImplicitMult: false)) {
+                    let braced = try parseBraceExpr()
+                    subscripts = braced.expressions
                 }
-                subscripts.append(unwrapped)
             } else if case Token.Case.Identifier = maybeToken.type {
                 subscripts.append(try parseIdentifier())
             } else if case Token.Case.Number = maybeToken.type {
@@ -282,6 +313,8 @@ class Parser {
             }
             return precedence
         }
+
+        guard settings.allowImplicitMult else { return -1 }
 
         switch token.type {
         case Token.Case.Identifier:
@@ -443,7 +476,9 @@ class Parser {
         return try parseExpression()
     }
 
-    func parse() throws -> [ExprNode] {
+    // MARK: - Public API
+
+    public func parse() throws -> [ExprNode] {
         index = 0
 
         var nodes: [ExprNode] = []
