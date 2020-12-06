@@ -31,7 +31,18 @@ class PrintVisitor: Visitor {
                 // implicit multiplication
                 return "(" + item.lhs.accept(visitor: self) + ")(" + item.rhs.accept(visitor: self) + ")"
             } else {
-                return item.lhs.accept(visitor: self) + " \(item.op) " + item.rhs.accept(visitor: self)
+                func needsParens(_ expr: ExprNode) -> Bool {
+                    if let lhs = expr as? BinaryOpNode,
+                       lhs.op != " " {
+                        return true
+                    }
+                    return false
+                }
+                let lhs = item.lhs.accept(visitor: self)
+                let rhs = item.rhs.accept(visitor: self)
+                let plhs = needsParens(item.lhs) ? "(\(lhs))" : lhs
+                let prhs = needsParens(item.rhs) ? "(\(rhs))" : rhs
+                return plhs + " \(item.op) " + prhs
             }
         case let item as BracedNode:
             return "{ " + self.visit(items: item.expressions).joined(separator: " ") + " }"

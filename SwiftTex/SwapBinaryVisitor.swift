@@ -8,10 +8,6 @@
 import Foundation
 
 class SwapBinaryVisitor: IdentityVisitor {
-    private func visit(items: [ExprNode]) -> [ExprNode] {
-        return items.map({ $0.accept(visitor: self) })
-    }
-
     override func visit(_ item: ExprNode) -> ExprNode {
         switch item {
         case let item as BinaryOpNode:

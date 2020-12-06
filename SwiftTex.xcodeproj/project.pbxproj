@@ -23,6 +23,8 @@
 		C5AC7A42257CC82900FD2307 /* ExprNode+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AC7A41257CC82900FD2307 /* ExprNode+Extensions.swift */; };
 		C5AC7A46257CC9D500FD2307 /* SwapBinaryVisitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AC7A45257CC9D500FD2307 /* SwapBinaryVisitor.swift */; };
 		C5AC7A4A257CCDA000FD2307 /* IdentityVisitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AC7A49257CCDA000FD2307 /* IdentityVisitor.swift */; };
+		C5AC7A4E257CD13700FD2307 /* FoilStepVisitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AC7A4D257CD13700FD2307 /* FoilStepVisitor.swift */; };
+		C5AC7A52257CD28E00FD2307 /* FoilTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AC7A51257CD28E00FD2307 /* FoilTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,6 +57,8 @@
 		C5AC7A41257CC82900FD2307 /* ExprNode+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ExprNode+Extensions.swift"; sourceTree = "<group>"; };
 		C5AC7A45257CC9D500FD2307 /* SwapBinaryVisitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapBinaryVisitor.swift; sourceTree = "<group>"; };
 		C5AC7A49257CCDA000FD2307 /* IdentityVisitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentityVisitor.swift; sourceTree = "<group>"; };
+		C5AC7A4D257CD13700FD2307 /* FoilStepVisitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoilStepVisitor.swift; sourceTree = "<group>"; };
+		C5AC7A51257CD28E00FD2307 /* FoilTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoilTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,6 +109,7 @@
 				C50EE7FC2575B80600FA85D5 /* String.swift */,
 				C5AC7A39257CB44500FD2307 /* PrintVisitor.swift */,
 				C5AC7A45257CC9D500FD2307 /* SwapBinaryVisitor.swift */,
+				C5AC7A4D257CD13700FD2307 /* FoilStepVisitor.swift */,
 				C5AC7A49257CCDA000FD2307 /* IdentityVisitor.swift */,
 				C5AC7A41257CC82900FD2307 /* ExprNode+Extensions.swift */,
 				C50EE7D82575B6D300FA85D5 /* Info.plist */,
@@ -119,6 +124,7 @@
 				C51146322579F96B00256E46 /* Test Files */,
 				C50EE7E22575B6D300FA85D5 /* SwiftTexTests.swift */,
 				C5AC7A3D257CB58300FD2307 /* VisitorTests.swift */,
+				C5AC7A51257CD28E00FD2307 /* FoilTests.swift */,
 				C50EE7E42575B6D300FA85D5 /* Info.plist */,
 			);
 			path = SwiftTexTests;
@@ -267,6 +273,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C5AC7A4E257CD13700FD2307 /* FoilStepVisitor.swift in Sources */,
 				C5AC7A42257CC82900FD2307 /* ExprNode+Extensions.swift in Sources */,
 				C50EE8042575B80600FA85D5 /* Parser.swift in Sources */,
 				C5AC7A46257CC9D500FD2307 /* SwapBinaryVisitor.swift in Sources */,
@@ -283,6 +290,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C5AC7A52257CD28E00FD2307 /* FoilTests.swift in Sources */,
 				C5AC7A3E257CB58300FD2307 /* VisitorTests.swift in Sources */,
 				C50EE7E32575B6D300FA85D5 /* SwiftTexTests.swift in Sources */,
 			);
