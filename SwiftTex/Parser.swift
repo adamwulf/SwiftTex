@@ -452,14 +452,14 @@ class Parser {
     }
 
     func parseExpression() throws -> ExprNode {
-        let node = try parsePrimary()
+        var node = try parsePrimary()
+
+        guard node as? FunctionNode == nil else { return node }
 
         if
             let function = node as? VariableNode,
             functions.contains(where: { $0.name.name == function.name }) {
-            return try parseCall(function: function)
-        } else if node as? FunctionNode != nil {
-            return node
+            node = try parseCall(function: function)
         }
 
         return try parseBinaryOp(node: node)

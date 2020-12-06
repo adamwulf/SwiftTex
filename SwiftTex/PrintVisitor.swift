@@ -27,12 +27,25 @@ class PrintVisitor: Visitor {
                 return item.name + "_{" + self.visit(items: item.subscripts).joined() + "}"
             }
         case let item as BinaryOpNode:
-            let op = item.op == " " ? item.op : " \(item.op) "
-            return item.lhs.accept(visitor: self) + op + item.rhs.accept(visitor: self)
+            if item.op == " " {
+                // implicit multiplication
+                return "(" + item.lhs.accept(visitor: self) + ")(" + item.rhs.accept(visitor: self) + ")"
+            } else {
+                return item.lhs.accept(visitor: self) + " \(item.op) " + item.rhs.accept(visitor: self)
+            }
         case let item as BracedNode:
             return "{ " + self.visit(items: item.expressions).joined(separator: " ") + " }"
         case let item as TexNode:
             return "\\\(item.name)" + self.visit(items: item.arguments).map({ "{ \($0) }" }).joined()
+        case let item as FunctionNode:
+            let name = item.prototype.name.accept(visitor: self)
+            let args = self.visit(items: item.prototype.argumentNames).joined(separator: ", ")
+            let body = item.body.accept(visitor: self)
+            return "\(name)(\(args)) = \(body)"
+        case let item as CallNode:
+            let name = item.callee.accept(visitor: self)
+            let args = self.visit(items: item.arguments).joined(separator: ", ")
+            return "\(name)(\(args))"
         default:
             return "\\undefined{ \(String(describing: type(of: item))) }"
         }

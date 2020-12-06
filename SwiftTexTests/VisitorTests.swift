@@ -41,7 +41,7 @@ class VisitorTests: XCTestCase {
         let str = ast.first!.accept(visitor: printVisitor)
 
         XCTAssertNotNil(str)
-        XCTAssertEqual(str, "p - 2 p + p")
+        XCTAssertEqual(str, "p - (2)(p) + p")
     }
 
     func testWithSubscripts() throws {
@@ -59,7 +59,7 @@ class VisitorTests: XCTestCase {
         let str = ast.first!.accept(visitor: printVisitor)
 
         XCTAssertNotNil(str)
-        XCTAssertEqual(str, "p_{0x} - 2 p_{1x} + p_{2x}")
+        XCTAssertEqual(str, "p_{0x} - (2)(p_{1x}) + p_{2x}")
     }
 
     func testNumberFormatting() throws {
@@ -78,5 +78,29 @@ class VisitorTests: XCTestCase {
 
         XCTAssertNotNil(str)
         XCTAssertEqual(str, "2 + 2.0 + 2.02 + 2.000 + 123")
+    }
+
+    func testFunctionFormatting() throws {
+        let source = multiline(
+            "\\func{ f(x) }{ x^2 }",
+            "f(2) + g(3)"
+        )
+
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = try parser.parse()
+        let printVisitor = PrintVisitor()
+        printVisitor.ignoreSubscripts = false
+
+        var str = ast.first!.accept(visitor: printVisitor)
+
+        XCTAssertNotNil(str)
+        XCTAssertEqual(str, "f(x) = x ^ 2")
+
+        str = ast.last!.accept(visitor: printVisitor)
+
+        XCTAssertNotNil(str)
+        XCTAssertEqual(str, "f(2) + (g)(3)")
     }
 }
