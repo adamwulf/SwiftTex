@@ -12,7 +12,7 @@ public struct Token {
     public enum Case {
         case Tex(String)
         case Identifier(String)
-        case Number(Float)
+        case Number(String)
         case ParensOpen
         case ParensClose
         case BraceOpen
@@ -84,7 +84,7 @@ let tokenList: [(String, TokenGenerator)] = [
 //    ("[\n]", { s, l, c in Token(type: .EOL, line: l, col: c, raw: s) }),
     ("\\\\[a-zA-Z]+", { s, l, c in Token(type: .Tex(s), line: l, col: c, raw: s) }),
     ("[a-zA-Z]+", { s, l, c in Token(type: .Identifier(s), line: l, col: c, raw: s) }),
-    ("[0-9.]+", { s, l, c in Token(type: .Number((s as NSString).floatValue), line: l, col: c, raw: s) }),
+    ("[0-9]+\\.?[0-9]*", { s, l, c in Token(type: .Number(s), line: l, col: c, raw: s) }),
     ("\\(", { s, l, c in Token(type: .ParensOpen, line: l, col: c, raw: s) }),
     ("\\)", { s, l, c in Token(type: .ParensClose, line: l, col: c, raw: s) }),
     ("\\{", { s, l, c in Token(type: .BraceOpen, line: l, col: c, raw: s) }),

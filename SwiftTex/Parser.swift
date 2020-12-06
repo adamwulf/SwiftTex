@@ -51,7 +51,7 @@ class Parser {
         else {
             throw Errors.UnexpectedToken(token: token)
         }
-        return NumberNode(value: value, startToken: token)
+        return NumberNode(string: value, startToken: token)
     }
 
     func parseParens() throws -> ExprNode {

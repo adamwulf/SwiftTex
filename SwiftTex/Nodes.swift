@@ -29,8 +29,19 @@ extension ExprNode {
 }
 
 public struct NumberNode: ExprNode {
-    public let value: Float
+    public let string: String
     public let startToken: Token
+    public var value: Float {
+        (string as NSString).floatValue
+    }
+    public var fractionalDigits: Int {
+        guard let bound = string.range(of: ".")?.upperBound else { return 0 }
+        return string.utf8.distance(from: bound, to: string.endIndex)
+    }
+    public var integerDigits: Int {
+        guard let bound = string.range(of: ".")?.lowerBound else { return 0 }
+        return string.utf8.distance(from: string.startIndex, to: bound)
+    }
     public var description: String {
         return "NumberNode(\(value))"
     }

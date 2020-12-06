@@ -24,7 +24,7 @@ class VisitorTests: XCTestCase {
         let str = ast.first!.accept(visitor: printVisitor)
 
         XCTAssertNotNil(str)
-        XCTAssertEqual(str, "7.0 + x")
+        XCTAssertEqual(str, "7 + x")
     }
 
     func testManyBinaryNodes() throws {
@@ -41,7 +41,7 @@ class VisitorTests: XCTestCase {
         let str = ast.first!.accept(visitor: printVisitor)
 
         XCTAssertNotNil(str)
-        XCTAssertEqual(str, "p - 2.0 p + p")
+        XCTAssertEqual(str, "p - 2 p + p")
     }
 
     func testWithSubscripts() throws {
@@ -59,6 +59,24 @@ class VisitorTests: XCTestCase {
         let str = ast.first!.accept(visitor: printVisitor)
 
         XCTAssertNotNil(str)
-        XCTAssertEqual(str, "p_{0.0 x} - 2.0 p_{1.0 x} + p_{2.0 x}")
+        XCTAssertEqual(str, "p_{0 x} - 2 p_{1 x} + p_{2 x}")
+    }
+
+    func testNumberFormatting() throws {
+        let source = multiline(
+            "2 + 2.0 + 2.02 + 2.000 + 123"
+        )
+
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = try parser.parse()
+        let printVisitor = PrintVisitor()
+        printVisitor.ignoreSubscripts = false
+
+        let str = ast.first!.accept(visitor: printVisitor)
+
+        XCTAssertNotNil(str)
+        XCTAssertEqual(str, "2 + 2.0 + 2.02 + 2.000 + 123")
     }
 }

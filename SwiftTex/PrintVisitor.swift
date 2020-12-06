@@ -17,7 +17,9 @@ class PrintVisitor: Visitor {
     func visit<ItemType>(_ item: ItemType) -> String where ItemType: Visitable {
         switch item {
         case let item as NumberNode:
-            return "\(item.value)"
+            let formatter = NumberFormatter()
+            formatter.minimumFractionDigits = item.fractionalDigits
+            return formatter.string(from: item.value as NSNumber) ?? "\\formatError{\(item.value)}"
         case let item as VariableNode:
             if ignoreSubscripts || item.subscripts.isEmpty {
                 return item.name
