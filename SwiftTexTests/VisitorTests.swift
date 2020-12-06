@@ -102,5 +102,9 @@ class VisitorTests: XCTestCase {
 
         XCTAssertNotNil(str)
         XCTAssertEqual(str, "f(2) + (g)(3)")
+
+        let strs = ast.accept(visitor: printVisitor).joined(separator: "\n\n")
+
+        XCTAssertEqual(strs, "f(x) = x ^ 2\n\nf(2) + (g)(3)")
     }
 }
