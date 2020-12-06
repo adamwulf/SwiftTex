@@ -249,7 +249,7 @@ class Parser {
                 throw Errors.InvalidArgumentCount(token: token)
             }
 
-            return BinaryOpNode(op: "/", lhs: numerator, rhs: denominator, startToken: token)
+            return BinaryOpNode(op: .div, lhs: numerator, rhs: denominator, startToken: token)
         }
 
         return TexNode(name: name, arguments: arguments, startToken: token)
@@ -307,11 +307,8 @@ class Parser {
             return -1
         }
 
-        if case let Token.Case.Other(op) = token.type {
-            guard let precedence = operatorPrecedence[op] else {
-                throw Errors.UndefinedOperator(op, token: token)
-            }
-            return precedence
+        if case let Token.Case.Operator(op) = token.type {
+            return op.precedence
         }
 
         guard settings.allowImplicitMult else { return -1 }
@@ -322,11 +319,7 @@ class Parser {
         case Token.Case.Number:
             fallthrough
         case Token.Case.ParensOpen:
-            let op = "*"
-            guard let precedence = operatorPrecedence[op] else {
-                throw Errors.UndefinedOperator(op, token: token)
-            }
-            return precedence
+            return Token.Symbol.mult(implicit: true).precedence
         default:
             return -1
         }
@@ -341,15 +334,15 @@ class Parser {
             }
 
             guard var opToken = peekCurrentToken() else { throw Errors.EOF }
-            var op = " "
+            var op = Token.Symbol.mult(implicit: true)
 
             if let opToken = peekCurrentToken(),
-               case let Token.Case.Other(trueOp) = opToken.type {
+               case let Token.Case.Operator(trueOp) = opToken.type {
                 try popCurrentToken()
                 op = trueOp
             } else {
                 // inferred multiplication
-                opToken = Token(type: .Other(op), line: opToken.line, col: opToken.col, raw: op)
+                opToken = Token(type: .Operator(op), line: opToken.line, col: opToken.col, raw: op.rawValue)
             }
 
             var rhs = try parsePrimary()
@@ -359,7 +352,7 @@ class Parser {
             if tokenPrecedence < nextPrecedence {
                 rhs = try parseBinaryOp(node: rhs, exprPrecedence: tokenPrecedence + 1)
             }
-            lhs = BinaryOpNode(op: opToken.raw, lhs: lhs, rhs: rhs, startToken: opToken)
+            lhs = BinaryOpNode(op: op, lhs: lhs, rhs: rhs, startToken: opToken)
         }
     }
 

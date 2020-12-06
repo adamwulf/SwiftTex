@@ -102,7 +102,7 @@ public struct TexListNode: ExprNode {
 }
 
 public struct BinaryOpNode: ExprNode {
-    public let op: String
+    public let op: Token.Symbol
     public let lhs: ExprNode
     public let rhs: ExprNode
     public let startToken: Token

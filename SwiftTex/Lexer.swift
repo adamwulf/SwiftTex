@@ -9,6 +9,53 @@
 import Foundation
 
 public struct Token {
+    public enum Symbol {
+        case plus
+        case minus
+        case mult(implicit: Bool = false)
+        case div
+        case exp
+        case equal
+
+        static func from(_ str: String) -> Symbol? {
+            switch str {
+            case "+":
+                return Symbol.plus
+            case "-":
+                return Symbol.minus
+            case "*":
+                return Symbol.mult(implicit: false)
+            case " ":
+                return Symbol.mult(implicit: true)
+            case "/":
+                return Symbol.div
+            case "^":
+                return Symbol.exp
+            case "=":
+                return Symbol.equal
+            default:
+                return nil
+            }
+        }
+
+        var rawValue: String {
+            switch self {
+            case .plus:
+                return "+"
+            case .minus:
+                return "-"
+            case let .mult(implicit):
+                return implicit ? " " : "*"
+            case .div:
+                return "/"
+            case .exp:
+                return "^"
+            case .equal:
+                return "="
+            }
+        }
+    }
+
     public enum Case {
         case Tex(String)
         case Identifier(String)
@@ -19,6 +66,7 @@ public struct Token {
         case BraceClose
         case Subscript
         case Comma
+        case Operator(Symbol)
         case Other(String)
         case EOF
         case EOL
@@ -28,52 +76,6 @@ public struct Token {
     let line: Int
     let col: Int
     let raw: String
-}
-
-extension Token.Case: Equatable {
-    static public func != (lhs: Token.Case, rhs: Token.Case) -> Bool {
-        return !(lhs == rhs)
-    }
-
-    static public func == (lhs: Token.Case, rhs: Token.Case) -> Bool {
-        if case Tex(let a) = lhs, case Tex(let b) = rhs {
-            return a == b
-        }
-        if case Identifier(let a) = lhs, case Identifier(let b) = rhs {
-            return a == b
-        }
-        if case Number(let a) = lhs, case Number(let b) = rhs {
-            return a == b
-        }
-        if case Other(let a) = lhs, case Other(let b) = rhs {
-            return a == b
-        }
-        if case ParensOpen = lhs, case ParensOpen = rhs {
-            return true
-        }
-        if case ParensClose = lhs, case ParensClose = rhs {
-            return true
-        }
-        if case BraceOpen = lhs, case BraceOpen = rhs {
-            return true
-        }
-        if case BraceClose = lhs, case BraceClose = rhs {
-            return true
-        }
-        if case Subscript = lhs, case Subscript = rhs {
-            return true
-        }
-        if case Comma = lhs, case Comma = rhs {
-            return true
-        }
-        if case EOF = lhs, case EOF = rhs {
-            return true
-        }
-        if case EOL = lhs, case EOL = rhs {
-            return true
-        }
-        return false
-    }
 }
 
 typealias TokenGenerator = (String, Int, Int) -> Token?
@@ -91,6 +93,7 @@ let tokenList: [(String, TokenGenerator)] = [
     ("\\}", { s, l, c in Token(type: .BraceClose, line: l, col: c, raw: s) }),
     ("_", { s, l, c in Token(type: .Subscript, line: l, col: c, raw: s) }),
     (",", { s, l, c in Token(type: .Comma, line: l, col: c, raw: s) }),
+    ("[\\+\\-\\*/\\^=]", { s, l, c in Token(type: .Operator(Token.Symbol.from(s)!), line: l, col: c, raw: s) }),
 ]
 
 public class Lexer {

@@ -25,7 +25,7 @@ class SwiftTexTests: XCTestCase {
 
         guard let plus = ast.first as? BinaryOpNode else { XCTFail(); return }
 
-        XCTAssertEqual(plus.op, "+")
+        XCTAssertEqual(plus.op, .plus)
         XCTAssertEqual((plus.lhs as? VariableNode)?.name, "x")
         XCTAssertEqual((plus.rhs as? VariableNode)?.name, "y")
     }
@@ -46,7 +46,7 @@ class SwiftTexTests: XCTestCase {
 
         guard let plus = ast.first as? BinaryOpNode else { XCTFail(); return }
 
-        XCTAssertEqual(plus.op, "+")
+        XCTAssertEqual(plus.op, .plus)
     }
 
     func testOrderOfOps2() throws {
@@ -65,7 +65,7 @@ class SwiftTexTests: XCTestCase {
 
         guard let plus = ast.first as? BinaryOpNode else { XCTFail(); return }
 
-        XCTAssertEqual(plus.op, "+")
+        XCTAssertEqual(plus.op, .plus)
     }
 
     func testParen() throws {
@@ -83,12 +83,11 @@ class SwiftTexTests: XCTestCase {
 
         guard let mult = ast.first as? BinaryOpNode else { XCTFail(); return }
 
-        // implied multiplication
-        XCTAssertEqual(mult.op, " ")
+        XCTAssertEqual(mult.op, .mult(implicit: true))
 
         guard let plus = mult.lhs as? BinaryOpNode else { XCTFail(); return }
 
-        XCTAssertEqual(plus.op, "+")
+        XCTAssertEqual(plus.op, .plus)
     }
 
     func testParen2() throws {
@@ -106,12 +105,11 @@ class SwiftTexTests: XCTestCase {
 
         guard let mult = ast.first as? BinaryOpNode else { XCTFail(); return }
 
-        // implied multiplication
-        XCTAssertEqual(mult.op, " ")
+        XCTAssertEqual(mult.op, .mult(implicit: true))
 
         guard let plus = mult.rhs as? BinaryOpNode else { XCTFail(); return }
 
-        XCTAssertEqual(plus.op, "+")
+        XCTAssertEqual(plus.op, .plus)
     }
 
     func testImplicitMultiplication() throws {
@@ -128,8 +126,7 @@ class SwiftTexTests: XCTestCase {
 
         guard let plus = ast.first as? BinaryOpNode else { XCTFail(); return }
 
-        // implied multiplication
-        XCTAssertEqual(plus.op, " ")
+        XCTAssertEqual(plus.op, .mult(implicit: true))
         XCTAssertEqual((plus.lhs as? NumberNode)?.value, 2)
         XCTAssertEqual((plus.rhs as? VariableNode)?.name, "p")
     }
@@ -148,21 +145,19 @@ class SwiftTexTests: XCTestCase {
 
         guard let plus = ast.first as? BinaryOpNode else { XCTFail(); return }
 
-        XCTAssertEqual(plus.op, "+")
-        XCTAssertEqual((plus.lhs as? BinaryOpNode)?.op, "-")
+        XCTAssertEqual(plus.op, .plus)
+        XCTAssertEqual((plus.lhs as? BinaryOpNode)?.op, .minus)
         XCTAssertEqual((plus.rhs as? VariableNode)?.name, "p")
 
         guard let minus = plus.lhs as? BinaryOpNode else { XCTFail(); return }
 
-        XCTAssertEqual(minus.op, "-")
+        XCTAssertEqual(minus.op, .minus)
         XCTAssertEqual((minus.lhs as? VariableNode)?.name, "p")
-        // implied multiplication
-        XCTAssertEqual((minus.rhs as? BinaryOpNode)?.op, " ")
+        XCTAssertEqual((minus.rhs as? BinaryOpNode)?.op, .mult(implicit: true))
 
         guard let mult = minus.rhs as? BinaryOpNode else { XCTFail(); return }
 
-        // implied multiplication
-        XCTAssertEqual(mult.op, " ")
+        XCTAssertEqual(mult.op, .mult(implicit: true))
         XCTAssertEqual((mult.lhs as? NumberNode)?.value, 2)
         XCTAssertEqual((mult.rhs as? VariableNode)?.name, "p")
     }
@@ -345,13 +340,13 @@ class SwiftTexTests: XCTestCase {
         guard let mult = ast.first as? BinaryOpNode else { XCTFail(); return }
 
         // implied multiplication
-        XCTAssertEqual(mult.op, " ")
+        XCTAssertEqual(mult.op, .mult(implicit: true))
 
         XCTAssertNotNil(mult.lhs as? BinaryOpNode)
-        XCTAssertEqual((mult.lhs as? BinaryOpNode)?.op, "+")
+        XCTAssertEqual((mult.lhs as? BinaryOpNode)?.op, .plus)
 
         XCTAssertNotNil(mult.rhs as? BinaryOpNode)
-        XCTAssertEqual((mult.rhs as? BinaryOpNode)?.op, "-")
+        XCTAssertEqual((mult.rhs as? BinaryOpNode)?.op, .minus)
     }
 
     func testFraction() throws {
@@ -370,11 +365,11 @@ class SwiftTexTests: XCTestCase {
 
         guard let frac = ast.first as? BinaryOpNode else { XCTFail(); return }
 
-        XCTAssertEqual(frac.op, "/")
+        XCTAssertEqual(frac.op, .div)
         XCTAssertNotNil(frac.lhs as? BinaryOpNode)
-        XCTAssertEqual((frac.lhs as? BinaryOpNode)?.op, "+")
+        XCTAssertEqual((frac.lhs as? BinaryOpNode)?.op, .plus)
         XCTAssertNotNil(frac.rhs as? BinaryOpNode)
-        XCTAssertEqual((frac.rhs as? BinaryOpNode)?.op, "-")
+        XCTAssertEqual((frac.rhs as? BinaryOpNode)?.op, .minus)
     }
 
     func testExponent() throws {
@@ -392,7 +387,7 @@ class SwiftTexTests: XCTestCase {
 
         guard let exp = ast.first as? BinaryOpNode else { XCTFail(); return }
 
-        XCTAssertEqual(exp.op, "^")
+        XCTAssertEqual(exp.op, .exp)
         XCTAssertEqual((exp.lhs as? VariableNode)?.name, "x")
         XCTAssertEqual((exp.rhs as? VariableNode)?.name, "y")
     }
@@ -412,13 +407,13 @@ class SwiftTexTests: XCTestCase {
 
         guard let plus = ast.first as? BinaryOpNode else { XCTFail(); return }
 
-        XCTAssertEqual(plus.op, "+")
+        XCTAssertEqual(plus.op, .plus)
         XCTAssertNotNil(plus.lhs as? BinaryOpNode)
         XCTAssertEqual((plus.rhs as? NumberNode)?.value, 2)
 
         guard let exp = plus.lhs as? BinaryOpNode else { XCTFail(); return }
 
-        XCTAssertEqual(exp.op, "^")
+        XCTAssertEqual(exp.op, .exp)
         XCTAssertEqual((exp.lhs as? VariableNode)?.name, "x")
         XCTAssertEqual((exp.rhs as? VariableNode)?.name, "y")
     }
@@ -438,13 +433,13 @@ class SwiftTexTests: XCTestCase {
 
         guard let exp2 = ast.first as? BinaryOpNode else { XCTFail(); return }
 
-        XCTAssertEqual(exp2.op, "^")
+        XCTAssertEqual(exp2.op, .exp)
         XCTAssertNotNil(exp2.lhs as? BinaryOpNode)
         XCTAssertEqual((exp2.rhs as? VariableNode)?.name, "z")
 
         guard let exp1 = exp2.lhs as? BinaryOpNode else { XCTFail(); return }
 
-        XCTAssertEqual(exp1.op, "^")
+        XCTAssertEqual(exp1.op, .exp)
         XCTAssertEqual((exp1.lhs as? VariableNode)?.name, "x")
         XCTAssertEqual((exp1.rhs as? VariableNode)?.name, "y")
     }

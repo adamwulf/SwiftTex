@@ -24,6 +24,6 @@ class FoilTests: XCTestCase {
         let str = ast.first!.accept(visitor: foilVisitor).accept(visitor: printVisitor)
 
         XCTAssertNotNil(str)
-        XCTAssertEqual(str, "((x * x) + (x * 2)) + ((1 * x) + (1 * 2))")
+        XCTAssertEqual(str, "x * x + x * 2 + 1 * x + 1 * 2")
     }
 }

@@ -27,14 +27,14 @@ class PrintVisitor: Visitor {
                 return item.name + "_{" + self.visit(items: item.subscripts).joined() + "}"
             }
         case let item as BinaryOpNode:
-            if item.op == " " {
+            if case .mult(let implicit) = item.op,
+               implicit {
                 // implicit multiplication
                 return "(" + item.lhs.accept(visitor: self) + ")(" + item.rhs.accept(visitor: self) + ")"
             } else {
                 func needsParens(_ expr: ExprNode) -> Bool {
-                    if let lhs = expr as? BinaryOpNode,
-                       lhs.op != " " {
-                        return true
+                    if let bin = expr as? BinaryOpNode {
+                        return item.op.precedence > bin.op.precedence
                     }
                     return false
                 }
@@ -42,7 +42,7 @@ class PrintVisitor: Visitor {
                 let rhs = item.rhs.accept(visitor: self)
                 let plhs = needsParens(item.lhs) ? "(\(lhs))" : lhs
                 let prhs = needsParens(item.rhs) ? "(\(rhs))" : rhs
-                return plhs + " \(item.op) " + prhs
+                return plhs + " \(item.op.rawValue) " + prhs
             }
         case let item as BracedNode:
             return "{ " + self.visit(items: item.expressions).joined(separator: " ") + " }"

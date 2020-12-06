@@ -25,6 +25,7 @@
 		C5AC7A4A257CCDA000FD2307 /* IdentityVisitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AC7A49257CCDA000FD2307 /* IdentityVisitor.swift */; };
 		C5AC7A4E257CD13700FD2307 /* FoilStepVisitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AC7A4D257CD13700FD2307 /* FoilStepVisitor.swift */; };
 		C5AC7A52257CD28E00FD2307 /* FoilTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AC7A51257CD28E00FD2307 /* FoilTests.swift */; };
+		C5AC7A58257CD9A600FD2307 /* Lexer+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AC7A57257CD9A600FD2307 /* Lexer+Extensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,6 +60,7 @@
 		C5AC7A49257CCDA000FD2307 /* IdentityVisitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentityVisitor.swift; sourceTree = "<group>"; };
 		C5AC7A4D257CD13700FD2307 /* FoilStepVisitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoilStepVisitor.swift; sourceTree = "<group>"; };
 		C5AC7A51257CD28E00FD2307 /* FoilTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoilTests.swift; sourceTree = "<group>"; };
+		C5AC7A57257CD9A600FD2307 /* Lexer+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Lexer+Extensions.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,6 +105,7 @@
 			children = (
 				C50EE7D72575B6D300FA85D5 /* SwiftTex.h */,
 				C50EE7FD2575B80600FA85D5 /* Lexer.swift */,
+				C5AC7A57257CD9A600FD2307 /* Lexer+Extensions.swift */,
 				C50EE7FE2575B80600FA85D5 /* Nodes.swift */,
 				C50EE7FF2575B80600FA85D5 /* Parser.swift */,
 				C50EE8002575B80600FA85D5 /* Regex.swift */,
@@ -282,6 +285,7 @@
 				C5AC7A3A257CB44500FD2307 /* PrintVisitor.swift in Sources */,
 				C50EE8022575B80600FA85D5 /* Lexer.swift in Sources */,
 				C50EE8032575B80600FA85D5 /* Nodes.swift in Sources */,
+				C5AC7A58257CD9A600FD2307 /* Lexer+Extensions.swift in Sources */,
 				C50EE8012575B80600FA85D5 /* String.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
