@@ -69,6 +69,29 @@ class VisitorTests: XCTestCase {
         XCTAssertEqual(str, "p - (2)(p) + p")
     }
 
+    func testTexList() throws {
+        let source = multiline(
+            "\\begin{list}",
+            "x + y",
+            "",
+            "y + z",
+            "",
+            "z + x",
+            "\\end{list}"
+        )
+
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = try parser.parse()
+        let printVisitor = PrintVisitor()
+
+        let str = ast.first!.accept(visitor: printVisitor)
+
+        XCTAssertNotNil(str)
+        XCTAssertEqual(str, "\\begin{list}\nx + y\ny + z\nz + x\n\\end{list}")
+    }
+
     func testWithSubscripts() throws {
         let source = multiline(
             "p_{0x} - 2p_{1x} + p_{2x}"

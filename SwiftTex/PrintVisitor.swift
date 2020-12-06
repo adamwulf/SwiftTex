@@ -37,6 +37,12 @@ class PrintVisitor: Visitor {
             return "{ " + self.visit(items: item.expressions).joined(separator: " ") + " }"
         case let item as TexNode:
             return "\\\(item.name)" + self.visit(items: item.arguments).map({ "{ \($0) }" }).joined()
+        case let item as TexListNode:
+            let begin = "\\begin{\(item.name)}"
+            let end = "\\end{\(item.name)}"
+            let args = item.arguments[1...].map({ "{\($0)}" }).joined()
+            let exps = self.visit(items: item.expressions)
+            return ([begin + args] + exps + [end]).joined(separator: "\n")
         case let item as FunctionNode:
             let name = item.prototype.name.accept(visitor: self)
             let args = self.visit(items: item.prototype.argumentNames).joined(separator: ", ")
