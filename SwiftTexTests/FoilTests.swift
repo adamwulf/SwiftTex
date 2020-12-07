@@ -6,7 +6,12 @@
 //
 
 import XCTest
+#if canImport(SwiftTexMac)
+@testable import SwiftTexMac
+#endif
+#if canImport(SwiftTex)
 @testable import SwiftTex
+#endif
 
 class FoilTests: XCTestCase {
     func testSimpleFoil() throws {

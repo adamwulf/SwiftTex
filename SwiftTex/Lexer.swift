@@ -98,7 +98,7 @@ let tokenList: [(String, TokenGenerator)] = [
 
 public class Lexer {
     let input: String
-    init(input: String) {
+    public init(input: String) {
         self.input = input
     }
     public func tokenize() -> [Token] {
