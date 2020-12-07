@@ -48,6 +48,13 @@
 		C5AC7BDB257E408E00FD2307 /* Nodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50EE7FE2575B80600FA85D5 /* Nodes.swift */; };
 		C5AC7BDC257E408E00FD2307 /* FoilStepVisitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AC7A4D257CD13700FD2307 /* FoilStepVisitor.swift */; };
 		C5AC7BDD257E408E00FD2307 /* Lexer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50EE7FD2575B80600FA85D5 /* Lexer.swift */; };
+		C5AC7BFD257E417C00FD2307 /* SwiftTexMacTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AC7BFC257E417C00FD2307 /* SwiftTexMacTests.swift */; };
+		C5AC7BFF257E417C00FD2307 /* SwiftTexMac.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5AC7BBD257E408500FD2307 /* SwiftTexMac.framework */; };
+		C5AC7C09257E418600FD2307 /* SwiftTexTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50EE7E22575B6D300FA85D5 /* SwiftTexTests.swift */; };
+		C5AC7C0A257E418600FD2307 /* VisitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AC7A3D257CB58300FD2307 /* VisitorTests.swift */; };
+		C5AC7C0B257E418600FD2307 /* FoilTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AC7A51257CD28E00FD2307 /* FoilTests.swift */; };
+		C5AC7C10257E429400FD2307 /* simple2.mtex in Resources */ = {isa = PBXBuildFile; fileRef = C511465F257A146B00256E46 /* simple2.mtex */; };
+		C5AC7C11257E429400FD2307 /* simple.mtex in Resources */ = {isa = PBXBuildFile; fileRef = C51146332579F97D00256E46 /* simple.mtex */; };
 		DD9A302F2394EFBFF963CB23 /* Pods_Formulas.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A833DB5E4150FB858D106C9 /* Pods_Formulas.framework */; };
 /* End PBXBuildFile section */
 
@@ -60,6 +67,13 @@
 			remoteInfo = SwiftTex;
 		};
 		C5AC7BC2257E408500FD2307 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C50EE7CB2575B6D300FA85D5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C5AC7BBC257E408500FD2307;
+			remoteInfo = SwiftTexMac;
+		};
+		C5AC7C00257E417C00FD2307 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = C50EE7CB2575B6D300FA85D5 /* Project object */;
 			proxyType = 1;
@@ -123,6 +137,9 @@
 		C5AC7BBD257E408500FD2307 /* SwiftTexMac.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SwiftTexMac.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C5AC7BBF257E408500FD2307 /* SwiftTexMac.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SwiftTexMac.h; sourceTree = "<group>"; };
 		C5AC7BC0257E408500FD2307 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C5AC7BFA257E417C00FD2307 /* SwiftTexMacTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftTexMacTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C5AC7BFC257E417C00FD2307 /* SwiftTexMacTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftTexMacTests.swift; sourceTree = "<group>"; };
+		C5AC7BFE257E417C00FD2307 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CBB8B85DF9F227F9F8574C47 /* Pods-SwiftTex-SwiftTexTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftTex-SwiftTexTests.debug.xcconfig"; path = "Target Support Files/Pods-SwiftTex-SwiftTexTests/Pods-SwiftTex-SwiftTexTests.debug.xcconfig"; sourceTree = "<group>"; };
 		D2EFA8593A817B4E218452E0 /* Pods_SwiftTex.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SwiftTex.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D89A31F3502763DFFEA7EE4F /* Pods_SwiftTex_SwiftTexTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SwiftTex_SwiftTexTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -165,6 +182,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C5AC7BF7257E417C00FD2307 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C5AC7BFF257E417C00FD2307 /* SwiftTexMac.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -190,6 +215,7 @@
 				C50EE7E12575B6D300FA85D5 /* SwiftTexTests */,
 				C5AC7A9B257E34B400FD2307 /* Formulas */,
 				C5AC7BBE257E408500FD2307 /* SwiftTexMac */,
+				C5AC7BFB257E417C00FD2307 /* SwiftTexMacTests */,
 				C50EE7D52575B6D300FA85D5 /* Products */,
 				71444DB50ED60DE2D57494C2 /* Pods */,
 				EA45EACAAE5A811F4159D73A /* Frameworks */,
@@ -203,6 +229,7 @@
 				C50EE7DD2575B6D300FA85D5 /* SwiftTexTests.xctest */,
 				C5AC7A9A257E34B400FD2307 /* Formulas.app */,
 				C5AC7BBD257E408500FD2307 /* SwiftTexMac.framework */,
+				C5AC7BFA257E417C00FD2307 /* SwiftTexMacTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -270,6 +297,15 @@
 				C5AC7BC0257E408500FD2307 /* Info.plist */,
 			);
 			path = SwiftTexMac;
+			sourceTree = "<group>";
+		};
+		C5AC7BFB257E417C00FD2307 /* SwiftTexMacTests */ = {
+			isa = PBXGroup;
+			children = (
+				C5AC7BFC257E417C00FD2307 /* SwiftTexMacTests.swift */,
+				C5AC7BFE257E417C00FD2307 /* Info.plist */,
+			);
+			path = SwiftTexMacTests;
 			sourceTree = "<group>";
 		};
 		EA45EACAAE5A811F4159D73A /* Frameworks */ = {
@@ -384,6 +420,24 @@
 			productReference = C5AC7BBD257E408500FD2307 /* SwiftTexMac.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		C5AC7BF9257E417C00FD2307 /* SwiftTexMacTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C5AC7C02257E417C00FD2307 /* Build configuration list for PBXNativeTarget "SwiftTexMacTests" */;
+			buildPhases = (
+				C5AC7BF6257E417C00FD2307 /* Sources */,
+				C5AC7BF7257E417C00FD2307 /* Frameworks */,
+				C5AC7BF8257E417C00FD2307 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C5AC7C01257E417C00FD2307 /* PBXTargetDependency */,
+			);
+			name = SwiftTexMacTests;
+			productName = SwiftTexMacTests;
+			productReference = C5AC7BFA257E417C00FD2307 /* SwiftTexMacTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -406,6 +460,9 @@
 					C5AC7BBC257E408500FD2307 = {
 						CreatedOnToolsVersion = 12.2;
 					};
+					C5AC7BF9257E417C00FD2307 = {
+						CreatedOnToolsVersion = 12.2;
+					};
 				};
 			};
 			buildConfigurationList = C50EE7CE2575B6D300FA85D5 /* Build configuration list for PBXProject "SwiftTex" */;
@@ -425,6 +482,7 @@
 				C50EE7D32575B6D300FA85D5 /* SwiftTex */,
 				C5AC7BBC257E408500FD2307 /* SwiftTexMac */,
 				C50EE7DC2575B6D300FA85D5 /* SwiftTexTests */,
+				C5AC7BF9257E417C00FD2307 /* SwiftTexMacTests */,
 			);
 		};
 /* End PBXProject section */
@@ -460,6 +518,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C5AC7BF8257E417C00FD2307 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C5AC7C10257E429400FD2307 /* simple2.mtex in Resources */,
+				C5AC7C11257E429400FD2307 /* simple.mtex in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -648,6 +715,17 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C5AC7BF6257E417C00FD2307 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C5AC7C0A257E418600FD2307 /* VisitorTests.swift in Sources */,
+				C5AC7BFD257E417C00FD2307 /* SwiftTexMacTests.swift in Sources */,
+				C5AC7C09257E418600FD2307 /* SwiftTexTests.swift in Sources */,
+				C5AC7C0B257E418600FD2307 /* FoilTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -660,6 +738,11 @@
 			isa = PBXTargetDependency;
 			target = C5AC7BBC257E408500FD2307 /* SwiftTexMac */;
 			targetProxy = C5AC7BC2257E408500FD2307 /* PBXContainerItemProxy */;
+		};
+		C5AC7C01257E417C00FD2307 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C5AC7BBC257E408500FD2307 /* SwiftTexMac */;
+			targetProxy = C5AC7C00257E417C00FD2307 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -994,6 +1077,46 @@
 			};
 			name = Release;
 		};
+		C5AC7C03257E417C00FD2307 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = MU27A4SCKC;
+				INFOPLIST_FILE = SwiftTexMacTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.musesoftware.SwiftTexMacTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		C5AC7C04257E417C00FD2307 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = MU27A4SCKC;
+				INFOPLIST_FILE = SwiftTexMacTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.musesoftware.SwiftTexMacTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1038,6 +1161,15 @@
 			buildConfigurations = (
 				C5AC7BC7257E408500FD2307 /* Debug */,
 				C5AC7BC8257E408500FD2307 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C5AC7C02257E417C00FD2307 /* Build configuration list for PBXNativeTarget "SwiftTexMacTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C5AC7C03257E417C00FD2307 /* Debug */,
+				C5AC7C04257E417C00FD2307 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
