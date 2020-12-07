@@ -13,7 +13,6 @@ import XCTest
 @testable import SwiftTex
 #endif
 
-
 class FoilTests: XCTestCase {
     func testSimpleFoil() throws {
         let source = multiline(
