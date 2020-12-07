@@ -62,3 +62,14 @@ f(a) = b^2 * -2bc      \\
 $$
 
 - match newlines followed by spaces/tabs to use line identents to continue previous line, or otherwise solve line endings
+
+
+## References
+
+https://github.com/kostub/iosMath
+
+https://github.com/kostub/MathSolver
+
+https://github.com/kostub/MathEditor
+
+
