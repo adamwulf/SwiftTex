@@ -25,6 +25,13 @@ target 'SwiftTex' do
 
 end
 
+target 'SwiftTexMac' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+  inhibit_all_warnings!
+  platform :macos, '10.9'
+end
+
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|

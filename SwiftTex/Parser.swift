@@ -23,7 +23,7 @@ enum Errors: Error {
     case EOF
 }
 
-class Parser {
+public class Parser {
     let tokens: [Token]
     var index = 0
     var functions: [PrototypeNode] = []
@@ -55,7 +55,7 @@ class Parser {
 
     // MARK: - Init
 
-    init(tokens: [Token]) {
+    public init(tokens: [Token]) {
         self.settingsStack = [Settings(allowImplicitMult: true)]
         self.tokens = tokens
     }

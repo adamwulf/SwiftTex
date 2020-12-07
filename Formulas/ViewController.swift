@@ -7,6 +7,7 @@
 
 import Cocoa
 import iosMath
+import SwiftTexMac
 
 class ViewController: NSViewController {
 
@@ -25,6 +26,14 @@ class ViewController: NSViewController {
         label.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
         label.topAnchor.constraint(equalTo: self.view.topAnchor).isActive = true
         label.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).isActive = true
+
+        let source = "x_a + x_b^2"
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = (try? parser.parse()) ?? []
+
+        print(ast)
     }
 
     override var representedObject: Any? {
