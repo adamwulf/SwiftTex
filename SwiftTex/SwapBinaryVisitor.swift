@@ -7,8 +7,9 @@
 
 import Foundation
 
-class SwapBinaryVisitor: IdentityVisitor {
-    override func visit(_ item: ExprNode) -> ExprNode {
+public class SwapBinaryVisitor: IdentityVisitor {
+
+    override public func visit(_ item: ExprNode) -> ExprNode {
         switch item {
         case let item as BinaryOpNode:
             return BinaryOpNode(op: item.op,

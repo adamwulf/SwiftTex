@@ -29,6 +29,25 @@ class FoilTests: XCTestCase {
         let str = ast.first!.accept(visitor: foilVisitor).accept(visitor: printVisitor)
 
         XCTAssertNotNil(str)
-        XCTAssertEqual(str, "x * x + x * 2 + 1 * x + 1 * 2")
+        XCTAssertEqual(str, "xx + x2 + 1x + (1)(2)")
+    }
+
+    func testSimpleFoilSteps() throws {
+        let source = multiline(
+            "(x + 1)(x + 2)"
+        )
+
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = try parser.parse()
+        let foilVisitor = FoilVisitor()
+        foilVisitor.singleStep = true
+        let printVisitor = PrintVisitor()
+
+        let str = ast.first!.accept(visitor: foilVisitor).accept(visitor: printVisitor)
+
+        XCTAssertNotNil(str)
+        XCTAssertEqual(str, "x(x + 2) + 1(x + 2)")
     }
 }

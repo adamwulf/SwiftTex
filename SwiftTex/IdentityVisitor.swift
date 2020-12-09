@@ -7,12 +7,12 @@
 
 import Foundation
 
-class IdentityVisitor: Visitor {
+public class IdentityVisitor: Visitor {
     private func visit(items: [ExprNode]) -> [ExprNode] {
         return items.map({ $0.accept(visitor: self) })
     }
 
-    func visit(_ item: ExprNode) -> ExprNode {
+    public func visit(_ item: ExprNode) -> ExprNode {
         switch item {
         case let item as NumberNode:
             return item
