@@ -55,14 +55,17 @@ $$
 
 ## Next Items
 
-- Support prefix operators
+- Rename Mac app to Primer, like a schoolbook primer
 
-$$
-f(a) = b^2 * -2bc      \\
-$$
+- Add `hash` value to each node. The hash should be calculated from the hashes of the child nodes, in a way that respects associative/etc operations. This way, we can quickly compare equality of $$x(y+2)^4$$ with $$(x(2+y)^4$$ and see that they're equivalent.
 
-- match newlines followed by spaces/tabs to use line identents to continue previous line, or otherwise solve line endings
+- SortVisitor that will sort terms alphabetically and by subscript
 
+- CombineLikeTermVisitor that will turn $$xx$$ into $$x^2$$ and $$2x + x$$ into $$3x$$
+
+- RationalNode that represents a fraction between two whole numbers, so that it can be inverted without floating point error
+
+- FormatVisitor that will turn $$x^{1/3}$$ into $$\sqrt[3]{x}$$ and $$(a + b) / (x + y)$$ into $$\frac{a + b}{x + y}$$
 
 ## References
 
