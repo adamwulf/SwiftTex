@@ -61,7 +61,11 @@ class ViewController: NSViewController {
         printVisitor.ignoreSubscripts = false
         let maths = ast.accept(visitor: foil).accept(visitor: printVisitor)
 
-        appendLabelFor(math: maths.joined(separator: "\\"))
+        if let math = maths.first {
+            source = math
+
+            appendLabelFor(math: source)
+        }
     }
 
 }

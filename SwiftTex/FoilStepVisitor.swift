@@ -18,26 +18,26 @@ public class FoilVisitor: IdentityVisitor {
             if
                 item.op == .mult(),
                 let factor = item.lhs as? BinaryOpNode,
-                factor.op == .plus {
+                factor.op == .plus || factor.op == .minus {
                 let term1 = BinaryOpNode(op: multOp, lhs: factor.lhs, rhs: item.rhs, startToken: factor.lhs.startToken)
                 let term2 = BinaryOpNode(op: multOp, lhs: factor.rhs, rhs: item.rhs, startToken: factor.rhs.startToken)
-                return BinaryOpNode(op: .plus,
+                return BinaryOpNode(op: factor.op,
                                     lhs: singleStep ? term1 : term1.accept(visitor: self),
                                     rhs: singleStep ? term2 : term2.accept(visitor: self),
                                     startToken: item.startToken)
             } else if
                 item.op == .mult(),
                 let factor = item.rhs as? BinaryOpNode,
-                factor.op == .plus {
+                factor.op == .plus || factor.op == .minus {
                 let term1 = BinaryOpNode(op: multOp, lhs: item.lhs, rhs: factor.lhs, startToken: factor.lhs.startToken)
                 let term2 = BinaryOpNode(op: multOp, lhs: item.lhs, rhs: factor.rhs, startToken: factor.rhs.startToken)
-                return BinaryOpNode(op: .plus,
+                return BinaryOpNode(op: factor.op,
                                     lhs: singleStep ? term1 : term1.accept(visitor: self),
                                     rhs: singleStep ? term2 : term2.accept(visitor: self),
                                     startToken: item.startToken)
             }
 
-            return item
+            return super.visit(item)
         default:
             return super.visit(item)
         }
