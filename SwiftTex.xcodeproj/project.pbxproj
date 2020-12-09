@@ -55,6 +55,8 @@
 		C5AC7C0B257E418600FD2307 /* FoilTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AC7A51257CD28E00FD2307 /* FoilTests.swift */; };
 		C5AC7C10257E429400FD2307 /* simple2.mtex in Resources */ = {isa = PBXBuildFile; fileRef = C511465F257A146B00256E46 /* simple2.mtex */; };
 		C5AC7C11257E429400FD2307 /* simple.mtex in Resources */ = {isa = PBXBuildFile; fileRef = C51146332579F97D00256E46 /* simple.mtex */; };
+		C5AC7D452580B65400FD2307 /* Nodes+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AC7D442580B65400FD2307 /* Nodes+Extensions.swift */; };
+		C5AC7D4A2580B6CE00FD2307 /* Nodes+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5AC7D442580B65400FD2307 /* Nodes+Extensions.swift */; };
 		DD9A302F2394EFBFF963CB23 /* Pods_Formulas.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A833DB5E4150FB858D106C9 /* Pods_Formulas.framework */; };
 /* End PBXBuildFile section */
 
@@ -140,6 +142,7 @@
 		C5AC7BFA257E417C00FD2307 /* SwiftTexMacTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftTexMacTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C5AC7BFC257E417C00FD2307 /* SwiftTexMacTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftTexMacTests.swift; sourceTree = "<group>"; };
 		C5AC7BFE257E417C00FD2307 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C5AC7D442580B65400FD2307 /* Nodes+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Nodes+Extensions.swift"; sourceTree = "<group>"; };
 		CBB8B85DF9F227F9F8574C47 /* Pods-SwiftTex-SwiftTexTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftTex-SwiftTexTests.debug.xcconfig"; path = "Target Support Files/Pods-SwiftTex-SwiftTexTests/Pods-SwiftTex-SwiftTexTests.debug.xcconfig"; sourceTree = "<group>"; };
 		D2EFA8593A817B4E218452E0 /* Pods_SwiftTex.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SwiftTex.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D89A31F3502763DFFEA7EE4F /* Pods_SwiftTex_SwiftTexTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SwiftTex_SwiftTexTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -241,6 +244,7 @@
 				C50EE7FD2575B80600FA85D5 /* Lexer.swift */,
 				C5AC7A57257CD9A600FD2307 /* Lexer+Extensions.swift */,
 				C50EE7FE2575B80600FA85D5 /* Nodes.swift */,
+				C5AC7D442580B65400FD2307 /* Nodes+Extensions.swift */,
 				C50EE7FF2575B80600FA85D5 /* Parser.swift */,
 				C50EE8002575B80600FA85D5 /* Regex.swift */,
 				C50EE7FC2575B80600FA85D5 /* String.swift */,
@@ -668,6 +672,7 @@
 				C50EE8042575B80600FA85D5 /* Parser.swift in Sources */,
 				C5AC7A46257CC9D500FD2307 /* SwapBinaryVisitor.swift in Sources */,
 				C50EE8052575B80600FA85D5 /* Regex.swift in Sources */,
+				C5AC7D452580B65400FD2307 /* Nodes+Extensions.swift in Sources */,
 				C5AC7A4A257CCDA000FD2307 /* IdentityVisitor.swift in Sources */,
 				C5AC7A3A257CB44500FD2307 /* PrintVisitor.swift in Sources */,
 				C50EE8022575B80600FA85D5 /* Lexer.swift in Sources */,
@@ -706,6 +711,7 @@
 				C5AC7BD9257E408E00FD2307 /* SwapBinaryVisitor.swift in Sources */,
 				C5AC7BD7257E408E00FD2307 /* IdentityVisitor.swift in Sources */,
 				C5AC7BDC257E408E00FD2307 /* FoilStepVisitor.swift in Sources */,
+				C5AC7D4A2580B6CE00FD2307 /* Nodes+Extensions.swift in Sources */,
 				C5AC7BDD257E408E00FD2307 /* Lexer.swift in Sources */,
 				C5AC7BD4257E408E00FD2307 /* Parser.swift in Sources */,
 				C5AC7BDA257E408E00FD2307 /* ExprNode+Extensions.swift in Sources */,
