@@ -118,6 +118,7 @@ class VisitorTests: XCTestCase {
         let parser = Parser(tokens: tokens)
         let ast = try parser.parse()
         let printVisitor = PrintVisitor()
+        printVisitor.ignoreSubscripts = true
 
         let str = ast.first!.accept(visitor: printVisitor)
 
@@ -158,7 +159,6 @@ class VisitorTests: XCTestCase {
         let parser = Parser(tokens: tokens)
         let ast = try parser.parse()
         let printVisitor = PrintVisitor()
-        printVisitor.ignoreSubscripts = false
 
         let str = ast.first!.accept(visitor: printVisitor)
 
@@ -176,7 +176,6 @@ class VisitorTests: XCTestCase {
         let parser = Parser(tokens: tokens)
         let ast = try parser.parse()
         let printVisitor = PrintVisitor()
-        printVisitor.ignoreSubscripts = false
 
         let str = ast.first!.accept(visitor: printVisitor)
 
@@ -195,7 +194,6 @@ class VisitorTests: XCTestCase {
         let parser = Parser(tokens: tokens)
         let ast = try parser.parse()
         let printVisitor = PrintVisitor()
-        printVisitor.ignoreSubscripts = false
 
         var str = ast.first!.accept(visitor: printVisitor)
 

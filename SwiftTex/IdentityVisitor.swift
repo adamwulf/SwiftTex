@@ -8,6 +8,11 @@
 import Foundation
 
 public class IdentityVisitor: Visitor {
+
+    public init() {
+        // noop
+    }
+
     private func visit(items: [ExprNode]) -> [ExprNode] {
         return items.map({ $0.accept(visitor: self) })
     }

@@ -689,6 +689,22 @@
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
                         <rect key="contentRect" x="196" y="240" width="480" height="270"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
+                        <toolbar key="toolbar" implicitIdentifier="362045CE-E591-4674-BC29-377B85001872" autosavesConfiguration="NO" allowsUserCustomization="NO" showsBaselineSeparator="NO" displayMode="iconAndLabel" sizeMode="regular" id="Ofa-vH-Vat">
+                            <allowedToolbarItems>
+                                <toolbarItem implicitItemIdentifier="404337DA-DA98-4691-9E8E-015F320F281C" label="Expand" paletteLabel="Expand" tag="-1" image="NSStopProgressTemplate" id="All-kM-KZp">
+                                    <size key="minSize" width="33.5" height="26"/>
+                                    <size key="maxSize" width="33.5" height="26"/>
+                                    <connections>
+                                        <action selector="expandFormula:" target="6f7-a7-6o1" id="id8-4K-1pe"/>
+                                    </connections>
+                                </toolbarItem>
+                                <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="xZ7-Hp-74H"/>
+                            </allowedToolbarItems>
+                            <defaultToolbarItems>
+                                <toolbarItem reference="xZ7-Hp-74H"/>
+                                <toolbarItem reference="All-kM-KZp"/>
+                            </defaultToolbarItems>
+                        </toolbar>
                         <connections>
                             <outlet property="delegate" destination="jGA-0Y-lOj" id="98r-iN-zZc"/>
                         </connections>
@@ -708,11 +724,51 @@
                     <view key="view" id="ERx-hH-rdd">
                         <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <scrollView fixedFrame="YES" borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" horizontalScrollElasticity="none" translatesAutoresizingMaskIntoConstraints="NO" id="sfV-oT-y1o">
+                                <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <clipView key="contentView" id="N14-tY-hrH">
+                                    <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <stackView distribution="fillEqually" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Y9g-p3-FTd">
+                                            <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="200" id="PhK-XI-TMM"/>
+                                            </constraints>
+                                        </stackView>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstAttribute="trailing" secondItem="Y9g-p3-FTd" secondAttribute="trailing" id="41B-AP-hnn"/>
+                                        <constraint firstItem="Y9g-p3-FTd" firstAttribute="top" secondItem="N14-tY-hrH" secondAttribute="top" id="8fU-Vz-40C"/>
+                                        <constraint firstAttribute="height" relation="lessThanOrEqual" secondItem="Y9g-p3-FTd" secondAttribute="height" id="KL9-js-scw"/>
+                                        <constraint firstAttribute="bottom" relation="lessThanOrEqual" secondItem="Y9g-p3-FTd" secondAttribute="bottom" id="UAf-ub-Jx6"/>
+                                        <constraint firstItem="Y9g-p3-FTd" firstAttribute="leading" secondItem="N14-tY-hrH" secondAttribute="leading" id="deY-wP-CXu"/>
+                                    </constraints>
+                                </clipView>
+                                <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="wKc-kn-asG">
+                                    <rect key="frame" x="-100" y="-100" width="482" height="16"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </scroller>
+                                <scroller key="verticalScroller" wantsLayer="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="0Db-7k-He0">
+                                    <rect key="frame" x="464" y="0.0" width="16" height="270"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </scroller>
+                            </scrollView>
+                        </subviews>
                     </view>
+                    <connections>
+                        <outlet property="stackView" destination="Y9g-p3-FTd" id="N1i-5O-MAz"/>
+                        <outlet property="view" destination="ERx-hH-rdd" id="tZb-wf-v4e"/>
+                    </connections>
                 </viewController>
                 <customObject id="2Tp-Fl-jBw" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="75" y="655"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="NSStopProgressTemplate" width="14" height="13"/>
+    </resources>
 </document>

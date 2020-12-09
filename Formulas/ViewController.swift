@@ -11,35 +11,57 @@ import SwiftTexMac
 
 class ViewController: NSViewController {
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    @IBOutlet
+    private var stackView: NSStackView?
+    var source = "(a_2b_1 - b_2a_1)(a_1b_0 - b_1a_0) - (a_2b_0 - b_2a_0)^2"
 
+    func appendLabelFor(math: String) {
         let label = MTMathUILabel()
-        label.latex = "x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}"
+        label.latex = math
         label.translatesAutoresizingMaskIntoConstraints = false
         label.backgroundColor = .textBackgroundColor
         label.textColor = .textColor
         label.textAlignment = .center
-        self.view.addSubview(label)
+        stackView?.addArrangedSubview(label)
 
         label.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
         label.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
-        label.topAnchor.constraint(equalTo: self.view.topAnchor).isActive = true
-        label.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).isActive = true
+        label.heightAnchor.constraint(equalToConstant: 60).isActive = true
+    }
 
-        let source = "x_a + x_b^2"
+    override func viewDidLoad() {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let ast = (try? parser.parse()) ?? []
 
-        print(ast)
+        let printVisitor = PrintVisitor()
+        printVisitor.ignoreSubscripts = false
+        let maths = ast.accept(visitor: printVisitor)
+
+        appendLabelFor(math: maths.joined(separator: "\\"))
     }
 
     override var representedObject: Any? {
         didSet {
         // Update the view, if already loaded.
         }
+    }
+
+    // MARK: - Actions
+
+    @IBAction func expandFormula(_ sender: Any?) {
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = (try? parser.parse()) ?? []
+        let foil = FoilVisitor()
+        foil.singleStep = true
+        let printVisitor = PrintVisitor()
+        printVisitor.ignoreSubscripts = false
+        let maths = ast.accept(visitor: foil).accept(visitor: printVisitor)
+
+        appendLabelFor(math: maths.joined(separator: "\\"))
     }
 
 }

@@ -7,14 +7,18 @@
 
 import Foundation
 
-class PrintVisitor: Visitor {
-    var ignoreSubscripts: Bool = true
+public class PrintVisitor: Visitor {
+    public var ignoreSubscripts: Bool = false
+
+    public init() {
+        // noop
+    }
 
     private func visit(items: [ExprNode]) -> [String] {
         return items.map({ $0.accept(visitor: self) })
     }
 
-    func visit(_ item: ExprNode) -> String {
+    public func visit(_ item: ExprNode) -> String {
         switch item {
         case let item as NumberNode:
             let formatter = NumberFormatter()
