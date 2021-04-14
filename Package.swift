@@ -23,6 +23,7 @@ let package = Package(
             dependencies: []),
         .testTarget(
             name: "SwiftTexTests",
-            dependencies: ["SwiftTex"]),
+            dependencies: ["SwiftTex"],
+            resources: [.process("Resources")]),
     ]
 )
