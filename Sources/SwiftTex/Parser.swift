@@ -294,7 +294,7 @@ public class Parser {
         "-": 20,
         "*": 40,
         "/": 40,
-        "^": 60,
+        "^": 60
     ]
 
     func getCurrentTokenPrecedence() throws -> Int {

@@ -65,7 +65,7 @@ extension Token.Symbol {
             "*": 40,
             " ": 40,
             "/": 40,
-            "^": 60,
+            "^": 60
         ]
         return operatorPrecedence[rawValue]!
     }

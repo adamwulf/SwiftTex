@@ -93,7 +93,7 @@ let tokenList: [(String, TokenGenerator)] = [
     ("\\}", { s, l, c in Token(type: .BraceClose, line: l, col: c, raw: s) }),
     ("_", { s, l, c in Token(type: .Subscript, line: l, col: c, raw: s) }),
     (",", { s, l, c in Token(type: .Comma, line: l, col: c, raw: s) }),
-    ("[\\+\\-\\*/\\^=]", { s, l, c in Token(type: .Operator(Token.Symbol.from(s)!), line: l, col: c, raw: s) }),
+    ("[\\+\\-\\*/\\^=]", { s, l, c in Token(type: .Operator(Token.Symbol.from(s)!), line: l, col: c, raw: s) })
 ]
 
 public class Lexer {
