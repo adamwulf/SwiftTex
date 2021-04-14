@@ -71,6 +71,8 @@ $$
 
 ## References
 
+http://blog.matthewcheok.com/writing-a-parser-in-swift/
+
 https://github.com/kostub/iosMath
 
 https://github.com/kostub/MathSolver
