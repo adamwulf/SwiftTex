@@ -1,5 +1,7 @@
 # SwiftTex
 
+Available in Swift Package Manager
+
 SwiftTex is a very simple Latex-like parser. It can parse simple math expressions like:
 
 ```
