@@ -75,7 +75,7 @@ public struct VariableNode: ExprNode {
 
 public struct TexNode: ExprNode {
     public let name: String
-    public let arguments: [ExprNode]
+    public let arguments: [BracedNode]
     public let startToken: Token
     public var description: String {
         return "TexNode(\(name))"

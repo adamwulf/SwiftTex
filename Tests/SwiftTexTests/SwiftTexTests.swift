@@ -242,9 +242,9 @@ class SwiftTexTests: XCTestCase {
 
         XCTAssertEqual(tex.name, "\\mumble")
 
-        XCTAssertNotNil(tex.arguments.first as? BracedNode)
+        XCTAssertNotNil(tex.arguments.first != nil)
 
-        guard let brace = tex.arguments.first as? BracedNode else { XCTFail(); return }
+        guard let brace = tex.arguments.first else { XCTFail(); return }
 
         XCTAssertNotNil(brace.expressions.first as? NumberNode)
         guard let num = brace.expressions.first as? NumberNode else { XCTFail(); return }

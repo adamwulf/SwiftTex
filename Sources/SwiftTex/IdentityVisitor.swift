@@ -35,7 +35,11 @@ public class IdentityVisitor: Visitor {
         case let item as BracedNode:
             return BracedNode(expressions: item.expressions.accept(visitor: self), startToken: item.startToken)
         case let item as TexNode:
-            return TexNode(name: item.name, arguments: item.arguments.accept(visitor: self), startToken: item.startToken)
+            let args = item.arguments.accept(visitor: self).compactMap { (node) -> BracedNode? in
+                assert(node is BracedNode)
+                return node as? BracedNode
+            }
+            return TexNode(name: item.name, arguments: args, startToken: item.startToken)
         case let item as TexListNode:
             return TexListNode(name: item.name,
                                arguments: item.arguments,
