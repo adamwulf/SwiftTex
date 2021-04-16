@@ -35,6 +35,25 @@ class SwiftTexTests: XCTestCase {
         XCTAssertEqual((plus.rhs as? VariableNode)?.name, "y")
     }
 
+    func testNegation() throws {
+        let source = multiline(
+            "-y"
+        )
+
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = try parser.parse()
+
+        XCTAssertEqual(tokens.count, 2)
+        XCTAssertNotNil(ast.first as? UnaryOpNode)
+
+        guard let negate = ast.first as? UnaryOpNode else { XCTFail(); return }
+
+        XCTAssertEqual(negate.op, .minus)
+        XCTAssertEqual((negate.expression as? VariableNode)?.name, "y")
+    }
+
     func testOrderOfOps() throws {
         let source = multiline(
             "x + y * z"
@@ -563,11 +582,13 @@ class SwiftTexTests: XCTestCase {
         let parser = Parser(tokens: tokens)
         let ast = try parser.parse()
 
-        XCTAssertEqual(ast.count, 4)
+        XCTAssertEqual(ast.count, 6)
         XCTAssertNotNil(ast[0] as? VariableNode)
         XCTAssertNotNil(ast[1] as? VariableNode)
         XCTAssertNotNil(ast[2] as? NumberNode)
         XCTAssertNotNil(ast[3] as? NumberNode)
+        XCTAssertNotNil(ast[4] as? UnaryOpNode)
+        XCTAssertNotNil(ast[5] as? UnaryOpNode)
     }
 
     func testLineSplitter() throws {

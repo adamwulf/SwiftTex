@@ -30,6 +30,16 @@ public class PrintVisitor: Visitor {
             } else {
                 return item.name + "_{" + self.visit(items: item.subscripts).joined() + "}"
             }
+        case let item as UnaryOpNode:
+            func needsParens(_ expr: ExprNode) -> Bool {
+                if let bin = expr as? BinaryOpNode {
+                    return item.op.precedence > bin.op.precedence
+                }
+                return false
+            }
+            let exp = item.expression.accept(visitor: self)
+            let pexp = needsParens(item.expression) ? "(\(exp))" : exp
+            return item.op.rawValue + pexp
         case let item as BinaryOpNode:
             if case .mult(let implicit) = item.op,
                implicit {

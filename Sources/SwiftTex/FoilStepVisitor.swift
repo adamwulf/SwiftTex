@@ -13,9 +13,17 @@ public class FoilVisitor: IdentityVisitor {
 
     override public func visit(_ item: ExprNode) -> ExprNode {
         switch item {
+        case let unItem as UnaryOpNode:
+            if let num = unItem.expression as? NumberNode {
+                return NumberNode(string: unItem.op.rawValue + num.string, startToken: unItem.startToken)
+            } else {
+                return unItem
+            }
         case let binItem as BinaryOpNode:
             var item = binItem
             if !singleStep {
+                // if i'm not a single step, then i want to do depth first processing of the tree
+                // otherwise, i just want to return immediately if possible after processing this node
                 item = BinaryOpNode(op: item.op,
                                     lhs: item.lhs.accept(visitor: self),
                                     rhs: item.rhs.accept(visitor: self),

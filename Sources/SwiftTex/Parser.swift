@@ -325,6 +325,17 @@ public class Parser {
         }
     }
 
+    func parseUnary() throws -> UnaryOpNode {
+        let token = try popCurrentToken()
+        guard case let Token.Case.Operator(op) = token.type else {
+            throw Errors.UnexpectedToken(token: token)
+        }
+
+        let exp = try parsePrimary()
+
+        return UnaryOpNode(op: op, expression: exp, startToken: token)
+    }
+
     func parseBinaryOp(node: ExprNode, exprPrecedence: Int = 0) throws -> ExprNode {
         var lhs = node
         while true {
@@ -433,6 +444,8 @@ public class Parser {
         switch token.type {
         case .Tex:
             return try parseTex()
+        case .Operator:
+            return try parseUnary()
         case .Identifier:
             return try parseIdentifier()
         case .Number:

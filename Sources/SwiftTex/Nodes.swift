@@ -111,6 +111,15 @@ public struct BinaryOpNode: ExprNode {
     }
 }
 
+public struct UnaryOpNode: ExprNode {
+    public let op: Token.Symbol
+    public let expression: ExprNode
+    public let startToken: Token
+    public var description: String {
+        return "UnaryOpNode(\(op))"
+    }
+}
+
 public struct CallNode: ExprNode {
     public let callee: VariableNode
     public let arguments: [ExprNode]

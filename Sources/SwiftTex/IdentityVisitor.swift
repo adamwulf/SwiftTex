@@ -23,6 +23,10 @@ public class IdentityVisitor: Visitor {
             return item
         case let item as VariableNode:
             return VariableNode(name: item.name, subscripts: item.subscripts.accept(visitor: self), startToken: item.startToken)
+        case let item as UnaryOpNode:
+            return UnaryOpNode(op: item.op,
+                                expression: item.expression.accept(visitor: self),
+                                startToken: item.startToken)
         case let item as BinaryOpNode:
             return BinaryOpNode(op: item.op,
                                 lhs: item.lhs.accept(visitor: self),
