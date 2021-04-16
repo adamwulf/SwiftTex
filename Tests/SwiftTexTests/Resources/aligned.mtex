@@ -1,0 +1,8 @@
+\begin{eqalign}
+\let
+    { a_2 }
+    { p_{0x} - 2p_{1x} + p_{2x} }
+\let
+    { a_1 }
+    { 2p_{1x} - 2p_{0x} }
+\end{eqalign}

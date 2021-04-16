@@ -243,4 +243,50 @@ class VisitorTests: XCTestCase {
 
         XCTAssertEqual(strs, "f(x) = x ^ 2\n\nf(2) + g3")
     }
+
+    func testAligned() throws {
+        guard
+            let url = Bundle.module.url(forResource: "aligned", withExtension: "mtex"),
+            let data = FileManager.default.contents(atPath: url.path),
+            let source = String(data: data, encoding: .utf8)
+        else { XCTFail(); return }
+
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = try parser.parse()
+        let printVisitor = PrintVisitor()
+        let str = ast.first!.accept(visitor: printVisitor)
+        let out = """
+\\begin{eqalign}
+\\text{let } a_{2} &= p_{0x} - 2p_{1x} + p_{2x}
+\\text{let } a_{1} &= 2p_{1x} - 2p_{0x}
+\\end{eqalign}
+"""
+
+        XCTAssertEqual(str, out)
+    }
+
+    func testUnaligned() throws {
+        guard
+            let url = Bundle.module.url(forResource: "aligned", withExtension: "mtex"),
+            let data = FileManager.default.contents(atPath: url.path),
+            let source = String(data: data, encoding: .utf8)?.replacingOccurrences(of: "eqalign", with: "fumble")
+        else { XCTFail(); return }
+
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = try parser.parse()
+        let printVisitor = PrintVisitor()
+        let str = ast.first!.accept(visitor: printVisitor)
+        let out = """
+\\begin{fumble}
+\\text{let } a_{2} = p_{0x} - 2p_{1x} + p_{2x}
+\\text{let } a_{1} = 2p_{1x} - 2p_{0x}
+\\end{fumble}
+"""
+
+        XCTAssertEqual(str, out)
+    }
 }

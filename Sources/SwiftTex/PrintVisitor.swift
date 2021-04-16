@@ -10,6 +10,7 @@ import Foundation
 public class PrintVisitor: Visitor {
     public var ignoreSubscripts: Bool = false
     public var inline: Bool = false
+    private var alignedLevel: Int = 0
 
     public init(inline: Bool = false) {
         self.inline = inline
@@ -89,7 +90,7 @@ public class PrintVisitor: Visitor {
                 let arg2 = self.visit(item.arguments[1])
                 let start2 = arg2.index(arg2.startIndex, offsetBy: 1)
                 let end2 = arg2.index(arg2.endIndex, offsetBy: -1)
-                return "\\text{let } \(String(arg1[start1..<end1])) = \(String(arg2[start2..<end2]))"
+                return "\\text{let } \(String(arg1[start1..<end1])) \(alignedLevel > 0 ? "&" : "")= \(String(arg2[start2..<end2]))"
             } else {
                 return "\(item.name)" + self.visit(items: item.arguments).joined()
             }
@@ -97,8 +98,19 @@ public class PrintVisitor: Visitor {
             let begin = "\\begin{\(item.name)}"
             let end = "\\end{\(item.name)}"
             let args = item.arguments[1...].map({ "{\($0)}" }).joined()
-            let exps = self.visit(items: item.expressions)
-            return ([begin + args] + exps + [end]).joined(separator: "\n")
+            let trimmedName = item.name.trimmingCharacters(in: CharacterSet(charactersIn: "*\\"))
+            let aligned = ["aligned", "align", "eqnarray", "eqalign", "split"].contains(trimmedName)
+
+            if aligned {
+                alignedLevel += 1
+            }
+
+            let expStr = self.visit(items: item.expressions)
+
+            if aligned {
+                alignedLevel -= 1
+            }
+            return ([begin + args] + expStr + [end]).joined(separator: "\n")
         case let item as FunctionNode:
             let name = item.prototype.name.accept(visitor: self)
             let args = self.visit(items: item.prototype.argumentNames).joined(separator: ", ")
