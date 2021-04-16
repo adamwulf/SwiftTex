@@ -15,6 +15,23 @@ import XCTest
 
 class VisitorTests: XCTestCase {
 
+    func testLet() throws {
+        let source = multiline(
+            "\\let{x}{2/3}"
+        )
+
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = try parser.parse()
+        let printVisitor = PrintVisitor()
+
+        let str = ast.first!.accept(visitor: printVisitor)
+
+        XCTAssertNotNil(str)
+        XCTAssertEqual(str, "\\text{let} x = \\frac{2}{3}")
+    }
+
     func testSimpleExpression() throws {
         let source = multiline(
             "7 + x"
