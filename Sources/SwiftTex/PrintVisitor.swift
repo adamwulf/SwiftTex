@@ -9,9 +9,10 @@ import Foundation
 
 public class PrintVisitor: Visitor {
     public var ignoreSubscripts: Bool = false
+    public var inline: Bool = false
 
-    public init() {
-        // noop
+    public init(inline: Bool = false) {
+        self.inline = inline
     }
 
     private func visit(items: [ExprNode]) -> [String] {
@@ -60,6 +61,10 @@ public class PrintVisitor: Visitor {
                 let prhs = needsParens(item.rhs) ? "(\(rhs))" : rhs
 
                 return plhs + prhs
+            } else if item.op == .div, !inline {
+                let lhs = item.lhs.accept(visitor: self)
+                let rhs = item.rhs.accept(visitor: self)
+                return "\\frac{\(lhs)}{\(rhs)}"
             } else {
                 func needsParens(_ expr: ExprNode) -> Bool {
                     if let bin = expr as? BinaryOpNode {

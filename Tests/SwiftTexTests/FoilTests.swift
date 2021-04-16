@@ -83,7 +83,7 @@ class FoilTests: XCTestCase {
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let ast = try parser.parse()
-        let printVisitor = PrintVisitor()
+        let printVisitor = PrintVisitor(inline: true)
         let foilVisitor = FoilVisitor()
 
         var str = ast.first!.accept(visitor: printVisitor)
@@ -106,7 +106,7 @@ class FoilTests: XCTestCase {
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let ast = try parser.parse()
-        let printVisitor = PrintVisitor()
+        let printVisitor = PrintVisitor(inline: true)
         let foilVisitor = FoilVisitor()
 
         var str = ast.first!.accept(visitor: printVisitor)
@@ -118,6 +118,29 @@ class FoilTests: XCTestCase {
 
         XCTAssertNotNil(str)
         XCTAssertEqual(str, "1 / (xx + xy + yx + yy)")
+    }
+
+    func testExpandingExponents3Block() throws {
+        let source = multiline(
+            "(x + y)^-2"
+        )
+
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = try parser.parse()
+        let printVisitor = PrintVisitor()
+        let foilVisitor = FoilVisitor()
+
+        var str = ast.first!.accept(visitor: printVisitor)
+
+        XCTAssertNotNil(str)
+        XCTAssertEqual(str, "(x + y) ^ -2")
+
+        str = ast.last!.accept(visitor: foilVisitor).accept(visitor: printVisitor)
+
+        XCTAssertNotNil(str)
+        XCTAssertEqual(str, "\\frac{1}{xx + xy + yx + yy}")
     }
 
     func testExpandingExponents4() throws {
