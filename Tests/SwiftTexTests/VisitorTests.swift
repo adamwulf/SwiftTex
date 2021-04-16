@@ -29,12 +29,12 @@ class VisitorTests: XCTestCase {
         let str = ast.first!.accept(visitor: printVisitor)
 
         XCTAssertNotNil(str)
-        XCTAssertEqual(str, "\\text{let} x = \\frac{2}{3}")
+        XCTAssertEqual(str, "\\text{let } x = \\frac{2}{3}")
     }
 
     func testAnyTex() throws {
         let source = multiline(
-            "\\text{foo}"
+            "\\fumble{foo}"
         )
 
         let lexer = Lexer(input: source)
@@ -46,7 +46,7 @@ class VisitorTests: XCTestCase {
         let str = ast.first!.accept(visitor: printVisitor)
 
         XCTAssertNotNil(str)
-        XCTAssertEqual(str, "\\text{ foo }")
+        XCTAssertEqual(str, "\\fumble{foo}")
     }
 
     func testSimpleExpression() throws {
