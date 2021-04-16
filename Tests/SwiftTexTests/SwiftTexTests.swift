@@ -54,6 +54,45 @@ class SwiftTexTests: XCTestCase {
         XCTAssertEqual((negate.expression as? VariableNode)?.name, "y")
     }
 
+    func testExponentialNegation() throws {
+        let source = multiline(
+            "-y^2" // as opposed to (-y)^2
+        )
+
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = try parser.parse()
+
+        XCTAssertEqual(tokens.count, 4)
+        XCTAssertNotNil(ast.first as? UnaryOpNode)
+
+        guard let negate = ast.first as? UnaryOpNode else { XCTFail(); return }
+
+        XCTAssertEqual(negate.op, .minus)
+        XCTAssertEqual((negate.expression as? BinaryOpNode)?.op, .exp)
+    }
+
+    func testExponentialParenthetical() throws {
+        let source = multiline(
+            "(-y)^2" // as opposed to (-y)^2
+        )
+
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = try parser.parse()
+
+        XCTAssertEqual(tokens.count, 6)
+        XCTAssertNotNil(ast.first as? BinaryOpNode)
+
+        guard let pow = ast.first as? BinaryOpNode else { XCTFail(); return }
+
+        XCTAssertEqual(pow.op, .exp)
+        XCTAssertEqual((pow.lhs as? UnaryOpNode)?.op, .minus)
+        XCTAssertNotNil(pow.rhs as? NumberNode)
+    }
+
     func testOrderOfOps() throws {
         let source = multiline(
             "x + y * z"

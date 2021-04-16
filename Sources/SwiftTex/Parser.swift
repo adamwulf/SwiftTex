@@ -331,7 +331,7 @@ public class Parser {
             throw Errors.UnexpectedToken(token: token)
         }
 
-        let exp = try parsePrimary()
+        let exp = try parseExpression()
 
         return UnaryOpNode(op: op, expression: exp, startToken: token)
     }
