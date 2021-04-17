@@ -161,15 +161,22 @@ class VisitorTests: XCTestCase {
     }
 
     func testTexList() throws {
-        let source = multiline(
-            "\\begin{list}",
-            "x + y",
-            "",
-            "y + z",
-            "",
-            "z + x",
-            "\\end{list}"
-        )
+        let source = """
+\\begin{list}
+x + y
+
+y + z
+
+z + x
+\\end{list}
+"""
+        let result = """
+\\begin{list}\\\\
+x + y\\\\
+y + z\\\\
+z + x\\\\
+\\end{list}
+"""
 
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
@@ -180,7 +187,41 @@ class VisitorTests: XCTestCase {
         let str = ast.first!.accept(visitor: printVisitor)
 
         XCTAssertNotNil(str)
-        XCTAssertEqual(str, "\\begin{list}\nx + y\ny + z\nz + x\n\\end{list}")
+        XCTAssertEqual(str, result)
+    }
+
+    func testTexSubList() throws {
+        let source = """
+\\begin{list}
+\\begin{inside}
+x + y
+
+y + z
+
+z + x
+\\end{inside}
+\\end{list}
+"""
+        let result = """
+\\begin{list}\\\\
+\\begin{inside}\\\\
+x + y\\\\
+y + z\\\\
+z + x\\\\
+\\end{inside}\\\\
+\\end{list}
+"""
+
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = try parser.parse()
+        let printVisitor = PrintVisitor()
+
+        let str = ast.first!.accept(visitor: printVisitor)
+
+        XCTAssertNotNil(str)
+        XCTAssertEqual(str, result)
     }
 
     func testWithSubscripts() throws {
@@ -258,9 +299,9 @@ class VisitorTests: XCTestCase {
         let printVisitor = PrintVisitor()
         let str = ast.first!.accept(visitor: printVisitor)
         let out = """
-\\begin{eqalign}
-\\text{let } a_{2} &= p_{0x} - 2p_{1x} + p_{2x}
-\\text{let } a_{1} &= 2p_{1x} - 2p_{0x}
+\\begin{eqalign}\\\\
+\\text{let } a_{2} &= p_{0x} - 2p_{1x} + p_{2x}\\\\
+\\text{let } a_{1} &= 2p_{1x} - 2p_{0x}\\\\
 \\end{eqalign}
 """
 
@@ -281,9 +322,9 @@ class VisitorTests: XCTestCase {
         let printVisitor = PrintVisitor()
         let str = ast.first!.accept(visitor: printVisitor)
         let out = """
-\\begin{fumble}
-\\text{let } a_{2} = p_{0x} - 2p_{1x} + p_{2x}
-\\text{let } a_{1} = 2p_{1x} - 2p_{0x}
+\\begin{fumble}\\\\
+\\text{let } a_{2} = p_{0x} - 2p_{1x} + p_{2x}\\\\
+\\text{let } a_{1} = 2p_{1x} - 2p_{0x}\\\\
 \\end{fumble}
 """
 

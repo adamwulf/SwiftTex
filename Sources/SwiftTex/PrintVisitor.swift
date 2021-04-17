@@ -109,7 +109,7 @@ public class PrintVisitor: Visitor {
             if aligned {
                 alignedLevel -= 1
             }
-            return ([begin + args] + expStr + [end]).joined(separator: "\n")
+            return ([begin + args] + expStr + [end]).joined(separator: "\\\\\n")
         case let item as FunctionNode:
             let name = item.prototype.name.accept(visitor: self)
             let args = self.visit(items: item.prototype.argumentNames).joined(separator: ", ")
