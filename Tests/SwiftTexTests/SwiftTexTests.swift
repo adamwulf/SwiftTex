@@ -246,8 +246,8 @@ class SwiftTexTests: XCTestCase {
 
         guard let brace = tex.arguments.first else { XCTFail(); return }
 
-        XCTAssertNotNil(brace.expressions.first as? NumberNode)
-        guard let num = brace.expressions.first as? NumberNode else { XCTFail(); return }
+        XCTAssertNotNil(brace.children.first as? NumberNode)
+        guard let num = brace.children.first as? NumberNode else { XCTFail(); return }
 
         XCTAssertEqual(num.value, 4)
     }
@@ -561,7 +561,7 @@ class SwiftTexTests: XCTestCase {
         guard let texList = ast.first as? TexListNode else { XCTFail(); return }
 
         XCTAssertEqual(texList.arguments.count, 1)
-        XCTAssertEqual(texList.expressions.count, 2)
+        XCTAssertEqual(texList.children.count, 2)
     }
 
     func testMultilineFunc() throws {

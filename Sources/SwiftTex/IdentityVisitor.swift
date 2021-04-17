@@ -33,7 +33,7 @@ public class IdentityVisitor: Visitor {
                                 rhs: item.rhs.accept(visitor: self),
                                 startToken: item.startToken)
         case let item as BracedNode:
-            return BracedNode(expressions: item.expressions.accept(visitor: self), startToken: item.startToken)
+            return BracedNode(children: item.children.accept(visitor: self), startToken: item.startToken)
         case let item as TexNode:
             let args = item.arguments.accept(visitor: self).compactMap { (node) -> BracedNode? in
                 assert(node is BracedNode)
@@ -43,7 +43,7 @@ public class IdentityVisitor: Visitor {
         case let item as TexListNode:
             return TexListNode(name: item.name,
                                arguments: item.arguments,
-                               expressions: item.expressions.accept(visitor: self),
+                               children: item.children.accept(visitor: self),
                                startToken: item.startToken)
         case let item as FunctionNode:
             guard

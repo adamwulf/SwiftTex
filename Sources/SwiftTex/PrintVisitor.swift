@@ -79,7 +79,7 @@ public class PrintVisitor: Visitor {
                 return plhs + " \(item.op.rawValue) " + prhs
             }
         case let item as BracedNode:
-            return "{" + self.visit(items: item.expressions).joined(separator: " ") + "}"
+            return "{" + self.visit(items: item.children).joined(separator: " ") + "}"
         case let item as TexNode:
             if item.name == "\\let",
                item.arguments.count == 2 {
@@ -104,7 +104,7 @@ public class PrintVisitor: Visitor {
                 alignedLevel += 1
             }
 
-            let expStr = self.visit(items: item.expressions)
+            let expStr = self.visit(items: item.children)
 
             if aligned {
                 alignedLevel -= 1

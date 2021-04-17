@@ -10,6 +10,7 @@ import Foundation
 
 public protocol ExprNode: Visitable, CustomStringConvertible {
     var startToken: Token { get }
+    var children: [ExprNode] { get }
 }
 
 public protocol Visitor {
@@ -31,6 +32,7 @@ extension ExprNode {
 public struct NumberNode: ExprNode {
     public let string: String
     public let startToken: Token
+    public let children: [ExprNode] = []
     public var value: Float {
         (string as NSString).floatValue
     }
@@ -48,16 +50,16 @@ public struct NumberNode: ExprNode {
 }
 
 public struct BracedNode: ExprNode {
-    public let expressions: [ExprNode]
+    public let children: [ExprNode]
     public let startToken: Token
     public var description: String {
-        return "BracedNode(\(expressions))"
+        return "BracedNode(\(children))"
     }
     public func unwrap() -> ExprNode? {
-        if expressions.isEmpty {
+        if children.isEmpty {
             return nil
-        } else if expressions.count == 1,
-           let expr = expressions.first {
+        } else if children.count == 1,
+           let expr = children.first {
             return expr
         }
         return self
@@ -68,6 +70,7 @@ public struct VariableNode: ExprNode {
     public let name: String
     public let subscripts: [ExprNode]
     public let startToken: Token
+    public let children: [ExprNode] = []
     public var description: String {
         return "VariableNode(\(name))"
     }
@@ -77,6 +80,7 @@ public struct TexNode: ExprNode {
     public let name: String
     public let arguments: [BracedNode]
     public let startToken: Token
+    public let children: [ExprNode] = []
     public var description: String {
         return "TexNode(\(name))"
     }
@@ -85,7 +89,7 @@ public struct TexNode: ExprNode {
 public struct TexListNode: ExprNode {
     public let name: String
     public let arguments: [String]
-    public let expressions: [ExprNode]
+    public let children: [ExprNode]
     public let startToken: Token
     public var description: String {
         return "TexListNode(\(name))"
@@ -95,6 +99,7 @@ public struct TexListNode: ExprNode {
         public let name: String
         public let arguments: [String]
         public let startToken: Token
+        public let children: [ExprNode] = []
         public var description: String {
             return "TexListSuffix(\(name))"
         }
@@ -105,6 +110,9 @@ public struct BinaryOpNode: ExprNode {
     public let op: Token.Symbol
     public let lhs: ExprNode
     public let rhs: ExprNode
+    public var children: [ExprNode] {
+        return [lhs, rhs]
+    }
     public let startToken: Token
     public var description: String {
         return "BinaryOpNode(\(op), lhs: \(lhs), rhs: \(rhs))"
@@ -114,6 +122,9 @@ public struct BinaryOpNode: ExprNode {
 public struct UnaryOpNode: ExprNode {
     public let op: Token.Symbol
     public let expression: ExprNode
+    public var children: [ExprNode] {
+        return [expression]
+    }
     public let startToken: Token
     public var description: String {
         return "UnaryOpNode(\(op))"
@@ -123,16 +134,22 @@ public struct UnaryOpNode: ExprNode {
 public struct CallNode: ExprNode {
     public let callee: VariableNode
     public let arguments: [ExprNode]
+    public var children: [ExprNode] {
+        return [callee] + arguments
+    }
     public let startToken: Token
     public var description: String {
         return "CallNode(name: \(callee), argument: \(arguments))"
     }
 }
 
-public struct PrototypeNode: CustomStringConvertible {
+public struct PrototypeNode: ExprNode {
     public let name: VariableNode
     public let argumentNames: [VariableNode]
     public let startToken: Token
+    public var children: [ExprNode] {
+        return [name] + argumentNames
+    }
     public var description: String {
         return "PrototypeNode(name: \(name), argumentNames: \(argumentNames))"
     }
@@ -142,6 +159,9 @@ public struct FunctionNode: ExprNode {
     public let prototype: PrototypeNode
     public let body: ExprNode
     public let startToken: Token
+    public var children: [ExprNode] {
+        return [prototype, body]
+    }
     public var description: String {
         return "FunctionNode(prototype: \(prototype), body: \(body))"
     }

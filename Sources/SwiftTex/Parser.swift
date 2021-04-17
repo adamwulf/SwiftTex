@@ -169,7 +169,7 @@ public class Parser {
         // pop the }
         try popCurrentToken()
 
-        return BracedNode(expressions: expressions, startToken: token)
+        return BracedNode(children: expressions, startToken: token)
     }
 
     func parseTex() throws -> ExprNode {
@@ -209,7 +209,7 @@ public class Parser {
 
             expressions.removeLast()
 
-            return TexListNode(name: beginName, arguments: arguments, expressions: expressions, startToken: token)
+            return TexListNode(name: beginName, arguments: arguments, children: expressions, startToken: token)
         }
 
         let maybeToken = peekCurrentToken()
@@ -274,7 +274,7 @@ public class Parser {
             if Token.Case.BraceOpen == maybeToken.type {
                 try useSettings(Settings(allowImplicitMult: false)) {
                     let braced = try parseBraceExpr()
-                    subscripts = braced.expressions
+                    subscripts = braced.children
                 }
             } else if case Token.Case.Identifier = maybeToken.type {
                 subscripts.append(try parseIdentifier())
