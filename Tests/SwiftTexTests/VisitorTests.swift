@@ -142,24 +142,6 @@ class VisitorTests: XCTestCase {
         XCTAssertEqual(str, "x + 3 * 7")
     }
 
-    func testManyBinaryNodes() throws {
-        let source = multiline(
-            "p_{0x} - 2p_{1x} + p_{2x}"
-        )
-
-        let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
-        let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
-        let printVisitor = PrintVisitor()
-        printVisitor.ignoreSubscripts = true
-
-        let str = ast.first!.accept(visitor: printVisitor)
-
-        XCTAssertNotNil(str)
-        XCTAssertEqual(str, "p - 2p + p")
-    }
-
     func testTexList() throws {
         let source = multiline(
             "\\begin{list}",

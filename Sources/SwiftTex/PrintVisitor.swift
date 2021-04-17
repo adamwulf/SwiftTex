@@ -8,7 +8,6 @@
 import Foundation
 
 public class PrintVisitor: Visitor {
-    public var ignoreSubscripts: Bool = false
     public var inline: Bool = false
     private var alignedLevel: Int = 0
 
@@ -27,7 +26,7 @@ public class PrintVisitor: Visitor {
             formatter.minimumFractionDigits = item.fractionalDigits
             return formatter.string(from: item.value as NSNumber) ?? "\\formatError{\(item.value)}"
         case let item as VariableNode:
-            if ignoreSubscripts || item.subscripts.isEmpty {
+            if item.subscripts.isEmpty {
                 return item.name
             } else {
                 return item.name + "_{" + self.visit(items: item.subscripts).joined() + "}"
