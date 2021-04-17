@@ -17,7 +17,7 @@ class VisitorTests: XCTestCase {
 
     func testLet() throws {
         let source = multiline(
-            "\\let{x}{2/3}"
+            "\\let{x}{2/(3+5)}"
         )
 
         let lexer = Lexer(input: source)
@@ -29,7 +29,25 @@ class VisitorTests: XCTestCase {
         let str = ast.first!.accept(visitor: printVisitor)
 
         XCTAssertNotNil(str)
-        XCTAssertEqual(str, "\\text{let } x = \\frac{2}{3}")
+        XCTAssertEqual(str, "\\text{let } x = \\frac{2}{3 + 5}")
+    }
+
+    func testLetInline() throws {
+        let source = multiline(
+            "\\let{x}{2/(3+5)}"
+        )
+
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = try parser.parse()
+        let printVisitor = PrintVisitor()
+        printVisitor.inline = true
+
+        let str = ast.first!.accept(visitor: printVisitor)
+
+        XCTAssertNotNil(str)
+        XCTAssertEqual(str, "\\text{let } x = 2 / (3 + 5)")
     }
 
     func testAnyTex() throws {
