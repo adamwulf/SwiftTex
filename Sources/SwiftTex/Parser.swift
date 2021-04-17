@@ -188,6 +188,9 @@ public class Parser {
         var expressions: [ExprNode] = []
 
         while true {
+            while Token.Case.EOL == peekCurrentToken()?.type {
+                try popCurrentToken()
+            }
             if let nextToken = peekCurrentToken(),
                case Token.Case.Tex(let texName) = nextToken.type,
                texName == "\\end" {

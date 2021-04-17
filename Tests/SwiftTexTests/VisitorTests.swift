@@ -130,6 +130,60 @@ x + 7
         XCTAssertEqual(str2, "8 + y")
     }
 
+    func testTexNewline4() throws {
+        let source = """
+\\begin{eqnarray}
+x + y\\\\
+y + z\\\\
+z + x\\\\
+\\end{eqnarray}
+"""
+        let result = """
+\\begin{eqnarray}\\\\
+x + y\\\\
+y + z\\\\
+z + x\\\\
+\\end{eqnarray}
+"""
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = try parser.parse()
+        let printVisitor = PrintVisitor()
+
+        let str = ast.first!.accept(visitor: printVisitor)
+
+        XCTAssertNotNil(str)
+        XCTAssertEqual(str, result)
+    }
+
+    func testTexNewline5() throws {
+        let source = """
+\\begin{eqnarray}\\\\
+x + y\\\\
+y + z\\\\
+z + x\\\\
+\\end{eqnarray}
+"""
+        let result = """
+\\begin{eqnarray}\\\\
+x + y\\\\
+y + z\\\\
+z + x\\\\
+\\end{eqnarray}
+"""
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = try parser.parse()
+        let printVisitor = PrintVisitor()
+
+        let str = ast.first!.accept(visitor: printVisitor)
+
+        XCTAssertNotNil(str)
+        XCTAssertEqual(str, result)
+    }
+
     func testSimpleExpression() throws {
         let source = multiline(
             "7 + x"
