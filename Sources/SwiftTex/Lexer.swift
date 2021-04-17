@@ -107,6 +107,7 @@ public struct Token {
 typealias TokenGenerator = (String, Int, Int) -> Token?
 let tokenList: [(String, TokenGenerator)] = [
     ("\n\n", { s, l, c in Token(type: .EOL, line: l, col: c, raw: s) }),
+    ("\\\\\\\\", { s, l, c in Token(type: .EOL, line: l, col: c, raw: s) }),
     ("[ \t\n]", { _, _, _ in nil }),
     ("\\\\[a-zA-Z]+", { s, l, c in Token(type: .Tex(s), line: l, col: c, raw: s) }),
     ("[a-zA-Z]+", { s, l, c in Token(type: .Identifier(s), line: l, col: c, raw: s) }),

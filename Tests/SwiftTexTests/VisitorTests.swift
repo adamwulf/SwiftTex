@@ -67,6 +67,69 @@ class VisitorTests: XCTestCase {
         XCTAssertEqual(str, "\\fumble{foo}")
     }
 
+    func testTexNewline() throws {
+        let source = """
+x + 7
+8 + y
+"""
+
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = try parser.parse()
+        let printVisitor = PrintVisitor()
+
+        let str = ast.first!.accept(visitor: printVisitor)
+
+        XCTAssertNotNil(str)
+        XCTAssertEqual(str, "x + (7)(8) + y")
+    }
+
+    func testTexNewline2() throws {
+        let source = """
+x + 7\\\\
+8 + y
+"""
+
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = try parser.parse()
+        let printVisitor = PrintVisitor()
+
+        let str1 = ast.first!.accept(visitor: printVisitor)
+        let str2 = ast.last!.accept(visitor: printVisitor)
+
+        XCTAssertEqual(ast.count, 2)
+        XCTAssertNotNil(str1)
+        XCTAssertEqual(str1, "x + 7")
+        XCTAssertNotNil(str2)
+        XCTAssertEqual(str2, "8 + y")
+    }
+
+    func testTexNewline3() throws {
+        let source = """
+x + 7
+
+8 + y
+"""
+
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let ast = try parser.parse()
+        let printVisitor = PrintVisitor()
+
+        let str1 = ast.first!.accept(visitor: printVisitor)
+        let str2 = ast.last!.accept(visitor: printVisitor)
+
+        XCTAssertEqual(ast.count, 2)
+        XCTAssertNotNil(str1)
+        XCTAssertEqual(str1, "x + 7")
+        XCTAssertNotNil(str2)
+        XCTAssertEqual(str2, "8 + y")
+    }
+
     func testSimpleExpression() throws {
         let source = multiline(
             "7 + x"
