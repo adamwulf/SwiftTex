@@ -94,16 +94,6 @@ public struct TexListNode: ExprNode {
     public var description: String {
         return "TexListNode(\(name))"
     }
-
-    public struct TexListSuffix: ExprNode {
-        public let name: String
-        public let arguments: [String]
-        public let startToken: Token
-        public let children: [ExprNode] = []
-        public var description: String {
-            return "TexListSuffix(\(name))"
-        }
-    }
 }
 
 public struct BinaryOpNode: ExprNode {

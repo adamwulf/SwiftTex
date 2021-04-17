@@ -17,6 +17,7 @@ enum Errors: Error {
     case ExpectedArgumentList(token: Token)
     case ExpectedFunctionName(token: Token)
     case MismatchedName(token: Token)
+    case UnendingList(token: Token)
     case InvalidArgumentCount(token: Token)
     case InvalidFunctionBody(token: Token)
     case InvalidSubscript(token: Token)
@@ -172,87 +173,119 @@ public class Parser {
         return BracedNode(children: expressions, startToken: token)
     }
 
-    func parseTex() throws -> ExprNode {
-        let token = try popCurrentToken()
-        guard case let Token.Case.Tex(name) = token.type else {
-            throw Errors.UnexpectedToken(token: token)
+    func parseTextList() throws -> TexListNode {
+        guard let beginToken = peekCurrentToken() else { throw Errors.EOF }
+        guard case let Token.Case.Tex(name) = beginToken.type,
+              name == "\\begin"
+              else {
+            throw Errors.UnexpectedToken(token: beginToken)
         }
 
-        if name == "\\end" {
-            let arguments = try parseBraceTextList()
+        try popCurrentToken()
+        let arguments = try parseBraceTextList()
 
-            return TexListNode.TexListSuffix(name: name, arguments: arguments, startToken: token)
-        } else if name == "\\begin" {
-            let arguments = try parseBraceTextList()
+        guard let beginName = arguments.first else { throw Errors.ExpectedArgumentList(token: beginToken)}
+        var expressions: [ExprNode] = []
 
-            guard let beginName = arguments.first else { throw Errors.ExpectedArgumentList(token: token)}
-            var expressions: [ExprNode] = []
+        while true {
+            if let nextToken = peekCurrentToken(),
+               case Token.Case.Tex(let texName) = nextToken.type,
+               texName == "\\end" {
+                try popCurrentToken() // pop the \\end
+                let endArguments = try parseBraceTextList()
+                let endName = endArguments.first
 
-            while
-                let expression = try parseTopLevelExpression() {
-                expressions.append(expression)
-
-                // add the \end node to our expression list so we can
-                // verify it below and confirm correct begin/end matching
-                if expression as? TexListNode.TexListSuffix != nil {
+                if endName == beginName {
                     break
+                } else {
+                    throw Errors.MismatchedName(token: nextToken )
                 }
             }
 
-            guard
-                let endNode = expressions.last as? TexListNode.TexListSuffix,
-                let endName = endNode.arguments.first,
-                endName == beginName
-            else {
-                throw Errors.MismatchedName(token: expressions.last!.startToken )
+            guard let expression = try parseTopLevelExpression() else {
+                throw Errors.UnendingList(token: beginToken)
             }
 
-            expressions.removeLast()
-
-            return TexListNode(name: beginName, arguments: arguments, children: expressions, startToken: token)
+            expressions.append(expression)
         }
 
-        let maybeToken = peekCurrentToken()
-        guard Token.Case.BraceOpen == maybeToken?.type else {
-            return TexNode(name: name, arguments: [], startToken: token)
+        return TexListNode(name: beginName, arguments: arguments, children: expressions, startToken: beginToken)
+    }
+
+    func parseFunc() throws -> FunctionNode {
+        guard let token = peekCurrentToken() else { throw Errors.EOF }
+        guard case let Token.Case.Tex(name) = token.type,
+              name == "\\func"
+              else {
+            throw Errors.UnexpectedToken(token: token)
         }
 
-        if name == "\\func" {
-            // pop the {
-            let brace = try popCurrentToken()
-            let prototype = try parsePrototype()
-            let closeBrace = try popCurrentToken()
-            guard Token.Case.BraceClose == closeBrace.type else {
-                throw Errors.UnexpectedToken(token: closeBrace)
-            }
+        try popCurrentToken()
 
-            functions.append(prototype)
-
-            let body = try parseBraceExpr()
-            if
-                let body = body.unwrap(),
-                body as? BracedNode == nil {
-                return FunctionNode(prototype: prototype, body: body, startToken: token)
-            }
-
-            throw Errors.InvalidFunctionBody(token: brace)
+        // pop the {
+        let openBrace = try popCurrentToken()
+        guard Token.Case.BraceOpen == openBrace.type else {
+            throw Errors.UnexpectedToken(token: openBrace)
         }
+
+        let prototype = try parsePrototype()
+
+        let closeBrace = try popCurrentToken()
+        guard Token.Case.BraceClose == closeBrace.type else {
+            throw Errors.UnexpectedToken(token: closeBrace)
+        }
+
+        functions.append(prototype)
+
+        let body = try parseBraceExpr()
+        if
+            let body = body.unwrap(),
+            body as? BracedNode == nil {
+            return FunctionNode(prototype: prototype, body: body, startToken: token)
+        }
+
+        throw Errors.InvalidFunctionBody(token: openBrace)
+    }
+
+    func parseFrac() throws -> BinaryOpNode {
+        guard let token = peekCurrentToken() else { throw Errors.EOF }
+        guard case let Token.Case.Tex(name) = token.type,
+              name == "\\frac"
+              else {
+            throw Errors.UnexpectedToken(token: token)
+        }
+
+        try popCurrentToken()
 
         let arguments = try parseBraceList()
 
-        if name == "\\frac" {
-            guard
-                arguments.count == 2,
-                let numerator = arguments.first?.unwrap(),
-                let denominator = arguments.last?.unwrap()
-            else {
-                throw Errors.InvalidArgumentCount(token: token)
-            }
-
-            return BinaryOpNode(op: .div, lhs: numerator, rhs: denominator, startToken: token)
+        guard
+            arguments.count == 2,
+            let numerator = arguments.first?.unwrap(),
+            let denominator = arguments.last?.unwrap()
+        else {
+            throw Errors.InvalidArgumentCount(token: token)
         }
 
-        return TexNode(name: name, arguments: arguments, startToken: token)
+        return BinaryOpNode(op: .div, lhs: numerator, rhs: denominator, startToken: token)
+    }
+
+    func parseTex() throws -> ExprNode {
+        guard let token = peekCurrentToken() else { throw Errors.EOF }
+        guard case let Token.Case.Tex(name) = token.type else { throw Errors.UnexpectedToken(token: token) }
+
+        switch name {
+        case "\\begin":
+            return try parseTextList()
+        case "\\func":
+            return try parseFunc()
+        case "\\frac":
+            return try parseFrac()
+        default:
+            let token = try popCurrentToken()
+            let arguments = try parseBraceList()
+            return TexNode(name: name, arguments: arguments, startToken: token)
+        }
     }
 
     func parseIdentifier() throws -> VariableNode {
