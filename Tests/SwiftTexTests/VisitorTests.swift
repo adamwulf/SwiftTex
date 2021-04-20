@@ -20,11 +20,12 @@ class VisitorTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(str)
         XCTAssertEqual(str, "\\text{let } x = \\frac{2}{3 + 5}")
     }
@@ -34,12 +35,13 @@ class VisitorTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
         printVisitor.inline = true
 
         let str = ast.first!.accept(visitor: printVisitor)
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(str)
         XCTAssertEqual(str, "\\text{let } x = 2 / (3 + 5)")
     }
@@ -49,11 +51,12 @@ class VisitorTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(str)
         XCTAssertEqual(str, "\\fumble{foo}")
     }
@@ -67,11 +70,12 @@ x + 7
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(str)
         XCTAssertEqual(str, "x + (7)(8) + y")
     }
@@ -85,12 +89,13 @@ x + 7\\\\
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str1 = ast.first!.accept(visitor: printVisitor)
         let str2 = ast.last!.accept(visitor: printVisitor)
 
+        XCTAssert(errors.isEmpty)
         XCTAssertEqual(ast.count, 2)
         XCTAssertNotNil(str1)
         XCTAssertEqual(str1, "x + 7")
@@ -108,12 +113,13 @@ x + 7
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str1 = ast.first!.accept(visitor: printVisitor)
         let str2 = ast.last!.accept(visitor: printVisitor)
 
+        XCTAssert(errors.isEmpty)
         XCTAssertEqual(ast.count, 2)
         XCTAssertNotNil(str1)
         XCTAssertEqual(str1, "x + 7")
@@ -139,11 +145,12 @@ z + x\\\\
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(str)
         XCTAssertEqual(str, result)
     }
@@ -166,11 +173,12 @@ z + x\\\\
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(str)
         XCTAssertEqual(str, result)
     }
@@ -180,11 +188,12 @@ z + x\\\\
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(str)
         XCTAssertEqual(str, "7 + x")
     }
@@ -194,11 +203,12 @@ z + x\\\\
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(str)
         XCTAssertEqual(str, "(7 + x) * 4")
     }
@@ -208,11 +218,12 @@ z + x\\\\
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(str)
         XCTAssertEqual(str, "2 ^ (7x)")
     }
@@ -222,11 +233,12 @@ z + x\\\\
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(str)
         XCTAssertEqual(str, "7 * x + 4")
     }
@@ -240,12 +252,13 @@ z + x\\\\
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let swapVisitor = SwapBinaryVisitor()
         let printVisitor = PrintVisitor()
 
         var str = ast.first!.accept(visitor: swapVisitor).accept(visitor: printVisitor)
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(str)
         XCTAssertEqual(str, "x + 7")
 
@@ -276,11 +289,12 @@ z + x\\\\
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(str)
         XCTAssertEqual(str, result)
     }
@@ -310,11 +324,12 @@ z + x\\\\
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(str)
         XCTAssertEqual(str, result)
     }
@@ -324,11 +339,12 @@ z + x\\\\
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(str)
         XCTAssertEqual(str, "p_{0x} - 2p_{1x} + p_{2x}")
     }
@@ -338,11 +354,12 @@ z + x\\\\
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(str)
         XCTAssertEqual(str, "2 + 2.0 + 2.02 + 2.000 + 123")
     }
@@ -355,11 +372,12 @@ z + x\\\\
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         var str = ast.first!.accept(visitor: printVisitor)
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(str)
         XCTAssertEqual(str, "f(x) = x ^ 2")
 
@@ -383,7 +401,7 @@ z + x\\\\
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
         let str = ast.first!.accept(visitor: printVisitor)
         let out = """
@@ -393,6 +411,7 @@ z + x\\\\
                   \\end{eqalign}
                   """
 
+        XCTAssert(errors.isEmpty)
         XCTAssertEqual(str, out)
     }
 
@@ -406,7 +425,7 @@ z + x\\\\
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
         let str = ast.first!.accept(visitor: printVisitor)
         let out = """
@@ -416,6 +435,7 @@ z + x\\\\
                   \\end{fumble}
                   """
 
+        XCTAssert(errors.isEmpty)
         XCTAssertEqual(str, out)
     }
 }

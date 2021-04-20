@@ -24,8 +24,12 @@ class ErrorTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssertEqual(errors.count, 1)
+        if case .UnexpectedToken(let token) = errors.first {
+            XCTAssertEqual(token.raw, tokens[2].raw)
+        }
         XCTAssertEqual(tokens.count, 8)
         XCTAssertEqual(ast.count, 1)
         XCTAssertNotNil(ast.first as? BinaryOpNode)

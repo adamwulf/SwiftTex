@@ -19,12 +19,13 @@ class FoilTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let foilVisitor = FoilVisitor()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: foilVisitor).accept(visitor: printVisitor)
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(str)
         XCTAssertEqual(str, "xx + x2 + 1x + (1)(2)")
     }
@@ -34,13 +35,14 @@ class FoilTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let foilVisitor = FoilVisitor()
         foilVisitor.singleStep = true
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: foilVisitor).accept(visitor: printVisitor)
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(str)
         XCTAssertEqual(str, "x(x + 2) + 1(x + 2)")
     }
@@ -50,12 +52,13 @@ class FoilTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
         let foilVisitor = FoilVisitor()
 
         var str = ast.first!.accept(visitor: printVisitor)
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(str)
         XCTAssertEqual(str, "(x + y) ^ 0")
 
@@ -70,12 +73,13 @@ class FoilTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor(inline: true)
         let foilVisitor = FoilVisitor()
 
         var str = ast.first!.accept(visitor: printVisitor)
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(str)
         XCTAssertEqual(str, "(x + y) ^ -1")
 
@@ -90,12 +94,13 @@ class FoilTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor(inline: true)
         let foilVisitor = FoilVisitor()
 
         var str = ast.first!.accept(visitor: printVisitor)
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(str)
         XCTAssertEqual(str, "(x + y) ^ -2")
 
@@ -110,12 +115,13 @@ class FoilTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
         let foilVisitor = FoilVisitor()
 
         var str = ast.first!.accept(visitor: printVisitor)
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(str)
         XCTAssertEqual(str, "(x + y) ^ -2")
 
@@ -130,12 +136,13 @@ class FoilTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
         let foilVisitor = FoilVisitor()
 
         var str = ast.first!.accept(visitor: printVisitor)
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(str)
         XCTAssertEqual(str, "(x + y) ^ 2.5")
 

@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum Errors: Error {
+public enum ParseError: Error {
     case UnexpectedToken(token: Token)
     case UndefinedOperator(String, token: Token)
 
@@ -25,6 +25,9 @@ enum Errors: Error {
 }
 
 public class Parser {
+
+    public typealias Result = (expressions: [ExprNode], errors: [ParseError])
+
     let tokens: [Token]
     var index = 0
     var functions: [PrototypeNode] = []
@@ -70,7 +73,7 @@ public class Parser {
 
     @discardableResult
     func popCurrentToken() throws -> Token {
-        guard index < tokens.count else { throw Errors.EOF }
+        guard index < tokens.count else { throw ParseError.EOF }
         let token = tokens[index]
         index += 1
         return token
@@ -82,7 +85,7 @@ public class Parser {
         let token = try popCurrentToken()
         guard case let Token.Case.Number(value) = token.type
         else {
-            throw Errors.UnexpectedToken(token: token)
+            throw ParseError.UnexpectedToken(token: token)
         }
         return NumberNode(string: value, startToken: token)
     }
@@ -90,14 +93,14 @@ public class Parser {
     func parseParens() throws -> ExprNode {
         var token = try popCurrentToken()
         guard case Token.Case.ParensOpen = token.type else {
-            throw Errors.ExpectedCharacter("(", token: token)
+            throw ParseError.ExpectedCharacter("(", token: token)
         }
 
         let exp = try parseExpression()
 
         token = try popCurrentToken()
         guard case Token.Case.ParensClose = token.type else {
-            throw Errors.ExpectedCharacter(")", token: token)
+            throw ParseError.ExpectedCharacter(")", token: token)
         }
 
         return exp
@@ -133,7 +136,7 @@ public class Parser {
 
             let closed = try popCurrentToken()
 
-            guard closed.type == Token.Case.BraceClose else { throw Errors.ExpectedCharacter("}", token: closed) }
+            guard closed.type == Token.Case.BraceClose else { throw ParseError.ExpectedCharacter("}", token: closed) }
             arguments.append(text)
         }
 
@@ -143,10 +146,10 @@ public class Parser {
     /// Parses a single `{a}`
     func parseBraceExpr() throws -> BracedNode {
         guard let token = peekCurrentToken() else {
-            throw Errors.EOF
+            throw ParseError.EOF
         }
         guard case Token.Case.BraceOpen = token.type else {
-            throw Errors.ExpectedCharacter("{", token: token)
+            throw ParseError.ExpectedCharacter("{", token: token)
         }
 
         var expressions: [ExprNode] = []
@@ -174,17 +177,17 @@ public class Parser {
     }
 
     func parseTextList() throws -> TexListNode {
-        guard let beginToken = peekCurrentToken() else { throw Errors.EOF }
+        guard let beginToken = peekCurrentToken() else { throw ParseError.EOF }
         guard case let Token.Case.Tex(name) = beginToken.type,
               name == "\\begin"
               else {
-            throw Errors.UnexpectedToken(token: beginToken)
+            throw ParseError.UnexpectedToken(token: beginToken)
         }
 
         try popCurrentToken()
         let arguments = try parseBraceTextList()
 
-        guard let beginName = arguments.first else { throw Errors.ExpectedArgumentList(token: beginToken)}
+        guard let beginName = arguments.first else { throw ParseError.ExpectedArgumentList(token: beginToken)}
         var expressions: [ExprNode] = []
 
         while true {
@@ -201,12 +204,12 @@ public class Parser {
                 if endName == beginName {
                     break
                 } else {
-                    throw Errors.MismatchedName(token: nextToken )
+                    throw ParseError.MismatchedName(token: nextToken )
                 }
             }
 
             guard let expression = try parseTopLevelExpression() else {
-                throw Errors.UnendingList(token: beginToken)
+                throw ParseError.UnendingList(token: beginToken)
             }
 
             expressions.append(expression)
@@ -216,11 +219,11 @@ public class Parser {
     }
 
     func parseFunc() throws -> FunctionNode {
-        guard let token = peekCurrentToken() else { throw Errors.EOF }
+        guard let token = peekCurrentToken() else { throw ParseError.EOF }
         guard case let Token.Case.Tex(name) = token.type,
               name == "\\func"
               else {
-            throw Errors.UnexpectedToken(token: token)
+            throw ParseError.UnexpectedToken(token: token)
         }
 
         try popCurrentToken()
@@ -228,14 +231,14 @@ public class Parser {
         // pop the {
         let openBrace = try popCurrentToken()
         guard Token.Case.BraceOpen == openBrace.type else {
-            throw Errors.UnexpectedToken(token: openBrace)
+            throw ParseError.UnexpectedToken(token: openBrace)
         }
 
         let prototype = try parsePrototype()
 
         let closeBrace = try popCurrentToken()
         guard Token.Case.BraceClose == closeBrace.type else {
-            throw Errors.UnexpectedToken(token: closeBrace)
+            throw ParseError.UnexpectedToken(token: closeBrace)
         }
 
         functions.append(prototype)
@@ -247,15 +250,15 @@ public class Parser {
             return FunctionNode(prototype: prototype, body: body, startToken: token)
         }
 
-        throw Errors.InvalidFunctionBody(token: openBrace)
+        throw ParseError.InvalidFunctionBody(token: openBrace)
     }
 
     func parseFrac() throws -> BinaryOpNode {
-        guard let token = peekCurrentToken() else { throw Errors.EOF }
+        guard let token = peekCurrentToken() else { throw ParseError.EOF }
         guard case let Token.Case.Tex(name) = token.type,
               name == "\\frac"
               else {
-            throw Errors.UnexpectedToken(token: token)
+            throw ParseError.UnexpectedToken(token: token)
         }
 
         try popCurrentToken()
@@ -267,15 +270,15 @@ public class Parser {
             let numerator = arguments.first?.unwrap(),
             let denominator = arguments.last?.unwrap()
         else {
-            throw Errors.InvalidArgumentCount(token: token)
+            throw ParseError.InvalidArgumentCount(token: token)
         }
 
         return BinaryOpNode(op: .div, lhs: numerator, rhs: denominator, startToken: token)
     }
 
     func parseTex() throws -> ExprNode {
-        guard let token = peekCurrentToken() else { throw Errors.EOF }
-        guard case let Token.Case.Tex(name) = token.type else { throw Errors.UnexpectedToken(token: token) }
+        guard let token = peekCurrentToken() else { throw ParseError.EOF }
+        guard case let Token.Case.Tex(name) = token.type else { throw ParseError.UnexpectedToken(token: token) }
 
         switch name {
         case "\\begin":
@@ -294,7 +297,7 @@ public class Parser {
     func parseIdentifier() throws -> VariableNode {
         let token = try popCurrentToken()
         guard case let Token.Case.Identifier(name) = token.type else {
-            throw Errors.UnexpectedToken(token: token)
+            throw ParseError.UnexpectedToken(token: token)
         }
 
         var subscripts: [ExprNode] = []
@@ -305,7 +308,7 @@ public class Parser {
             try popCurrentToken()
 
             guard let maybeToken = peekCurrentToken() else {
-                throw Errors.EOF
+                throw ParseError.EOF
             }
             if Token.Case.BraceOpen == maybeToken.type {
                 try useSettings(Settings(allowImplicitMult: false)) {
@@ -317,7 +320,7 @@ public class Parser {
             } else if case Token.Case.Number = maybeToken.type {
                 subscripts.append(try parseNumber())
             } else {
-                throw Errors.InvalidSubscript(token: maybeToken)
+                throw ParseError.InvalidSubscript(token: maybeToken)
             }
         }
 
@@ -367,7 +370,7 @@ public class Parser {
             case let Token.Case.Operator(op) = token.type,
             op.isUnary
         else {
-            throw Errors.UnexpectedToken(token: token)
+            throw ParseError.UnexpectedToken(token: token)
         }
 
         let exp = try parseExpression()
@@ -383,7 +386,7 @@ public class Parser {
                 return lhs
             }
 
-            guard var opToken = peekCurrentToken() else { throw Errors.EOF }
+            guard var opToken = peekCurrentToken() else { throw ParseError.EOF }
             var op = Token.Symbol.mult(implicit: true)
 
             if let opToken = peekCurrentToken(),
@@ -392,7 +395,7 @@ public class Parser {
                     try popCurrentToken()
                     op = trueOp
                 } else {
-                    throw Errors.UnexpectedToken(token: opToken)
+                    throw ParseError.UnexpectedToken(token: opToken)
                 }
             } else {
                 // inferred multiplication
@@ -411,16 +414,16 @@ public class Parser {
     }
 
     func parsePrototype() throws -> PrototypeNode {
-        guard let maybeToken = peekCurrentToken() else { throw Errors.EOF }
+        guard let maybeToken = peekCurrentToken() else { throw ParseError.EOF }
         guard case Token.Case.Identifier = maybeToken.type else {
-            throw Errors.ExpectedFunctionName(token: maybeToken)
+            throw ParseError.ExpectedFunctionName(token: maybeToken)
         }
 
         let name = try parseIdentifier()
 
         let token = try popCurrentToken()
         guard case Token.Case.ParensOpen = token.type else {
-            throw Errors.ExpectedCharacter("(", token: token)
+            throw ParseError.ExpectedCharacter("(", token: token)
         }
 
         var argumentNames: [VariableNode] = []
@@ -437,7 +440,7 @@ public class Parser {
 
             let token = try popCurrentToken()
             guard case Token.Case.Comma = token.type else {
-                throw Errors.ExpectedArgumentList(token: token)
+                throw ParseError.ExpectedArgumentList(token: token)
             }
         }
 
@@ -457,7 +460,7 @@ public class Parser {
     func parseCall(function: VariableNode) throws -> ExprNode {
         let token = try popCurrentToken()
         guard case Token.Case.ParensOpen = token.type else {
-            throw Errors.ExpectedCharacter("(", token: token)
+            throw ParseError.ExpectedCharacter("(", token: token)
         }
 
         var parameters: [ExprNode] = []
@@ -472,7 +475,7 @@ public class Parser {
 
             let token = try popCurrentToken()
             guard case Token.Case.Comma = token.type else {
-                throw Errors.ExpectedArgumentList(token: token)
+                throw ParseError.ExpectedArgumentList(token: token)
             }
         }
 
@@ -483,7 +486,7 @@ public class Parser {
     }
 
     func parsePrimary() throws -> ExprNode {
-        guard let token = peekCurrentToken() else { throw Errors.EOF }
+        guard let token = peekCurrentToken() else { throw ParseError.EOF }
         switch token.type {
         case .Tex:
             return try parseTex()
@@ -496,7 +499,7 @@ public class Parser {
         case .ParensOpen:
             return try parseParens()
         default:
-            throw Errors.ExpectedExpression(token: token)
+            throw ParseError.ExpectedExpression(token: token)
         }
     }
 
@@ -527,16 +530,21 @@ public class Parser {
 
     // MARK: - Public API
 
-    public func parse() throws -> [ExprNode] {
+    public func parse() throws -> Result {
         index = 0
 
         var nodes: [ExprNode] = []
+        var errors: [ParseError] = []
         while index < tokens.count {
             do {
                 if let expression = try parseTopLevelExpression() {
                     nodes.append(expression)
                 }
             } catch {
+                guard let parseError = error as? ParseError else { throw error }
+
+                errors.append(parseError)
+
                 while let token = peekCurrentToken() {
                     if case .Tex(_) = token.type {
                         // we found a likely starting point for parsing, try to start again here
@@ -551,6 +559,6 @@ public class Parser {
             }
         }
 
-        return nodes
+        return (expressions: nodes, errors: errors)
     }
 }

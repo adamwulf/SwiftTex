@@ -20,8 +20,9 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssert(errors.isEmpty)
         XCTAssertEqual(tokens.count, 3)
         XCTAssertNotNil(ast.first as? BinaryOpNode)
 
@@ -37,8 +38,9 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssert(errors.isEmpty)
         XCTAssertEqual(tokens.count, 2)
         XCTAssertNotNil(ast.first as? UnaryOpNode)
 
@@ -53,8 +55,9 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssert(errors.isEmpty)
         XCTAssertEqual(tokens.count, 4)
         XCTAssertNotNil(ast.first as? UnaryOpNode)
 
@@ -69,8 +72,9 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssert(errors.isEmpty)
         XCTAssertEqual(tokens.count, 6)
         XCTAssertNotNil(ast.first as? BinaryOpNode)
 
@@ -86,8 +90,9 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssert(errors.isEmpty)
         XCTAssertEqual(tokens.count, 5)
         XCTAssertNotNil(ast.first as? BinaryOpNode)
         XCTAssertEqual(ast.count, 1)
@@ -102,8 +107,9 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssert(errors.isEmpty)
         XCTAssertEqual(tokens.count, 5)
         XCTAssertNotNil(ast.first as? BinaryOpNode)
         XCTAssertEqual(ast.count, 1)
@@ -118,8 +124,9 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? BinaryOpNode)
         XCTAssertEqual(ast.count, 1)
 
@@ -137,8 +144,9 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? BinaryOpNode)
         XCTAssertEqual(ast.count, 1)
 
@@ -156,8 +164,9 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? BinaryOpNode)
 
         guard let plus = ast.first as? BinaryOpNode else { XCTFail(); return }
@@ -172,8 +181,9 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? BinaryOpNode)
 
         guard let plus = ast.first as? BinaryOpNode else { XCTFail(); return }
@@ -200,20 +210,21 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? TexNode)
         XCTAssertEqual(ast.count, 1)
 
         guard let tex = ast.first as? TexNode else { XCTFail(); return }
 
         XCTAssertEqual(tex.name, "\\mumble")
-
         XCTAssertNotNil(tex.arguments.first != nil)
 
         guard let brace = tex.arguments.first else { XCTFail(); return }
 
         XCTAssertNotNil(brace.children.first as? NumberNode)
+
         guard let num = brace.children.first as? NumberNode else { XCTFail(); return }
 
         XCTAssertEqual(num.value, 4)
@@ -224,15 +235,15 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? TexNode)
         XCTAssertEqual(ast.count, 1)
 
         guard let tex = ast.first as? TexNode else { XCTFail(); return }
 
         XCTAssertEqual(tex.name, "\\mumble")
-
         XCTAssertEqual(tex.arguments.count, 4)
     }
 
@@ -241,15 +252,15 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? TexNode)
         XCTAssertEqual(ast.count, 1)
 
         guard let tex = ast.first as? TexNode else { XCTFail(); return }
 
         XCTAssertEqual(tex.name, "\\mumble")
-
         XCTAssertEqual(tex.arguments.count, 4)
     }
 
@@ -258,15 +269,15 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? VariableNode)
         XCTAssertEqual(ast.count, 1)
 
         guard let variable = ast.first as? VariableNode else { XCTFail(); return }
 
         XCTAssertEqual(variable.name, "x")
-
         XCTAssertNotNil(variable.subscripts.first as? NumberNode)
     }
 
@@ -275,8 +286,9 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? BinaryOpNode)
         XCTAssertEqual(ast.count, 1)
 
@@ -287,9 +299,7 @@ class SwiftTexTests: XCTestCase {
         guard let x = mult.lhs as? VariableNode else { XCTFail(); return }
 
         XCTAssertEqual(x.name, "x")
-
         XCTAssertNotNil(x.subscripts.first as? NumberNode)
-
         XCTAssertNotNil(mult.rhs as? VariableNode)
 
         guard let y = mult.rhs as? VariableNode else { XCTFail(); return }
@@ -302,15 +312,15 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? VariableNode)
         XCTAssertEqual(ast.count, 1)
 
         guard let variable = ast.first as? VariableNode else { XCTFail(); return }
 
         XCTAssertEqual(variable.name, "x")
-
         XCTAssertEqual(variable.subscripts.count, 2)
         XCTAssertNotNil(variable.subscripts.first as? NumberNode)
         XCTAssertNotNil(variable.subscripts.last as? VariableNode)
@@ -321,15 +331,15 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? VariableNode)
         XCTAssertEqual(ast.count, 1)
 
         guard let variable = ast.first as? VariableNode else { XCTFail(); return }
 
         XCTAssertEqual(variable.name, "x")
-
         XCTAssertEqual(variable.subscripts.count, 2)
         XCTAssertNotNil(variable.subscripts.first as? VariableNode)
         XCTAssertNotNil(variable.subscripts.last as? NumberNode)
@@ -340,10 +350,10 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssert(errors.isEmpty)
         XCTAssertEqual(ast.count, 1)
-
         XCTAssertNotNil(ast.first as? BinaryOpNode)
 
         guard let mult = ast.first as? BinaryOpNode else { XCTFail(); return }
@@ -363,10 +373,10 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssert(errors.isEmpty)
         XCTAssertEqual(ast.count, 1)
-
         XCTAssertNotNil(ast.first as? BinaryOpNode)
 
         guard let frac = ast.first as? BinaryOpNode else { XCTFail(); return }
@@ -383,8 +393,9 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssert(errors.isEmpty)
         XCTAssertEqual(tokens.count, 3)
         XCTAssertNotNil(ast.first as? BinaryOpNode)
 
@@ -400,8 +411,9 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssert(errors.isEmpty)
         XCTAssertEqual(tokens.count, 5)
         XCTAssertNotNil(ast.first as? BinaryOpNode)
 
@@ -423,8 +435,9 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssert(errors.isEmpty)
         XCTAssertEqual(tokens.count, 5)
         XCTAssertNotNil(ast.first as? BinaryOpNode)
 
@@ -449,8 +462,9 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? FunctionNode)
 
         guard let thunk = ast.first as? FunctionNode else { XCTFail(); return }
@@ -486,8 +500,9 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? TexListNode)
 
         guard let texList = ast.first as? TexListNode else { XCTFail(); return }
@@ -505,8 +520,9 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? FunctionNode)
 
         guard
@@ -528,8 +544,9 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssert(errors.isEmpty)
         XCTAssertEqual(ast.count, 7)
         XCTAssertNotNil(ast[0] as? TexNode)
         XCTAssertNotNil(ast[1] as? TexNode)
@@ -550,8 +567,9 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssert(errors.isEmpty)
         XCTAssertEqual(ast.count, 6)
         XCTAssertNotNil(ast[0] as? VariableNode)
         XCTAssertNotNil(ast[1] as? VariableNode)
@@ -572,8 +590,9 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let ast = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
+        XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast)
         XCTAssertEqual(tokens.count, 5)
         XCTAssertEqual(tokens.last!.raw, "Supercalifragilisticexpialidocious")
