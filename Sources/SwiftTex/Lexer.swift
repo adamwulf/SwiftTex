@@ -8,19 +8,6 @@
 
 import Foundation
 
-protocol Foo {
-    func foo()
-}
-
-enum Bar: Foo {
-    case fumble
-    case mumble
-
-    func foo() {
-        print("crumble")
-    }
-}
-
 public struct Token {
     public enum Symbol {
         case plus
@@ -51,7 +38,7 @@ public struct Token {
             }
         }
 
-        var isUnary: Bool {
+        public var isUnary: Bool {
             switch self {
             case .plus, .minus:
                 return true
@@ -60,11 +47,11 @@ public struct Token {
             }
         }
 
-        var isBinary: Bool {
+        public var isBinary: Bool {
             return true
         }
 
-        var rawValue: String {
+        public var rawValue: String {
             switch self {
             case .plus:
                 return "+"
@@ -98,10 +85,10 @@ public struct Token {
         case EOL
     }
 
-    let type: Case
-    let line: Int
-    let col: Int
-    let raw: String
+    public let type: Case
+    public let line: Int
+    public let col: Int
+    public let raw: String
 }
 
 typealias TokenGenerator = (String, Int, Int) -> Token?
