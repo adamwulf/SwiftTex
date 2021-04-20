@@ -11,7 +11,6 @@ import Foundation
 public enum ParseError: Error {
     case UnexpectedToken(token: Token)
     case UndefinedOperator(String, token: Token)
-
     case ExpectedCharacter(Character, token: Token)
     case ExpectedExpression(token: Token)
     case ExpectedArgumentList(token: Token)
@@ -22,6 +21,24 @@ public enum ParseError: Error {
     case InvalidFunctionBody(token: Token)
     case InvalidSubscript(token: Token)
     case EOF
+
+    public var token: Token? {
+        switch self {
+        case .UnexpectedToken(let token): return token
+        case .UndefinedOperator(_, let token): return token
+        case .ExpectedCharacter(_, let token): return token
+        case .ExpectedExpression(let token): return token
+        case .ExpectedArgumentList(let token): return token
+        case .ExpectedFunctionName(let token): return token
+        case .MismatchedName(let token): return token
+        case .UnendingList(let token): return token
+        case .InvalidArgumentCount(let token): return token
+        case .InvalidFunctionBody(let token): return token
+        case .InvalidSubscript(let token): return token
+        case .EOF: return nil
+        }
+    }
+
 }
 
 public class Parser {
