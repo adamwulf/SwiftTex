@@ -363,7 +363,10 @@ public class Parser {
 
     func parseUnary() throws -> UnaryOpNode {
         let token = try popCurrentToken()
-        guard case let Token.Case.Operator(op) = token.type else {
+        guard
+            case let Token.Case.Operator(op) = token.type,
+            op.isUnary
+        else {
             throw Errors.UnexpectedToken(token: token)
         }
 
@@ -385,8 +388,12 @@ public class Parser {
 
             if let opToken = peekCurrentToken(),
                case let Token.Case.Operator(trueOp) = opToken.type {
-                try popCurrentToken()
-                op = trueOp
+                if op.isBinary {
+                    try popCurrentToken()
+                    op = trueOp
+                } else {
+                    throw Errors.UnexpectedToken(token: opToken)
+                }
             } else {
                 // inferred multiplication
                 opToken = Token(type: .Operator(op), line: opToken.line, col: opToken.col, raw: op.rawValue)
@@ -532,6 +539,9 @@ public class Parser {
             } catch {
                 while let token = peekCurrentToken() {
                     if case .Tex(_) = token.type {
+                        // we found a likely starting point for parsing, try to start again here
+                        break
+                    } else if case .EOL = token.type {
                         // we found a likely starting point for parsing, try to start again here
                         break
                     } else {

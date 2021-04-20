@@ -16,22 +16,24 @@ import XCTest
 class ErrorTests: XCTestCase {
 
     func testAddition() throws {
-        let source = multiline(
-            "x + y"
-        )
+        let source = """
+                     x + * y
 
+                     x + 7
+                     """
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let ast = try parser.parse()
 
-        XCTAssertEqual(tokens.count, 3)
+        XCTAssertEqual(tokens.count, 8)
+        XCTAssertEqual(ast.count, 1)
         XCTAssertNotNil(ast.first as? BinaryOpNode)
 
         guard let plus = ast.first as? BinaryOpNode else { XCTFail(); return }
 
         XCTAssertEqual(plus.op, .plus)
         XCTAssertEqual((plus.lhs as? VariableNode)?.name, "x")
-        XCTAssertEqual((plus.rhs as? VariableNode)?.name, "y")
+        XCTAssertEqual((plus.rhs as? NumberNode)?.value, 7)
     }
 }

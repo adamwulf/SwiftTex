@@ -16,10 +16,7 @@ import XCTest
 class VisitorTests: XCTestCase {
 
     func testLet() throws {
-        let source = multiline(
-            "\\let{x}{2/(3+5)}"
-        )
-
+        let source = "\\let{x}{2/(3+5)}"
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
@@ -33,10 +30,7 @@ class VisitorTests: XCTestCase {
     }
 
     func testLetInline() throws {
-        let source = multiline(
-            "\\let{x}{2/(3+5)}"
-        )
-
+        let source = "\\let{x}{2/(3+5)}"
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
@@ -51,10 +45,7 @@ class VisitorTests: XCTestCase {
     }
 
     func testAnyTex() throws {
-        let source = multiline(
-            "\\fumble{foo}"
-        )
-
+        let source = "\\fumble{foo}"
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
@@ -185,10 +176,7 @@ z + x\\\\
     }
 
     func testSimpleExpression() throws {
-        let source = multiline(
-            "7 + x"
-        )
-
+        let source = "7 + x"
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
@@ -202,10 +190,7 @@ z + x\\\\
     }
 
     func testPrintParens() throws {
-        let source = multiline(
-            "(7 + x) * 4"
-        )
-
+        let source = "(7 + x) * 4"
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
@@ -219,10 +204,7 @@ z + x\\\\
     }
 
     func testPrintParens2() throws {
-        let source = multiline(
-            "2^(7x)"
-        )
-
+        let source = "2^(7x)"
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
@@ -236,10 +218,7 @@ z + x\\\\
     }
 
     func testPrintParens3() throws {
-        let source = multiline(
-            "(7 * x) + 4"
-        )
-
+        let source = "(7 * x) + 4"
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
@@ -253,12 +232,11 @@ z + x\\\\
     }
 
     func testSimpleSwap() throws {
-        let source = multiline(
-            "7 + x",
-            "",
-            "7 * 3 + x"
-        )
+        let source = """
+                     7 + x
 
+                     7 * 3 + x
+                     """
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
@@ -279,21 +257,21 @@ z + x\\\\
 
     func testTexList() throws {
         let source = """
-\\begin{list}
-x + y
+                     \\begin{list}
+                     x + y
 
-y + z
+                     y + z
 
-z + x
-\\end{list}
-"""
+                     z + x
+                     \\end{list}
+                     """
         let result = """
-\\begin{list}\\\\
-x + y\\\\
-y + z\\\\
-z + x\\\\
-\\end{list}
-"""
+                     \\begin{list}\\\\
+                     x + y\\\\
+                     y + z\\\\
+                     z + x\\\\
+                     \\end{list}
+                     """
 
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
@@ -309,25 +287,25 @@ z + x\\\\
 
     func testTexSubList() throws {
         let source = """
-\\begin{list}
-\\begin{inside}
-x + y
+                     \\begin{list}
+                     \\begin{inside}
+                     x + y
 
-y + z
+                     y + z
 
-z + x
-\\end{inside}
-\\end{list}
-"""
+                     z + x
+                     \\end{inside}
+                     \\end{list}
+                     """
         let result = """
-\\begin{list}\\\\
-\\begin{inside}\\\\
-x + y\\\\
-y + z\\\\
-z + x\\\\
-\\end{inside}\\\\
-\\end{list}
-"""
+                     \\begin{list}\\\\
+                     \\begin{inside}\\\\
+                     x + y\\\\
+                     y + z\\\\
+                     z + x\\\\
+                     \\end{inside}\\\\
+                     \\end{list}
+                     """
 
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
@@ -342,10 +320,7 @@ z + x\\\\
     }
 
     func testWithSubscripts() throws {
-        let source = multiline(
-            "p_{0x} - 2p_{1x} + p_{2x}"
-        )
-
+        let source = "p_{0x} - 2p_{1x} + p_{2x}"
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
@@ -359,10 +334,7 @@ z + x\\\\
     }
 
     func testNumberFormatting() throws {
-        let source = multiline(
-            "2 + 2.0 + 2.02 + 2.000 + 123"
-        )
-
+        let source = "2 + 2.0 + 2.02 + 2.000 + 123"
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
@@ -376,11 +348,10 @@ z + x\\\\
     }
 
     func testFunctionFormatting() throws {
-        let source = multiline(
-            "\\func{ f(x) }{ x^2 }",
-            "f(2) + g(3)"
-        )
-
+        let source = """
+                     \\func{ f(x) }{ x^2 }
+                     f(2) + g(3)
+                     """
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
@@ -416,11 +387,11 @@ z + x\\\\
         let printVisitor = PrintVisitor()
         let str = ast.first!.accept(visitor: printVisitor)
         let out = """
-\\begin{eqalign}\\\\
-\\text{let } a_{2} &= p_{0x} - 2p_{1x} + p_{2x}\\\\
-\\text{let } a_{1} &= 2p_{1x} - 2p_{0x}\\\\
-\\end{eqalign}
-"""
+                  \\begin{eqalign}\\\\
+                  \\text{let } a_{2} &= p_{0x} - 2p_{1x} + p_{2x}\\\\
+                  \\text{let } a_{1} &= 2p_{1x} - 2p_{0x}\\\\
+                  \\end{eqalign}
+                  """
 
         XCTAssertEqual(str, out)
     }
@@ -439,11 +410,11 @@ z + x\\\\
         let printVisitor = PrintVisitor()
         let str = ast.first!.accept(visitor: printVisitor)
         let out = """
-\\begin{fumble}\\\\
-\\text{let } a_{2} = p_{0x} - 2p_{1x} + p_{2x}\\\\
-\\text{let } a_{1} = 2p_{1x} - 2p_{0x}\\\\
-\\end{fumble}
-"""
+                  \\begin{fumble}\\\\
+                  \\text{let } a_{2} = p_{0x} - 2p_{1x} + p_{2x}\\\\
+                  \\text{let } a_{1} = 2p_{1x} - 2p_{0x}\\\\
+                  \\end{fumble}
+                  """
 
         XCTAssertEqual(str, out)
     }
