@@ -416,7 +416,7 @@ public class Parser {
                 }
             } else {
                 // inferred multiplication
-                opToken = Token(type: .Operator(op), line: opToken.line, col: opToken.col, raw: op.rawValue)
+                opToken = Token(type: .Operator(op), line: opToken.line, col: opToken.col, loc: opToken.loc, raw: op.rawValue)
             }
 
             var rhs = try parsePrimary()

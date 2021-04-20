@@ -88,24 +88,25 @@ public struct Token {
     public let type: Case
     public let line: Int
     public let col: Int
+    public let loc: Int
     public let raw: String
 }
 
-typealias TokenGenerator = (String, Int, Int) -> Token?
+typealias TokenGenerator = (String, Int, Int, Int) -> Token?
 let tokenList: [(String, TokenGenerator)] = [
-    ("\n\n", { s, l, c in Token(type: .EOL, line: l, col: c, raw: s) }),
-    ("\\\\\\\\", { s, l, c in Token(type: .EOL, line: l, col: c, raw: s) }),
-    ("[ \t\n]", { _, _, _ in nil }),
-    ("\\\\[a-zA-Z]+", { s, l, c in Token(type: .Tex(s), line: l, col: c, raw: s) }),
-    ("[a-zA-Z]+", { s, l, c in Token(type: .Identifier(s), line: l, col: c, raw: s) }),
-    ("[0-9]+\\.?[0-9]*", { s, l, c in Token(type: .Number(s), line: l, col: c, raw: s) }),
-    ("\\(", { s, l, c in Token(type: .ParensOpen, line: l, col: c, raw: s) }),
-    ("\\)", { s, l, c in Token(type: .ParensClose, line: l, col: c, raw: s) }),
-    ("\\{", { s, l, c in Token(type: .BraceOpen, line: l, col: c, raw: s) }),
-    ("\\}", { s, l, c in Token(type: .BraceClose, line: l, col: c, raw: s) }),
-    ("_", { s, l, c in Token(type: .Subscript, line: l, col: c, raw: s) }),
-    (",", { s, l, c in Token(type: .Comma, line: l, col: c, raw: s) }),
-    ("[\\+\\-\\*/\\^=]", { s, l, c in Token(type: .Operator(Token.Symbol.from(s)!), line: l, col: c, raw: s) })
+    ("\n\n", { s, l, c, loc in Token(type: .EOL, line: l, col: c, loc: loc, raw: s) }),
+    ("\\\\\\\\", { s, l, c, loc in Token(type: .EOL, line: l, col: c, loc: loc, raw: s) }),
+    ("[ \t\n]", { _, _, _, _ in nil }),
+    ("\\\\[a-zA-Z]+", { s, l, c, loc in Token(type: .Tex(s), line: l, col: c, loc: loc, raw: s) }),
+    ("[a-zA-Z]+", { s, l, c, loc in Token(type: .Identifier(s), line: l, col: c, loc: loc, raw: s) }),
+    ("[0-9]+\\.?[0-9]*", { s, l, c, loc in Token(type: .Number(s), line: l, col: c, loc: loc, raw: s) }),
+    ("\\(", { s, l, c, loc in Token(type: .ParensOpen, line: l, col: c, loc: loc, raw: s) }),
+    ("\\)", { s, l, c, loc in Token(type: .ParensClose, line: l, col: c, loc: loc, raw: s) }),
+    ("\\{", { s, l, c, loc in Token(type: .BraceOpen, line: l, col: c, loc: loc, raw: s) }),
+    ("\\}", { s, l, c, loc in Token(type: .BraceClose, line: l, col: c, loc: loc, raw: s) }),
+    ("_", { s, l, c, loc in Token(type: .Subscript, line: l, col: c, loc: loc, raw: s) }),
+    (",", { s, l, c, loc in Token(type: .Comma, line: l, col: c, loc: loc, raw: s) }),
+    ("[\\+\\-\\*/\\^=]", { s, l, c, loc in Token(type: .Operator(Token.Symbol.from(s)!), line: l, col: c, loc: loc, raw: s) })
 ]
 
 public class Lexer {
@@ -118,6 +119,7 @@ public class Lexer {
         var content = input
         var line = 1
         var col = 0
+        var loc = 0
 
         while let (_, range) = content.match(regex: "%[^\n]*[ \t\n]*", mustStart: false) {
             content = (content as NSString).replacingCharacters(in: range, with: "")
@@ -128,20 +130,25 @@ public class Lexer {
 
             for (pattern, generator) in tokenList {
                 if let (m, _) = content.match(regex: pattern, mustStart: true) {
-                    if let t = generator(m, line, col) {
+                    var reset = false
+                    if let t = generator(m, line, col, loc) {
                         tokens.append(t)
-
                         if case .EOL = t.type {
-                            line += 1
-                            col = 0
+                            reset = true
                         }
                     }
                     let endIndex = content.index(content.startIndex, offsetBy: m.lengthOfBytes(using: .utf8))
 
                     col += m.lengthOfBytes(using: .utf8)
+                    loc += m.lengthOfBytes(using: .utf8)
 
                     content = String(content[endIndex...])
                     matched = true
+
+                    if reset {
+                        line += 1
+                        col = 0
+                    }
                     break
                 }
             }
@@ -149,7 +156,7 @@ public class Lexer {
             if !matched {
                 let index = content.index(after: content.startIndex)
                 let str = String(content[..<index])
-                tokens.append(Token(type: .Other(str), line: line, col: col, raw: str))
+                tokens.append(Token(type: .Other(str), line: line, col: col, loc: loc, raw: str))
                 content = String(content[index...])
 
                 col += 1
