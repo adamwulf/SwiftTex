@@ -15,10 +15,7 @@ import XCTest
 
 class FoilTests: XCTestCase {
     func testSimpleFoil() throws {
-        let source = multiline(
-            "(x + 1)(x + 2)"
-        )
-
+        let source = "(x + 1)(x + 2)"
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
@@ -33,10 +30,7 @@ class FoilTests: XCTestCase {
     }
 
     func testSimpleFoilSteps() throws {
-        let source = multiline(
-            "(x + 1)(x + 2)"
-        )
-
+        let source = "(x + 1)(x + 2)"
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
@@ -52,10 +46,7 @@ class FoilTests: XCTestCase {
     }
 
     func testExpandingExponents() throws {
-        let source = multiline(
-            "(x + y)^0"
-        )
-
+        let source = "(x + y)^0"
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
@@ -75,10 +66,7 @@ class FoilTests: XCTestCase {
     }
 
     func testExpandingExponents2() throws {
-        let source = multiline(
-            "(x + y)^-1"
-        )
-
+        let source = "(x + y)^-1"
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
@@ -98,10 +86,7 @@ class FoilTests: XCTestCase {
     }
 
     func testExpandingExponents3() throws {
-        let source = multiline(
-            "(x + y)^-2"
-        )
-
+        let source = "(x + y)^-2"
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
@@ -121,10 +106,7 @@ class FoilTests: XCTestCase {
     }
 
     func testExpandingExponents3Block() throws {
-        let source = multiline(
-            "(x + y)^-2"
-        )
-
+        let source = "(x + y)^-2"
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
@@ -144,10 +126,7 @@ class FoilTests: XCTestCase {
     }
 
     func testExpandingExponents4() throws {
-        let source = multiline(
-            "(x + y)^2.5"
-        )
-
+        let source = "(x + y)^2.5"
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)

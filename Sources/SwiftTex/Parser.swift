@@ -524,11 +524,21 @@ public class Parser {
         index = 0
 
         var nodes: [ExprNode] = []
-        while
-            index < tokens.count,
-            let expression = try parseTopLevelExpression() {
-
-            nodes.append(expression)
+        while index < tokens.count {
+            do {
+                if let expression = try parseTopLevelExpression() {
+                    nodes.append(expression)
+                }
+            } catch {
+                while let token = peekCurrentToken() {
+                    if case .Tex(_) = token.type {
+                        // we found a likely starting point for parsing, try to start again here
+                        break
+                    } else {
+                        try popCurrentToken()
+                    }
+                }
+            }
         }
 
         return nodes
