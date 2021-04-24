@@ -20,7 +20,7 @@ class VisitorTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
@@ -35,7 +35,7 @@ class VisitorTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
         printVisitor.inline = true
 
@@ -51,7 +51,7 @@ class VisitorTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
@@ -70,7 +70,7 @@ x + 7
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
@@ -89,7 +89,7 @@ x + 7\\\\
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str1 = ast.first!.accept(visitor: printVisitor)
@@ -113,7 +113,7 @@ x + 7
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str1 = ast.first!.accept(visitor: printVisitor)
@@ -145,7 +145,7 @@ z + x\\\\
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
@@ -173,7 +173,7 @@ z + x\\\\
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
@@ -188,7 +188,7 @@ z + x\\\\
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
@@ -203,7 +203,7 @@ z + x\\\\
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
@@ -218,7 +218,7 @@ z + x\\\\
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
@@ -233,7 +233,7 @@ z + x\\\\
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
@@ -252,7 +252,7 @@ z + x\\\\
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let swapVisitor = SwapBinaryVisitor()
         let printVisitor = PrintVisitor()
 
@@ -289,7 +289,7 @@ z + x\\\\
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
@@ -324,7 +324,7 @@ z + x\\\\
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
@@ -339,7 +339,7 @@ z + x\\\\
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
@@ -354,7 +354,7 @@ z + x\\\\
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
@@ -372,7 +372,7 @@ z + x\\\\
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         var str = ast.first!.accept(visitor: printVisitor)
@@ -401,7 +401,7 @@ z + x\\\\
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
         let str = ast.first!.accept(visitor: printVisitor)
         let out = """
@@ -425,7 +425,7 @@ z + x\\\\
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
         let str = ast.first!.accept(visitor: printVisitor)
         let out = """

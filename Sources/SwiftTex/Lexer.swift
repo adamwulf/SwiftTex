@@ -91,7 +91,6 @@ public struct Token {
         case Other(String)
         case EOF
         case EOL
-        case Comment(String)
     }
 
     public let type: Case
@@ -103,7 +102,6 @@ public struct Token {
 
 typealias TokenGenerator = (String, Int, Int, Int) -> Token?
 let tokenList: [(String, TokenGenerator)] = [
-//    ("%[^\n]*[ \t\n]*", { s, l, c, loc in Token(type: .Comment(s), line: l, col: c, loc: loc, raw: s) }),
     ("\n\n", { s, l, c, loc in Token(type: .EOL, line: l, col: c, loc: loc, raw: s) }),
     ("\\\\\\\\", { s, l, c, loc in Token(type: .EOL, line: l, col: c, loc: loc, raw: s) }),
     ("[ \t]", { _, _, _, _ in nil }),
@@ -132,20 +130,31 @@ public class Lexer {
         var col = 0
         var loc = 0
 
+        // find all of the comments and store their location information
         var comments: [Comment] = []
-        var commentLen = 0
-        while let (string, nsrange, range) = content.match(regex: "%[^\n]*[ \t\n]*", mustStart: false) {
-            let prefix = content.prefix(upTo: range.lowerBound)
-            let line = prefix.components(separatedBy: "\n").count
-            let col: Int
-            if let index = prefix.lastIndex(of: "\n") {
-                col = prefix.suffix(from: index).utf16.count - 1
-            } else {
-                col = prefix.utf16.count
-            }
-            let loc = prefix.utf16.count + commentLen
-            commentLen += string.utf16.count
-            comments.append(Comment(line: line, col: col, loc: loc, length: string.utf16.count, raw: string))
+        for commentMatch in input.matches(regex: "%[^\n]*[ \t\n]*", mustStart: false) {
+            let prefix = { () -> (string: String, length: Int, lines: Int, tail: Int) in
+                let string = String(content.prefix(upTo: commentMatch.range.lowerBound))
+                let lineCount = string.components(separatedBy: "\n").count
+                let tail: Int
+                if let index = string.lastIndex(of: "\n") {
+                    tail = string.suffix(from: index).utf16.count - 1
+                } else {
+                    tail = string.utf16.count
+                }
+
+                return (string: string, length: string.utf16.count, lines: lineCount, tail: tail)
+            }()
+
+            let comment = commentMatch.str
+            let line = prefix.lines
+            let col = prefix.tail
+            let loc = prefix.length
+            comments.append(Comment(line: line, col: col, loc: loc, length: comment.utf16.count, raw: comment))
+        }
+
+        // strip comments out of actual parsed content
+        while let (_, nsrange, _) = content.match(regex: "%[^\n]*[ \t\n]*", mustStart: false) {
             content = (content as NSString).replacingCharacters(in: nsrange, with: "")
         }
 

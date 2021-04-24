@@ -20,7 +20,7 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
         XCTAssertEqual(tokens.count, 3)
@@ -105,7 +105,7 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
         XCTAssertEqual(tokens.count, 2)
@@ -122,7 +122,7 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
         XCTAssertEqual(tokens.count, 4)
@@ -139,7 +139,7 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
         XCTAssertEqual(tokens.count, 6)
@@ -157,7 +157,7 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
         XCTAssertEqual(tokens.count, 5)
@@ -174,7 +174,7 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
         XCTAssertEqual(tokens.count, 5)
@@ -191,7 +191,7 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? BinaryOpNode)
@@ -211,7 +211,7 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? BinaryOpNode)
@@ -231,7 +231,7 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? BinaryOpNode)
@@ -248,7 +248,7 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? BinaryOpNode)
@@ -277,7 +277,7 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? TexNode)
@@ -302,7 +302,7 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? TexNode)
@@ -319,7 +319,7 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? TexNode)
@@ -336,7 +336,7 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? VariableNode)
@@ -353,7 +353,7 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? BinaryOpNode)
@@ -379,7 +379,7 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? VariableNode)
@@ -398,7 +398,7 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? VariableNode)
@@ -417,7 +417,7 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
         XCTAssertEqual(ast.count, 1)
@@ -440,7 +440,7 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
         XCTAssertEqual(ast.count, 1)
@@ -460,7 +460,7 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
         XCTAssertEqual(tokens.count, 3)
@@ -478,7 +478,7 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
         XCTAssertEqual(tokens.count, 5)
@@ -502,7 +502,7 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
         XCTAssertEqual(tokens.count, 5)
@@ -529,7 +529,7 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? FunctionNode)
@@ -567,7 +567,7 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? TexListNode)
@@ -587,7 +587,7 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? FunctionNode)
@@ -611,7 +611,7 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
         XCTAssertEqual(ast.count, 7)
@@ -634,7 +634,7 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
         XCTAssertEqual(ast.count, 6)
@@ -657,7 +657,7 @@ class SwiftTexTests: XCTestCase {
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast)
