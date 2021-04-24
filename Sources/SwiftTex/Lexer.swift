@@ -83,6 +83,7 @@ public struct Token {
         case Other(String)
         case EOF
         case EOL
+        case Comment(String)
     }
 
     public let type: Case
@@ -106,7 +107,8 @@ let tokenList: [(String, TokenGenerator)] = [
     ("\\}", { s, l, c, loc in Token(type: .BraceClose, line: l, col: c, loc: loc, raw: s) }),
     ("_", { s, l, c, loc in Token(type: .Subscript, line: l, col: c, loc: loc, raw: s) }),
     (",", { s, l, c, loc in Token(type: .Comma, line: l, col: c, loc: loc, raw: s) }),
-    ("[\\+\\-\\*/\\^=]", { s, l, c, loc in Token(type: .Operator(Token.Symbol.from(s)!), line: l, col: c, loc: loc, raw: s) })
+    ("[\\+\\-\\*/\\^=]", { s, l, c, loc in Token(type: .Operator(Token.Symbol.from(s)!), line: l, col: c, loc: loc, raw: s) }),
+    ("%[^\n]*[ \t\n]*", { s, l, c, loc in Token(type: .Comment(s), line: l, col: c, loc: loc, raw: s) })
 ]
 
 public class Lexer {
@@ -130,11 +132,11 @@ public class Lexer {
 
             for (pattern, generator) in tokenList {
                 if let (m, _) = content.match(regex: pattern, mustStart: true) {
-                    var reset = false
+                    var resetLines = 0
                     if let t = generator(m, line, col, loc) {
                         tokens.append(t)
                         if case .EOL = t.type {
-                            reset = true
+                            resetLines = t.raw.components(separatedBy: "\n").count - 1
                         }
                     }
                     let endIndex = content.index(content.startIndex, offsetBy: m.lengthOfBytes(using: .utf8))
@@ -145,8 +147,8 @@ public class Lexer {
                     content = String(content[endIndex...])
                     matched = true
 
-                    if reset {
-                        line += 1
+                    if resetLines > 0 {
+                        line += resetLines
                         col = 0
                     }
                     break
