@@ -8,6 +8,14 @@
 
 import Foundation
 
+public struct Comment {
+    public let line: Int
+    public let col: Int
+    public let loc: Int
+    public let length: Int
+    public let raw: String
+}
+
 public struct Token {
     public enum Symbol {
         case plus
@@ -95,6 +103,7 @@ public struct Token {
 
 typealias TokenGenerator = (String, Int, Int, Int) -> Token?
 let tokenList: [(String, TokenGenerator)] = [
+//    ("%[^\n]*[ \t\n]*", { s, l, c, loc in Token(type: .Comment(s), line: l, col: c, loc: loc, raw: s) }),
     ("\n\n", { s, l, c, loc in Token(type: .EOL, line: l, col: c, loc: loc, raw: s) }),
     ("\\\\\\\\", { s, l, c, loc in Token(type: .EOL, line: l, col: c, loc: loc, raw: s) }),
     ("[ \t]", { _, _, _, _ in nil }),
@@ -108,8 +117,7 @@ let tokenList: [(String, TokenGenerator)] = [
     ("\\}", { s, l, c, loc in Token(type: .BraceClose, line: l, col: c, loc: loc, raw: s) }),
     ("_", { s, l, c, loc in Token(type: .Subscript, line: l, col: c, loc: loc, raw: s) }),
     (",", { s, l, c, loc in Token(type: .Comma, line: l, col: c, loc: loc, raw: s) }),
-    ("[\\+\\-\\*/\\^=]", { s, l, c, loc in Token(type: .Operator(Token.Symbol.from(s)!), line: l, col: c, loc: loc, raw: s) }),
-    ("%[^\n]*[ \t\n]*", { s, l, c, loc in Token(type: .Comment(s), line: l, col: c, loc: loc, raw: s) })
+    ("[\\+\\-\\*/\\^=]", { s, l, c, loc in Token(type: .Operator(Token.Symbol.from(s)!), line: l, col: c, loc: loc, raw: s) })
 ]
 
 public class Lexer {
@@ -117,19 +125,35 @@ public class Lexer {
     public init(input: String) {
         self.input = input
     }
-    public func tokenize() -> [Token] {
+    public func tokenize() -> (tokens: [Token], comments: [Comment]) {
         var tokens: [Token] = []
         var content = input
         var line = 1
         var col = 0
         var loc = 0
 
+        var comments: [Comment] = []
+        var commentLen = 0
+        while let (string, nsrange, range) = content.match(regex: "%[^\n]*[ \t\n]*", mustStart: false) {
+            let prefix = content.prefix(upTo: range.lowerBound)
+            let line = prefix.components(separatedBy: "\n").count
+            let col: Int
+            if let index = prefix.lastIndex(of: "\n") {
+                col = prefix.suffix(from: index).utf16.count - 1
+            } else {
+                col = prefix.utf16.count
+            }
+            let loc = prefix.utf16.count + commentLen
+            commentLen += string.utf16.count
+            comments.append(Comment(line: line, col: col, loc: loc, length: string.utf16.count, raw: string))
+            content = (content as NSString).replacingCharacters(in: nsrange, with: "")
+        }
+
         while content.lengthOfBytes(using: .utf8) > 0 {
             var matched = false
 
             for (pattern, generator) in tokenList {
-                if let (m, _) = content.match(regex: pattern, mustStart: true) {
-                    let resetLines = m.components(separatedBy: "\n").count - 1
+                if let (m, _, _) = content.match(regex: pattern, mustStart: true) {
                     if let t = generator(m, line, col, loc) {
                         tokens.append(t)
                     }
@@ -141,9 +165,11 @@ public class Lexer {
                     content = String(content[endIndex...])
                     matched = true
 
-                    if resetLines > 0 {
+                    if case let resetLines = m.components(separatedBy: "\n").count - 1,
+                       let index = m.lastIndex(of: "\n"),
+                       resetLines > 0 {
                         line += resetLines
-                        col = 0
+                        col = m.suffix(from: index).utf16.count - 1
                     }
                     break
                 }
@@ -158,6 +184,6 @@ public class Lexer {
                 col += 1
             }
         }
-        return tokens
+        return (tokens: tokens, comments: comments)
     }
 }

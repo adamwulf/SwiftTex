@@ -22,7 +22,7 @@ class ErrorTests: XCTestCase {
                      x + 7
                      """
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -53,7 +53,7 @@ class ErrorTests: XCTestCase {
                      x + * 7
                      """
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let endlToken = tokens[3]
 
         XCTAssertEqual(tokens.count, 8)
@@ -74,7 +74,7 @@ class ErrorTests: XCTestCase {
                      * 7
                      """
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let lastToken = tokens[4]
 
         XCTAssertEqual(tokens.count, 5)
@@ -90,7 +90,7 @@ class ErrorTests: XCTestCase {
                      x + * 7
                      """
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -121,7 +121,45 @@ class ErrorTests: XCTestCase {
                      x + * 7
                      """
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, comments) = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+
+        XCTAssertEqual(tokens.count, 7)
+        XCTAssertEqual(comments.count, 1)
+        XCTAssertNotNil(tokens[0].type == .Identifier("x"))
+        XCTAssertNotNil(tokens[1].type == .Operator(.plus))
+        XCTAssertNotNil(tokens[2].type == .Identifier("y"))
+        XCTAssertNotNil(tokens[3].type == .Identifier("x"))
+        XCTAssertNotNil(tokens[4].type == .Operator(.plus))
+        XCTAssertNotNil(tokens[5].type == .Operator(.mult()))
+
+        XCTAssertEqual(comments[0].line, 2)
+        XCTAssertEqual(comments[0].col, 0)
+        XCTAssertEqual(comments[0].loc, 6)
+        XCTAssertEqual(comments[0].length, 10)
+        XCTAssertEqual(comments[0].raw, "% comment\n")
+
+        XCTAssertEqual(errors.count, 1)
+        if case .UnexpectedToken(let token) = errors.first {
+            XCTAssertEqual(token.line, 3)
+            XCTAssertEqual(token.col, 4)
+            XCTAssertEqual(token.loc, 20)
+            XCTAssertEqual(token.raw, tokens[6].raw)
+        } else {
+            XCTFail()
+        }
+        XCTAssertEqual(ast.count, 0)
+    }
+
+    func testCommentTrailingNextLineSpaces() throws {
+        let source = """
+                     x + y
+                     % comment
+                        x + * 7
+                     """
+        let lexer = Lexer(input: source)
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -138,8 +176,8 @@ class ErrorTests: XCTestCase {
         XCTAssertEqual(errors.count, 1)
         if case .UnexpectedToken(let token) = errors.first {
             XCTAssertEqual(token.line, 3)
-            XCTAssertEqual(token.col, 4)
-            XCTAssertEqual(token.loc, 20)
+            XCTAssertEqual(token.col, 7)
+            XCTAssertEqual(token.loc, 23)
             XCTAssertEqual(token.raw, tokens[6].raw)
         } else {
             XCTFail()

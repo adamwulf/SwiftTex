@@ -18,7 +18,7 @@ class SwiftTexTests: XCTestCase {
     func testAddition() throws {
         let source = "x + y"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -40,7 +40,7 @@ class SwiftTexTests: XCTestCase {
                      z * h
                      """
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
 
         XCTAssertEqual(tokens[0].line, 1)
         XCTAssertEqual(tokens[1].line, 1)
@@ -73,7 +73,7 @@ class SwiftTexTests: XCTestCase {
                      z * h
                      """
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
 
         XCTAssertEqual(tokens[0].line, 1)
         XCTAssertEqual(tokens[1].line, 1)
@@ -103,7 +103,7 @@ class SwiftTexTests: XCTestCase {
     func testNegation() throws {
         let source = "-y"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -120,7 +120,7 @@ class SwiftTexTests: XCTestCase {
     func testExponentialNegation() throws {
         let source = "-y^2" // as opposed to (-y)^2
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -137,7 +137,7 @@ class SwiftTexTests: XCTestCase {
     func testExponentialParenthetical() throws {
         let source = "(-y)^2" // as opposed to (-y)^2
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -155,7 +155,7 @@ class SwiftTexTests: XCTestCase {
     func testOrderOfOps() throws {
         let source = "x + y * z"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -172,7 +172,7 @@ class SwiftTexTests: XCTestCase {
     func testOrderOfOps2() throws {
         let source = "x * y + z"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -189,7 +189,7 @@ class SwiftTexTests: XCTestCase {
     func testParen() throws {
         let source = "(x + y) z"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -209,7 +209,7 @@ class SwiftTexTests: XCTestCase {
     func testParen2() throws {
         let source = "z (x + y)"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -229,7 +229,7 @@ class SwiftTexTests: XCTestCase {
     func testImplicitMultiplication() throws {
         let source = "2p_{1x}"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -246,7 +246,7 @@ class SwiftTexTests: XCTestCase {
     func testImplicitMultiplication2() throws {
         let source = "p_{0x} - 2p_{1x} + p_{2x}"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -275,7 +275,7 @@ class SwiftTexTests: XCTestCase {
     func testTex() throws {
         let source = "\\mumble{4}"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -300,7 +300,7 @@ class SwiftTexTests: XCTestCase {
     func testTex2() throws {
         let source = "\\mumble{4}{3}{2}{1}"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -317,7 +317,7 @@ class SwiftTexTests: XCTestCase {
     func testTex3() throws {
         let source = "\\mumble{\\text{asdf}}{3}{2}{1}"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -334,7 +334,7 @@ class SwiftTexTests: XCTestCase {
     func testSubscript() throws {
         let source = "x_2"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -351,7 +351,7 @@ class SwiftTexTests: XCTestCase {
     func testSubscript2() throws {
         let source = "x_2y"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -377,7 +377,7 @@ class SwiftTexTests: XCTestCase {
     func testSubscript3() throws {
         let source = "x_{2y}"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -396,7 +396,7 @@ class SwiftTexTests: XCTestCase {
     func testSubscript4() throws {
         let source = "x_{y}_2"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -415,7 +415,7 @@ class SwiftTexTests: XCTestCase {
     func testParens() throws {
         let source = "(x + 2)(x - 2)"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -438,7 +438,7 @@ class SwiftTexTests: XCTestCase {
     func testFraction() throws {
         let source = "\\frac{x + 2}{x - 2}"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -458,7 +458,7 @@ class SwiftTexTests: XCTestCase {
     func testExponent() throws {
         let source = "x ^ y"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -476,7 +476,7 @@ class SwiftTexTests: XCTestCase {
     func testExponent2() throws {
         let source = "x ^ y + 2"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -500,7 +500,7 @@ class SwiftTexTests: XCTestCase {
     func testExponent3() throws {
         let source = "x ^ y ^ z"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -527,7 +527,7 @@ class SwiftTexTests: XCTestCase {
                      f(4)
                      """
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -565,7 +565,7 @@ class SwiftTexTests: XCTestCase {
                      \\end{align}
                      """
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -585,7 +585,7 @@ class SwiftTexTests: XCTestCase {
                      { x_1^2 }
                      """
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -609,7 +609,7 @@ class SwiftTexTests: XCTestCase {
         else { XCTFail(); return }
 
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -632,7 +632,7 @@ class SwiftTexTests: XCTestCase {
         else { XCTFail(); return }
 
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
@@ -655,7 +655,7 @@ class SwiftTexTests: XCTestCase {
                      icexpialidocious
                      """
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
