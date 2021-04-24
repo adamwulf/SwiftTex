@@ -99,7 +99,7 @@ class ErrorTests: XCTestCase {
             XCTAssertEqual(token.line, 3)
             XCTAssertEqual(token.col, 4)
             XCTAssertEqual(token.loc, 11)
-            XCTAssertEqual(token.raw, tokens[7].raw)
+            XCTAssertEqual(token.raw, tokens[6].raw)
         } else {
             XCTFail()
         }
@@ -111,6 +111,6 @@ class ErrorTests: XCTestCase {
 
         XCTAssertEqual(plus.op, .plus)
         XCTAssertEqual((plus.lhs as? VariableNode)?.name, "x")
-        XCTAssertEqual((plus.rhs as? NumberNode)?.value, 7)
+        XCTAssertEqual((plus.rhs as? VariableNode)?.name, "y")
     }
 }

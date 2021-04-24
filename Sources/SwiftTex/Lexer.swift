@@ -97,7 +97,8 @@ typealias TokenGenerator = (String, Int, Int, Int) -> Token?
 let tokenList: [(String, TokenGenerator)] = [
     ("\n\n", { s, l, c, loc in Token(type: .EOL, line: l, col: c, loc: loc, raw: s) }),
     ("\\\\\\\\", { s, l, c, loc in Token(type: .EOL, line: l, col: c, loc: loc, raw: s) }),
-    ("[ \t\n]", { _, _, _, _ in nil }),
+    ("[ \t]", { _, _, _, _ in nil }),
+    ("[\n]", { _, _, _, _ in nil }), // separate out into its own match so that we always move by a single character for newlines
     ("\\\\[a-zA-Z]+", { s, l, c, loc in Token(type: .Tex(s), line: l, col: c, loc: loc, raw: s) }),
     ("[a-zA-Z]+", { s, l, c, loc in Token(type: .Identifier(s), line: l, col: c, loc: loc, raw: s) }),
     ("[0-9]+\\.?[0-9]*", { s, l, c, loc in Token(type: .Number(s), line: l, col: c, loc: loc, raw: s) }),
@@ -123,21 +124,14 @@ public class Lexer {
         var col = 0
         var loc = 0
 
-        while let (_, range) = content.match(regex: "%[^\n]*[ \t\n]*", mustStart: false) {
-            content = (content as NSString).replacingCharacters(in: range, with: "")
-        }
-
         while content.lengthOfBytes(using: .utf8) > 0 {
             var matched = false
 
             for (pattern, generator) in tokenList {
                 if let (m, _) = content.match(regex: pattern, mustStart: true) {
-                    var resetLines = 0
+                    let resetLines = m.components(separatedBy: "\n").count - 1
                     if let t = generator(m, line, col, loc) {
                         tokens.append(t)
-                        if case .EOL = t.type {
-                            resetLines = t.raw.components(separatedBy: "\n").count - 1
-                        }
                     }
                     let endIndex = content.index(content.startIndex, offsetBy: m.lengthOfBytes(using: .utf8))
 
