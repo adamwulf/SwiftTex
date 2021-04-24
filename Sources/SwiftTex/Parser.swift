@@ -43,8 +43,9 @@ public enum ParseError: Error {
 
 public class Parser {
 
-    public typealias Result = (expressions: [ExprNode], errors: [ParseError])
+    public typealias Result = (expressions: [ExprNode], comments: [Token], errors: [ParseError])
 
+    let comments: [Token]
     let tokens: [Token]
     var index = 0
     var functions: [PrototypeNode] = []
@@ -78,7 +79,19 @@ public class Parser {
 
     public init(tokens: [Token]) {
         self.settingsStack = [Settings(allowImplicitMult: true)]
-        self.tokens = tokens
+        self.tokens = tokens.filter({
+            if case .Comment = $0.type {
+                return false
+            }
+            return true
+        })
+        self.comments = tokens.filter({
+            if case .Comment = $0.type {
+                return true
+            }
+            return false
+        })
+
     }
 
     // MARK: - Tokens
@@ -549,7 +562,6 @@ public class Parser {
 
     public func parse() throws -> Result {
         index = 0
-
         var nodes: [ExprNode] = []
         var errors: [ParseError] = []
         while index < tokens.count {
@@ -576,6 +588,6 @@ public class Parser {
             }
         }
 
-        return (expressions: nodes, errors: errors)
+        return (expressions: nodes, comments: comments, errors: errors)
     }
 }

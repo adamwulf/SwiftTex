@@ -19,7 +19,7 @@ class FoilTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, errors: errors) = try parser.parse()
+        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
         let foilVisitor = FoilVisitor()
         let printVisitor = PrintVisitor()
 
@@ -35,7 +35,7 @@ class FoilTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, errors: errors) = try parser.parse()
+        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
         let foilVisitor = FoilVisitor()
         foilVisitor.singleStep = true
         let printVisitor = PrintVisitor()
@@ -52,7 +52,7 @@ class FoilTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, errors: errors) = try parser.parse()
+        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
         let foilVisitor = FoilVisitor()
 
@@ -73,7 +73,7 @@ class FoilTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, errors: errors) = try parser.parse()
+        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor(inline: true)
         let foilVisitor = FoilVisitor()
 
@@ -94,7 +94,7 @@ class FoilTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, errors: errors) = try parser.parse()
+        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor(inline: true)
         let foilVisitor = FoilVisitor()
 
@@ -115,7 +115,7 @@ class FoilTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, errors: errors) = try parser.parse()
+        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
         let foilVisitor = FoilVisitor()
 
@@ -136,7 +136,7 @@ class FoilTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, errors: errors) = try parser.parse()
+        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
         let foilVisitor = FoilVisitor()
 

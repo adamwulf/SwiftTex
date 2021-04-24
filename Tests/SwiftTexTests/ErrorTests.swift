@@ -24,8 +24,9 @@ class ErrorTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, errors: errors) = try parser.parse()
+        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
+        XCTAssertEqual(tokens.count, 8)
         XCTAssertEqual(errors.count, 1)
         if case .UnexpectedToken(let token) = errors.first {
             XCTAssertEqual(token.line, 1)
@@ -35,7 +36,6 @@ class ErrorTests: XCTestCase {
         } else {
             XCTFail()
         }
-        XCTAssertEqual(tokens.count, 8)
         XCTAssertEqual(ast.count, 1)
         XCTAssertNotNil(ast.first as? BinaryOpNode)
 
@@ -92,8 +92,9 @@ class ErrorTests: XCTestCase {
         let lexer = Lexer(input: source)
         let tokens = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, errors: errors) = try parser.parse()
+        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
 
+        XCTAssertEqual(tokens.count, 8)
         XCTAssertEqual(errors.count, 1)
         if case .UnexpectedToken(let token) = errors.first {
             XCTAssertEqual(token.line, 3)
@@ -103,7 +104,6 @@ class ErrorTests: XCTestCase {
         } else {
             XCTFail()
         }
-        XCTAssertEqual(tokens.count, 8)
         XCTAssertEqual(ast.count, 1)
         XCTAssertNotNil(ast.first as? BinaryOpNode)
 
@@ -112,5 +112,38 @@ class ErrorTests: XCTestCase {
         XCTAssertEqual(plus.op, .plus)
         XCTAssertEqual((plus.lhs as? VariableNode)?.name, "x")
         XCTAssertEqual((plus.rhs as? VariableNode)?.name, "y")
+    }
+
+    func testSimpleComment() throws {
+        let source = """
+                     x + y
+                     % comment
+                     x + * 7
+                     """
+        let lexer = Lexer(input: source)
+        let tokens = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+
+        XCTAssertEqual(tokens.count, 8)
+        XCTAssertNotNil(tokens[0].type == .Identifier("x"))
+        XCTAssertNotNil(tokens[1].type == .Operator(.plus))
+        XCTAssertNotNil(tokens[2].type == .Identifier("y"))
+        XCTAssertNotNil(tokens[3].type == .Comment("% comment\n"))
+        XCTAssertNotNil(tokens[4].type == .Identifier("x"))
+        XCTAssertNotNil(tokens[5].type == .Operator(.plus))
+        XCTAssertNotNil(tokens[6].type == .Operator(.mult()))
+        XCTAssertNotNil(tokens[7].type == .Number("7"))
+
+        XCTAssertEqual(errors.count, 1)
+        if case .UnexpectedToken(let token) = errors.first {
+            XCTAssertEqual(token.line, 3)
+            XCTAssertEqual(token.col, 4)
+            XCTAssertEqual(token.loc, 20)
+            XCTAssertEqual(token.raw, tokens[6].raw)
+        } else {
+            XCTFail()
+        }
+        XCTAssertEqual(ast.count, 0)
     }
 }
