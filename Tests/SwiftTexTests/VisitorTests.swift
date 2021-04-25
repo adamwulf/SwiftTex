@@ -18,9 +18,9 @@ class VisitorTests: XCTestCase {
     func testLet() throws {
         let source = "\\let{x}{2/(3+5)}"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
@@ -33,9 +33,9 @@ class VisitorTests: XCTestCase {
     func testLetInline() throws {
         let source = "\\let{x}{2/(3+5)}"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
         printVisitor.inline = true
 
@@ -49,9 +49,9 @@ class VisitorTests: XCTestCase {
     func testAnyTex() throws {
         let source = "\\fumble{foo}"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
@@ -68,9 +68,9 @@ x + 7
 """
 
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
@@ -87,9 +87,9 @@ x + 7\\\\
 """
 
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str1 = ast.first!.accept(visitor: printVisitor)
@@ -111,9 +111,9 @@ x + 7
 """
 
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str1 = ast.first!.accept(visitor: printVisitor)
@@ -143,9 +143,9 @@ z + x\\\\
 \\end{eqnarray}
 """
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
@@ -171,9 +171,9 @@ z + x\\\\
 \\end{eqnarray}
 """
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
@@ -186,9 +186,9 @@ z + x\\\\
     func testSimpleExpression() throws {
         let source = "7 + x"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
@@ -201,9 +201,9 @@ z + x\\\\
     func testPrintParens() throws {
         let source = "(7 + x) * 4"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
@@ -216,9 +216,9 @@ z + x\\\\
     func testPrintParens2() throws {
         let source = "2^(7x)"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
@@ -231,9 +231,9 @@ z + x\\\\
     func testPrintParens3() throws {
         let source = "(7 * x) + 4"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
@@ -250,9 +250,9 @@ z + x\\\\
                      7 * 3 + x
                      """
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let swapVisitor = SwapBinaryVisitor()
         let printVisitor = PrintVisitor()
 
@@ -287,9 +287,9 @@ z + x\\\\
                      """
 
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
@@ -322,9 +322,9 @@ z + x\\\\
                      """
 
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
@@ -337,9 +337,9 @@ z + x\\\\
     func testWithSubscripts() throws {
         let source = "p_{0x} - 2p_{1x} + p_{2x}"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
@@ -352,9 +352,9 @@ z + x\\\\
     func testNumberFormatting() throws {
         let source = "2 + 2.0 + 2.02 + 2.000 + 123"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         let str = ast.first!.accept(visitor: printVisitor)
@@ -370,9 +370,9 @@ z + x\\\\
                      f(2) + g(3)
                      """
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
 
         var str = ast.first!.accept(visitor: printVisitor)
@@ -399,9 +399,9 @@ z + x\\\\
         else { XCTFail(); return }
 
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
         let str = ast.first!.accept(visitor: printVisitor)
         let out = """
@@ -423,9 +423,9 @@ z + x\\\\
         else { XCTFail(); return }
 
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
         let str = ast.first!.accept(visitor: printVisitor)
         let out = """

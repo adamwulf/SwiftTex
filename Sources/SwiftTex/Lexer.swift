@@ -8,6 +8,16 @@
 
 import Foundation
 
+public struct Comment {
+    public let line: Int
+    public let col: Int
+    public let loc: Int
+    public let length: Int
+    public let raw: String
+    // the number of characters of whitespace on the last line of the comment
+    let tail: Int
+}
+
 public struct Token {
     public enum Symbol {
         case plus
@@ -83,7 +93,6 @@ public struct Token {
         case Other(String)
         case EOF
         case EOL
-        case Comment(String)
     }
 
     public let type: Case
@@ -108,8 +117,7 @@ let tokenList: [(String, TokenGenerator)] = [
     ("\\}", { s, l, c, loc in Token(type: .BraceClose, line: l, col: c, loc: loc, raw: s) }),
     ("_", { s, l, c, loc in Token(type: .Subscript, line: l, col: c, loc: loc, raw: s) }),
     (",", { s, l, c, loc in Token(type: .Comma, line: l, col: c, loc: loc, raw: s) }),
-    ("[\\+\\-\\*/\\^=]", { s, l, c, loc in Token(type: .Operator(Token.Symbol.from(s)!), line: l, col: c, loc: loc, raw: s) }),
-    ("%[^\n]*[ \t\n]*", { s, l, c, loc in Token(type: .Comment(s), line: l, col: c, loc: loc, raw: s) })
+    ("[\\+\\-\\*/\\^=]", { s, l, c, loc in Token(type: .Operator(Token.Symbol.from(s)!), line: l, col: c, loc: loc, raw: s) })
 ]
 
 public class Lexer {
@@ -117,19 +125,52 @@ public class Lexer {
     public init(input: String) {
         self.input = input
     }
-    public func tokenize() -> [Token] {
+    public func tokenize() -> (tokens: [Token], comments: [Comment]) {
         var tokens: [Token] = []
         var content = input
         var line = 1
         var col = 0
         var loc = 0
 
+        // find all of the comments and store their location information
+        var mutComments: [Comment] = []
+        for commentMatch in input.matches(regex: "%[^\n]*[ \t\n]*", mustStart: false) {
+            let prefix = { () -> (string: String, length: Int, lines: Int, tail: Int) in
+                let string = String(content.prefix(upTo: commentMatch.range.lowerBound))
+                let lineCount = string.components(separatedBy: "\n").count
+                let tail: Int
+                if let index = string.lastIndex(of: "\n") {
+                    tail = string.suffix(from: index).utf8.count - 1
+                } else {
+                    tail = string.utf8.count
+                }
+
+                return (string: string, length: string.utf8.count, lines: lineCount, tail: tail)
+            }()
+
+            let comment = commentMatch.str
+            let line = prefix.lines
+            let col = prefix.tail
+            let loc = prefix.length
+            let tail = { () -> Int in
+                guard let li = comment.lastIndex(of: "\n") else { return 0 }
+                return comment.suffix(from: li).utf8.count - 1 // don't count the \n itself
+            }()
+            mutComments.append(Comment(line: line, col: col, loc: loc, length: comment.utf8.count, raw: comment, tail: tail))
+        }
+
+        let comments = mutComments
+
+        // strip comments out of actual parsed content
+        while let (_, nsrange, _) = content.match(regex: "%[^\n]*[ \t\n]*", mustStart: false) {
+            content = (content as NSString).replacingCharacters(in: nsrange, with: "")
+        }
+
         while content.lengthOfBytes(using: .utf8) > 0 {
             var matched = false
 
             for (pattern, generator) in tokenList {
-                if let (m, _) = content.match(regex: pattern, mustStart: true) {
-                    let resetLines = m.components(separatedBy: "\n").count - 1
+                if let (m, _, _) = content.match(regex: pattern, mustStart: true) {
                     if let t = generator(m, line, col, loc) {
                         tokens.append(t)
                     }
@@ -141,10 +182,22 @@ public class Lexer {
                     content = String(content[endIndex...])
                     matched = true
 
-                    if resetLines > 0 {
+                    if case let resetLines = m.components(separatedBy: "\n").count - 1,
+                       let index = m.lastIndex(of: "\n"),
+                       resetLines > 0 {
                         line += resetLines
-                        col = 0
+                        col = m.suffix(from: index).utf8.count - 1
                     }
+
+                    while
+                        let comment = mutComments.first,
+                        comment.loc <= loc {
+                        line += comment.raw.components(separatedBy: "\n").count - 1
+                        col = comment.tail
+                        loc += comment.length
+                        mutComments.removeFirst()
+                    }
+
                     break
                 }
             }
@@ -158,6 +211,6 @@ public class Lexer {
                 col += 1
             }
         }
-        return tokens
+        return (tokens: tokens, comments: comments)
     }
 }

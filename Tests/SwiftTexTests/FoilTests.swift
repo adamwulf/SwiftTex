@@ -17,9 +17,9 @@ class FoilTests: XCTestCase {
     func testSimpleFoil() throws {
         let source = "(x + 1)(x + 2)"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let foilVisitor = FoilVisitor()
         let printVisitor = PrintVisitor()
 
@@ -33,9 +33,9 @@ class FoilTests: XCTestCase {
     func testSimpleFoilSteps() throws {
         let source = "(x + 1)(x + 2)"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let foilVisitor = FoilVisitor()
         foilVisitor.singleStep = true
         let printVisitor = PrintVisitor()
@@ -50,9 +50,9 @@ class FoilTests: XCTestCase {
     func testExpandingExponents() throws {
         let source = "(x + y)^0"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
         let foilVisitor = FoilVisitor()
 
@@ -71,9 +71,9 @@ class FoilTests: XCTestCase {
     func testExpandingExponents2() throws {
         let source = "(x + y)^-1"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor(inline: true)
         let foilVisitor = FoilVisitor()
 
@@ -92,9 +92,9 @@ class FoilTests: XCTestCase {
     func testExpandingExponents3() throws {
         let source = "(x + y)^-2"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor(inline: true)
         let foilVisitor = FoilVisitor()
 
@@ -113,9 +113,9 @@ class FoilTests: XCTestCase {
     func testExpandingExponents3Block() throws {
         let source = "(x + y)^-2"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
         let foilVisitor = FoilVisitor()
 
@@ -134,9 +134,9 @@ class FoilTests: XCTestCase {
     func testExpandingExponents4() throws {
         let source = "(x + y)^2.5"
         let lexer = Lexer(input: source)
-        let tokens = lexer.tokenize()
+        let (tokens, _) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
-        let (expressions: ast, comments: _, errors: errors) = try parser.parse()
+        let (expressions: ast, errors: errors) = try parser.parse()
         let printVisitor = PrintVisitor()
         let foilVisitor = FoilVisitor()
 
