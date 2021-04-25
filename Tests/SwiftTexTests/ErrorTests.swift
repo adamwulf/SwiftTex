@@ -145,7 +145,7 @@ class ErrorTests: XCTestCase {
             XCTAssertEqual(token.line, 3)
             XCTAssertEqual(token.col, 4)
             XCTAssertEqual(token.loc, 20)
-            XCTAssertEqual(token.raw, tokens[6].raw)
+            XCTAssertEqual(token.raw, tokens[5].raw)
         } else {
             XCTFail()
         }
@@ -215,7 +215,7 @@ class ErrorTests: XCTestCase {
             XCTAssertEqual(token.line, 3)
             XCTAssertEqual(token.col, 7)
             XCTAssertEqual(token.loc, 23)
-            XCTAssertEqual(token.raw, tokens[6].raw)
+            XCTAssertEqual(token.raw, tokens[5].raw)
         } else {
             XCTFail()
         }
