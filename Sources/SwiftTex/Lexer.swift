@@ -136,6 +136,7 @@ public class Lexer {
         // find all of the comments and store their location information
         var mutComments: [Comment] = []
         for commentMatch in input.matches(regex: "%[^\n]*[ \t\n]*", mustStart: false) {
+            let nsRange = NSRange(commentMatch.range, in: input)
             let prefix = { () -> (string: String, length: Int, lines: Int, tail: Int) in
                 let string = String(content.prefix(upTo: commentMatch.range.lowerBound))
                 let lineCount = string.countOccurrences(of: "\n") + 1
@@ -143,10 +144,13 @@ public class Lexer {
                 if let index = string.lastIndex(of: "\n") {
                     tail = string.suffix(from: index).utf8.count - 1
                 } else {
-                    tail = string.utf8.count
+                    tail = nsRange.length
                 }
 
-                return (string: string, length: string.utf8.count, lines: lineCount, tail: tail)
+                let prefixRange = ..<commentMatch.range.lowerBound
+                let prefixNSRange = NSRange(prefixRange, in: content)
+
+                return (string: string, length: prefixNSRange.length, lines: lineCount, tail: tail)
             }()
 
             let comment = commentMatch.str
@@ -157,7 +161,7 @@ public class Lexer {
                 guard let li = comment.lastIndex(of: "\n") else { return 0 }
                 return comment.suffix(from: li).utf8.count - 1 // don't count the \n itself
             }()
-            mutComments.append(Comment(line: line, col: col, loc: loc, length: comment.utf8.count, raw: comment, tail: tail))
+            mutComments.append(Comment(line: line, col: col, loc: loc, length: nsRange.length, raw: comment, tail: tail))
         }
 
         let comments = mutComments

@@ -291,4 +291,28 @@ class ErrorTests: XCTestCase {
         XCTAssertEqual(tokens[2].loc, 5)
         XCTAssertEqual(tokens[2].raw, String(source[tokens[2].range]))
     }
+
+    func testEmoji2() throws {
+        let source = "\\\n\n%🌎\n\n/\n\n\\let{a}{5}\n\na = 4\n\n\n/\n\n🌎\n\n\n\\func{f(x)}{y}\n\n"
+        let lexer = Lexer(input: source)
+        let (tokens, comments) = lexer.tokenize()
+
+        XCTAssertEqual(comments.count, 1)
+        XCTAssertEqual(comments[0].raw, "%🌎\n\n")
+
+        XCTAssertEqual(tokens[0].line, 1)
+        XCTAssertEqual(tokens[0].col, 0)
+        XCTAssertEqual(tokens[0].loc, 0)
+        XCTAssertEqual(tokens[0].raw, String(source[tokens[0].range]))
+
+        XCTAssertEqual(tokens[1].line, 1)
+        XCTAssertEqual(tokens[1].col, 1)
+        XCTAssertEqual(tokens[1].loc, 1)
+        XCTAssertEqual(tokens[1].raw, String(source[tokens[1].range]))
+
+        XCTAssertEqual(tokens[2].line, 5)
+        XCTAssertEqual(tokens[2].col, 0)
+        XCTAssertEqual(tokens[2].loc, 8)
+        XCTAssertEqual(tokens[2].raw, String(source[tokens[2].range]))
+    }
 }
