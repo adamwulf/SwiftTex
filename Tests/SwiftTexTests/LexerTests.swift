@@ -117,6 +117,7 @@ class LexerTests: XCTestCase {
         XCTAssertEqual(comments[0].line, 2)
         XCTAssertEqual(comments[0].col, 0)
         XCTAssertEqual(comments[0].loc, 6)
+        XCTAssertEqual(comments[0].tail, 0)
 
         guard tokens.count == 6 else { XCTFail("wrong token count"); return }
         XCTAssertNotNil(tokens[0].type == .Identifier("x"))
@@ -128,5 +129,50 @@ class LexerTests: XCTestCase {
 
         XCTAssertEqual(errors.count, 0)
         XCTAssertEqual(ast.count, 1)
+
+        XCTAssertEqual(tokens[0].line, 1)
+        XCTAssertEqual(tokens[0].col, 0)
+        XCTAssertEqual(tokens[0].loc, 0)
+
+        XCTAssertEqual(tokens[3].line, 3)
+        XCTAssertEqual(tokens[3].col, 0)
+        XCTAssertEqual(tokens[3].loc, 0)
+    }
+
+    func testCommentWithTailAffectingTokenLocation() throws {
+        let source = """
+                     x + y
+                     % comment
+                        x & 7
+                     """
+        let lexer = Lexer(input: source)
+        let (tokens, comments) = lexer.tokenize()
+
+        guard comments.count == 1 else { XCTFail("wrong comment count"); return }
+        XCTAssertEqual(comments[0].raw, "% comment\n   ")
+        XCTAssertEqual(comments[0].line, 2)
+        XCTAssertEqual(comments[0].col, 0)
+        XCTAssertEqual(comments[0].loc, 6)
+        XCTAssertEqual(comments[0].tail, 3)
+
+        guard tokens.count == 6 else { XCTFail("wrong token count"); return }
+        XCTAssertNotNil(tokens[0].type == .Identifier("x"))
+        XCTAssertNotNil(tokens[1].type == .Operator(.plus))
+        XCTAssertNotNil(tokens[2].type == .Identifier("y"))
+        XCTAssertNotNil(tokens[3].type == .Identifier("x"))
+        XCTAssertNotNil(tokens[4].type == .Other("&"))
+        XCTAssertNotNil(tokens[5].type == .Number("7"))
+
+        XCTAssertEqual(tokens[0].line, 1)
+        XCTAssertEqual(tokens[0].col, 0)
+        XCTAssertEqual(tokens[0].loc, 0)
+
+        XCTAssertEqual(tokens[3].line, 3)
+        XCTAssertEqual(tokens[3].col, 3)
+        XCTAssertEqual(tokens[3].loc, 19)
+
+        XCTAssertEqual(tokens[4].line, 3)
+        XCTAssertEqual(tokens[4].col, 5)
+        XCTAssertEqual(tokens[4].loc, 21)
     }
 }

@@ -14,6 +14,8 @@ public struct Comment {
     public let loc: Int
     public let length: Int
     public let raw: String
+    // the number of characters of whitespace on the last line of the comment
+    let tail: Int
 }
 
 public struct Token {
@@ -150,7 +152,11 @@ public class Lexer {
             let line = prefix.lines
             let col = prefix.tail
             let loc = prefix.length
-            comments.append(Comment(line: line, col: col, loc: loc, length: comment.utf16.count, raw: comment))
+            let tail = { () -> Int in
+                guard let li = comment.lastIndex(of: "\n") else { return 0 }
+                return comment.suffix(from: li).utf16.count - 1 // don't count the \n itself
+            }()
+            comments.append(Comment(line: line, col: col, loc: loc, length: comment.utf16.count, raw: comment, tail: tail))
         }
 
         // strip comments out of actual parsed content
