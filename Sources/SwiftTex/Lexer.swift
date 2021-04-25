@@ -96,28 +96,29 @@ public struct Token {
     }
 
     public let type: Case
+    public let range: Range<String.Index>
     public let line: Int
     public let col: Int
     public let loc: Int
     public let raw: String
 }
 
-typealias TokenGenerator = (String, Int, Int, Int) -> Token?
+typealias TokenGenerator = (String, Range<String.Index>, Int, Int, Int) -> Token?
 let tokenList: [(String, TokenGenerator)] = [
-    ("\n\n", { s, l, c, loc in Token(type: .EOL, line: l, col: c, loc: loc, raw: s) }),
-    ("\\\\\\\\", { s, l, c, loc in Token(type: .EOL, line: l, col: c, loc: loc, raw: s) }),
-    ("[ \t]", { _, _, _, _ in nil }),
-    ("[\n]", { _, _, _, _ in nil }), // separate out into its own match so that we always move by a single character for newlines
-    ("\\\\[a-zA-Z]+", { s, l, c, loc in Token(type: .Tex(s), line: l, col: c, loc: loc, raw: s) }),
-    ("[a-zA-Z]+", { s, l, c, loc in Token(type: .Identifier(s), line: l, col: c, loc: loc, raw: s) }),
-    ("[0-9]+\\.?[0-9]*", { s, l, c, loc in Token(type: .Number(s), line: l, col: c, loc: loc, raw: s) }),
-    ("\\(", { s, l, c, loc in Token(type: .ParensOpen, line: l, col: c, loc: loc, raw: s) }),
-    ("\\)", { s, l, c, loc in Token(type: .ParensClose, line: l, col: c, loc: loc, raw: s) }),
-    ("\\{", { s, l, c, loc in Token(type: .BraceOpen, line: l, col: c, loc: loc, raw: s) }),
-    ("\\}", { s, l, c, loc in Token(type: .BraceClose, line: l, col: c, loc: loc, raw: s) }),
-    ("_", { s, l, c, loc in Token(type: .Subscript, line: l, col: c, loc: loc, raw: s) }),
-    (",", { s, l, c, loc in Token(type: .Comma, line: l, col: c, loc: loc, raw: s) }),
-    ("[\\+\\-\\*/\\^=]", { s, l, c, loc in Token(type: .Operator(Token.Symbol.from(s)!), line: l, col: c, loc: loc, raw: s) })
+    ("\n\n", { s, r, l, c, loc in Token(type: .EOL, range: r, line: l, col: c, loc: loc, raw: s) }),
+    ("\\\\\\\\", { s, r, l, c, loc in Token(type: .EOL, range: r, line: l, col: c, loc: loc, raw: s) }),
+    ("[ \t]", { _, _, _, _, _ in nil }),
+    ("[\n]", { _, _, _, _, _ in nil }), // separate out into its own match so that we always move by a single character for newlines
+    ("\\\\[a-zA-Z]+", { s, r, l, c, loc in Token(type: .Tex(s), range: r, line: l, col: c, loc: loc, raw: s) }),
+    ("[a-zA-Z]+", { s, r, l, c, loc in Token(type: .Identifier(s), range: r, line: l, col: c, loc: loc, raw: s) }),
+    ("[0-9]+\\.?[0-9]*", { s, r, l, c, loc in Token(type: .Number(s), range: r, line: l, col: c, loc: loc, raw: s) }),
+    ("\\(", { s, r, l, c, loc in Token(type: .ParensOpen, range: r, line: l, col: c, loc: loc, raw: s) }),
+    ("\\)", { s, r, l, c, loc in Token(type: .ParensClose, range: r, line: l, col: c, loc: loc, raw: s) }),
+    ("\\{", { s, r, l, c, loc in Token(type: .BraceOpen, range: r, line: l, col: c, loc: loc, raw: s) }),
+    ("\\}", { s, r, l, c, loc in Token(type: .BraceClose, range: r, line: l, col: c, loc: loc, raw: s) }),
+    ("_", { s, r, l, c, loc in Token(type: .Subscript, range: r, line: l, col: c, loc: loc, raw: s) }),
+    (",", { s, r, l, c, loc in Token(type: .Comma, range: r, line: l, col: c, loc: loc, raw: s) }),
+    ("[\\+\\-\\*/\\^=]", { s, r, l, c, loc in Token(type: .Operator(Token.Symbol.from(s)!), range: r, line: l, col: c, loc: loc, raw: s) })
 ]
 
 public class Lexer {
@@ -181,16 +182,19 @@ public class Lexer {
             }
 
             for (pattern, generator) in tokenList {
-                if let (m, _, _) = content.match(regex: pattern, mustStart: true) {
-                    if let t = generator(m, line, col, loc) {
+                if let (m, contentNSRange, _) = content.match(regex: pattern, mustStart: true) {
+                    let inputNSRange = NSRange(location: contentNSRange.location + loc, length: contentNSRange.length)
+                    guard let contentRange = Range(contentNSRange, in: content) else { fatalError("invalid range") }
+                    guard let inputRange = Range(inputNSRange, in: input) else { fatalError("invalid range") }
+
+                    if let t = generator(m, inputRange, line, col, loc) {
                         tokens.append(t)
                     }
-                    let endIndex = content.index(content.startIndex, offsetBy: m.lengthOfBytes(using: .utf8))
 
-                    col += m.lengthOfBytes(using: .utf8)
-                    loc += m.lengthOfBytes(using: .utf8)
+                    col += contentNSRange.length
+                    loc += contentNSRange.length
 
-                    content = String(content[endIndex...])
+                    content = String(content[contentRange.upperBound...])
                     matched = true
 
                     if case let resetLines = m.countOccurrences(of: "\n"),
@@ -216,13 +220,19 @@ public class Lexer {
             }
 
             if !matched {
-                let index = content.index(after: content.startIndex)
-                let str = String(content[..<index])
-                tokens.append(Token(type: .Other(str), line: line, col: col, loc: loc, raw: str))
-                content = String(content[index...])
+                let endIndex = content.index(after: content.startIndex)
+                let contentRange = content.startIndex..<endIndex
+                let contentNSRange = NSRange(contentRange, in: content)
+                let str = String(content[contentRange])
+                let inputNSRange = NSRange(location: contentNSRange.location + loc, length: contentNSRange.length)
+                guard let inputRange = Range(inputNSRange, in: input) else { fatalError("invalid range") }
 
-                col += str.utf8.count
-                loc += str.utf8.count
+                tokens.append(Token(type: .Other(str), range: inputRange, line: line, col: col, loc: loc, raw: str))
+
+                content = String(content[endIndex...])
+
+                col += contentNSRange.length
+                loc += contentNSRange.length
             }
 
             adjustForComments()

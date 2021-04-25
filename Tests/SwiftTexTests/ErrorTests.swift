@@ -268,4 +268,27 @@ class ErrorTests: XCTestCase {
 
         XCTAssertEqual(ast.count, 0)
     }
+
+    func testEmoji() throws {
+        let source = """
+                     4 🌎 8
+                     """
+        let lexer = Lexer(input: source)
+        let (tokens, _) = lexer.tokenize()
+
+        XCTAssertEqual(tokens[0].line, 1)
+        XCTAssertEqual(tokens[0].col, 0)
+        XCTAssertEqual(tokens[0].loc, 0)
+        XCTAssertEqual(tokens[0].raw, String(source[tokens[0].range]))
+
+        XCTAssertEqual(tokens[1].line, 1)
+        XCTAssertEqual(tokens[1].col, 2)
+        XCTAssertEqual(tokens[1].loc, 2)
+        XCTAssertEqual(tokens[1].raw, String(source[tokens[1].range]))
+
+        XCTAssertEqual(tokens[2].line, 1)
+        XCTAssertEqual(tokens[2].col, 5)
+        XCTAssertEqual(tokens[2].loc, 5)
+        XCTAssertEqual(tokens[2].raw, String(source[tokens[2].range]))
+    }
 }

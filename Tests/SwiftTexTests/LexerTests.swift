@@ -311,7 +311,7 @@ class LexerTests: XCTestCase {
         XCTAssertEqual(tokens[0].col, 0)
         XCTAssertEqual(tokens[1].col, 2)
         XCTAssertEqual(tokens[2].col, 4)
-        XCTAssertEqual(tokens[3].col, 8)
+        XCTAssertEqual(tokens[3].col, 6)
         XCTAssertEqual(tokens[4].col, 0)
         XCTAssertEqual(tokens[5].col, 2)
         XCTAssertEqual(tokens[6].col, 4)
@@ -319,9 +319,9 @@ class LexerTests: XCTestCase {
         XCTAssertEqual(tokens[0].loc, 0)
         XCTAssertEqual(tokens[1].loc, 2)
         XCTAssertEqual(tokens[2].loc, 4)
-        XCTAssertEqual(tokens[3].loc, 8)
-        XCTAssertEqual(tokens[4].loc, 10)
-        XCTAssertEqual(tokens[5].loc, 12)
-        XCTAssertEqual(tokens[6].loc, 14)
+        XCTAssertEqual(tokens[3].loc, 6)
+        XCTAssertEqual(tokens[4].loc, 8)
+        XCTAssertEqual(tokens[5].loc, 10)
+        XCTAssertEqual(tokens[6].loc, 12)
     }
 }

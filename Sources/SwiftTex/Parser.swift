@@ -416,7 +416,12 @@ public class Parser {
                 }
             } else {
                 // inferred multiplication
-                opToken = Token(type: .Operator(op), line: opToken.line, col: opToken.col, loc: opToken.loc, raw: op.rawValue)
+                opToken = Token(type: .Operator(op),
+                                range: Range(uncheckedBounds: (lower: opToken.range.lowerBound, upper: opToken.range.lowerBound)),
+                                line: opToken.line,
+                                col: opToken.col,
+                                loc: opToken.loc,
+                                raw: op.rawValue)
             }
 
             var rhs = try parsePrimary()
