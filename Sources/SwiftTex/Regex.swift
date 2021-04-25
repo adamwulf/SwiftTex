@@ -21,7 +21,8 @@ public extension String {
             expressions[regex] = expression
         }
 
-        let nsrange = expression.rangeOfFirstMatch(in: self, options: [], range: NSRange(location: 0, length: self.utf8.count))
+        let range = self.startIndex..<self.endIndex
+        let nsrange = expression.rangeOfFirstMatch(in: self, options: [], range: NSRange(range, in: self))
         if nsrange.location != NSNotFound,
            let range = Range(nsrange, in: self) {
             return ((self as NSString).substring(with: nsrange), nsrange, range)
@@ -39,7 +40,8 @@ public extension String {
             expressions[regex] = expression
         }
 
-        let matches = expression.matches(in: self, options: [], range: NSRange(location: 0, length: self.utf8.count))
+        let range = self.startIndex..<self.endIndex
+        let matches = expression.matches(in: self, options: [], range: NSRange(range, in: self))
         for match in matches {
             if case let nsrange = match.range,
                nsrange.location != NSNotFound,
