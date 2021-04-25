@@ -191,18 +191,24 @@ class ErrorTests: XCTestCase {
                         x + * 7
                      """
         let lexer = Lexer(input: source)
-        let (tokens, _) = lexer.tokenize()
+        let (tokens, comments) = lexer.tokenize()
         let parser = Parser(tokens: tokens)
         let (expressions: ast, errors: errors) = try parser.parse()
 
-        XCTAssertEqual(tokens.count, 8)
+        guard comments.count == 1 else { XCTFail("wrong comment count"); return }
+        XCTAssertEqual(comments[0].raw, "% comment\n   ")
+        XCTAssertEqual(comments[0].line, 2)
+        XCTAssertEqual(comments[0].col, 0)
+        XCTAssertEqual(comments[0].loc, 6)
+
+        guard tokens.count == 7 else { XCTFail("wrong token count"); return }
         XCTAssertNotNil(tokens[0].type == .Identifier("x"))
         XCTAssertNotNil(tokens[1].type == .Operator(.plus))
         XCTAssertNotNil(tokens[2].type == .Identifier("y"))
-        XCTAssertNotNil(tokens[4].type == .Identifier("x"))
-        XCTAssertNotNil(tokens[5].type == .Operator(.plus))
-        XCTAssertNotNil(tokens[6].type == .Operator(.mult()))
-        XCTAssertNotNil(tokens[7].type == .Number("7"))
+        XCTAssertNotNil(tokens[3].type == .Identifier("x"))
+        XCTAssertNotNil(tokens[4].type == .Operator(.plus))
+        XCTAssertNotNil(tokens[5].type == .Operator(.mult()))
+        XCTAssertNotNil(tokens[6].type == .Number("7"))
 
         XCTAssertEqual(errors.count, 1)
         if case .UnexpectedToken(let token) = errors.first {

@@ -1,5 +1,5 @@
 //
-//  SwiftTexTests.swift
+//  ParserTests.swift
 //  SwiftTexTests
 //
 //  Created by Adam Wulf on 11/30/20.
@@ -13,7 +13,7 @@ import XCTest
 @testable import SwiftTex
 #endif
 
-class SwiftTexTests: XCTestCase {
+class ParserTests: XCTestCase {
 
     func testAddition() throws {
         let source = "x + y"
@@ -31,73 +31,6 @@ class SwiftTexTests: XCTestCase {
         XCTAssertEqual(plus.op, .plus)
         XCTAssertEqual((plus.lhs as? VariableNode)?.name, "x")
         XCTAssertEqual((plus.rhs as? VariableNode)?.name, "y")
-    }
-
-    func testTokens() throws {
-        let source = """
-                     x + y
-
-                     z * h
-                     """
-        let lexer = Lexer(input: source)
-        let (tokens, _) = lexer.tokenize()
-
-        XCTAssertEqual(tokens[0].line, 1)
-        XCTAssertEqual(tokens[1].line, 1)
-        XCTAssertEqual(tokens[2].line, 1)
-        XCTAssertEqual(tokens[3].line, 1)
-        XCTAssertEqual(tokens[4].line, 3)
-        XCTAssertEqual(tokens[5].line, 3)
-        XCTAssertEqual(tokens[6].line, 3)
-
-        XCTAssertEqual(tokens[0].col, 0)
-        XCTAssertEqual(tokens[1].col, 2)
-        XCTAssertEqual(tokens[2].col, 4)
-        XCTAssertEqual(tokens[3].col, 5)
-        XCTAssertEqual(tokens[4].col, 0)
-        XCTAssertEqual(tokens[5].col, 2)
-        XCTAssertEqual(tokens[6].col, 4)
-
-        XCTAssertEqual(tokens[0].loc, 0)
-        XCTAssertEqual(tokens[1].loc, 2)
-        XCTAssertEqual(tokens[2].loc, 4)
-        XCTAssertEqual(tokens[3].loc, 5)
-        XCTAssertEqual(tokens[4].loc, 7)
-        XCTAssertEqual(tokens[5].loc, 9)
-        XCTAssertEqual(tokens[6].loc, 11)
-    }
-
-    func testTokens2() throws {
-        let source = """
-                     x + y\\\\
-                     z * h
-                     """
-        let lexer = Lexer(input: source)
-        let (tokens, _) = lexer.tokenize()
-
-        XCTAssertEqual(tokens[0].line, 1)
-        XCTAssertEqual(tokens[1].line, 1)
-        XCTAssertEqual(tokens[2].line, 1)
-        XCTAssertEqual(tokens[3].line, 1)
-        XCTAssertEqual(tokens[4].line, 2)
-        XCTAssertEqual(tokens[5].line, 2)
-        XCTAssertEqual(tokens[6].line, 2)
-
-        XCTAssertEqual(tokens[0].col, 0)
-        XCTAssertEqual(tokens[1].col, 2)
-        XCTAssertEqual(tokens[2].col, 4)
-        XCTAssertEqual(tokens[3].col, 5)
-        XCTAssertEqual(tokens[4].col, 0)
-        XCTAssertEqual(tokens[5].col, 2)
-        XCTAssertEqual(tokens[6].col, 4)
-
-        XCTAssertEqual(tokens[0].loc, 0)
-        XCTAssertEqual(tokens[1].loc, 2)
-        XCTAssertEqual(tokens[2].loc, 4)
-        XCTAssertEqual(tokens[3].loc, 5)
-        XCTAssertEqual(tokens[4].loc, 8)
-        XCTAssertEqual(tokens[5].loc, 10)
-        XCTAssertEqual(tokens[6].loc, 12)
     }
 
     func testNegation() throws {
@@ -644,24 +577,5 @@ class SwiftTexTests: XCTestCase {
         XCTAssertNotNil(ast[3] as? NumberNode)
         XCTAssertNotNil(ast[4] as? UnaryOpNode)
         XCTAssertNotNil(ast[5] as? UnaryOpNode)
-    }
-
-    func testLineSplitter() throws {
-        let source = """
-                     This is an % stupid
-                     % Better: instructive <----
-                     example Supercal%
-                     ifragilist%
-                     icexpialidocious
-                     """
-        let lexer = Lexer(input: source)
-        let (tokens, _) = lexer.tokenize()
-        let parser = Parser(tokens: tokens)
-        let (expressions: ast, errors: errors) = try parser.parse()
-
-        XCTAssert(errors.isEmpty)
-        XCTAssertNotNil(ast)
-        XCTAssertEqual(tokens.count, 5)
-        XCTAssertEqual(tokens.last!.raw, "Supercalifragilisticexpialidocious")
     }
 }
