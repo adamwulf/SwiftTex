@@ -137,7 +137,7 @@ public class Lexer {
         for commentMatch in input.matches(regex: "%[^\n]*[ \t\n]*", mustStart: false) {
             let prefix = { () -> (string: String, length: Int, lines: Int, tail: Int) in
                 let string = String(content.prefix(upTo: commentMatch.range.lowerBound))
-                let lineCount = string.components(separatedBy: "\n").count
+                let lineCount = string.countOccurrences(of: "\n") + 1
                 let tail: Int
                 if let index = string.lastIndex(of: "\n") {
                     tail = string.suffix(from: index).utf8.count - 1
@@ -173,7 +173,7 @@ public class Lexer {
                 while
                     let comment = mutComments.first,
                     comment.loc <= loc {
-                    line += comment.raw.components(separatedBy: "\n").count - 1
+                    line += comment.raw.countOccurrences(of: "\n")
                     col = comment.tail
                     loc += comment.length
                     mutComments.removeFirst()
@@ -193,7 +193,7 @@ public class Lexer {
                     content = String(content[endIndex...])
                     matched = true
 
-                    if case let resetLines = m.components(separatedBy: "\n").count - 1,
+                    if case let resetLines = m.countOccurrences(of: "\n"),
                        let index = m.lastIndex(of: "\n"),
                        resetLines > 0 {
                         line += resetLines
@@ -203,7 +203,7 @@ public class Lexer {
                     while
                         let comment = mutComments.first,
                         comment.loc <= loc {
-                        line += comment.raw.components(separatedBy: "\n").count - 1
+                        line += comment.raw.countOccurrences(of: "\n")
                         col = comment.tail
                         loc += comment.length
                         mutComments.removeFirst()
