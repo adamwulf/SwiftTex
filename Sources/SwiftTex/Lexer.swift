@@ -140,12 +140,12 @@ public class Lexer {
                 let lineCount = string.components(separatedBy: "\n").count
                 let tail: Int
                 if let index = string.lastIndex(of: "\n") {
-                    tail = string.suffix(from: index).utf16.count - 1
+                    tail = string.suffix(from: index).utf8.count - 1
                 } else {
-                    tail = string.utf16.count
+                    tail = string.utf8.count
                 }
 
-                return (string: string, length: string.utf16.count, lines: lineCount, tail: tail)
+                return (string: string, length: string.utf8.count, lines: lineCount, tail: tail)
             }()
 
             let comment = commentMatch.str
@@ -154,9 +154,9 @@ public class Lexer {
             let loc = prefix.length
             let tail = { () -> Int in
                 guard let li = comment.lastIndex(of: "\n") else { return 0 }
-                return comment.suffix(from: li).utf16.count - 1 // don't count the \n itself
+                return comment.suffix(from: li).utf8.count - 1 // don't count the \n itself
             }()
-            comments.append(Comment(line: line, col: col, loc: loc, length: comment.utf16.count, raw: comment, tail: tail))
+            comments.append(Comment(line: line, col: col, loc: loc, length: comment.utf8.count, raw: comment, tail: tail))
         }
 
         // strip comments out of actual parsed content
@@ -184,7 +184,7 @@ public class Lexer {
                        let index = m.lastIndex(of: "\n"),
                        resetLines > 0 {
                         line += resetLines
-                        col = m.suffix(from: index).utf16.count - 1
+                        col = m.suffix(from: index).utf8.count - 1
                     }
                     break
                 }
