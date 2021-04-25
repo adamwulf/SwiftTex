@@ -101,11 +101,11 @@ class LexerTests: XCTestCase {
         XCTAssertEqual(tokens.last!.raw, "Supercalifragilisticexpialidocious")
     }
 
-    func testCommentTrailingNextLineSpaces() throws {
+    func testCommentAffectingTokenLocation() throws {
         let source = """
                      x + y
                      % comment
-                        x + * 7
+                     x + 7
                      """
         let lexer = Lexer(input: source)
         let (tokens, comments) = lexer.tokenize()
@@ -113,29 +113,20 @@ class LexerTests: XCTestCase {
         let (expressions: ast, errors: errors) = try parser.parse()
 
         guard comments.count == 1 else { XCTFail("wrong comment count"); return }
-        XCTAssertEqual(comments[0].raw, "% comment\n   ")
+        XCTAssertEqual(comments[0].raw, "% comment\n")
         XCTAssertEqual(comments[0].line, 2)
         XCTAssertEqual(comments[0].col, 0)
         XCTAssertEqual(comments[0].loc, 6)
 
-        guard tokens.count == 7 else { XCTFail("wrong token count"); return }
+        guard tokens.count == 6 else { XCTFail("wrong token count"); return }
         XCTAssertNotNil(tokens[0].type == .Identifier("x"))
         XCTAssertNotNil(tokens[1].type == .Operator(.plus))
         XCTAssertNotNil(tokens[2].type == .Identifier("y"))
         XCTAssertNotNil(tokens[3].type == .Identifier("x"))
         XCTAssertNotNil(tokens[4].type == .Operator(.plus))
-        XCTAssertNotNil(tokens[5].type == .Operator(.mult()))
-        XCTAssertNotNil(tokens[6].type == .Number("7"))
+        XCTAssertNotNil(tokens[5].type == .Number("7"))
 
-        XCTAssertEqual(errors.count, 1)
-        if case .UnexpectedToken(let token) = errors.first {
-            XCTAssertEqual(token.line, 3)
-            XCTAssertEqual(token.col, 7)
-            XCTAssertEqual(token.loc, 23)
-            XCTAssertEqual(token.raw, tokens[6].raw)
-        } else {
-            XCTFail()
-        }
-        XCTAssertEqual(ast.count, 0)
+        XCTAssertEqual(errors.count, 0)
+        XCTAssertEqual(ast.count, 1)
     }
 }
