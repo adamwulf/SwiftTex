@@ -169,6 +169,17 @@ public class Lexer {
         while content.lengthOfBytes(using: .utf8) > 0 {
             var matched = false
 
+            func adjustForComments() {
+                while
+                    let comment = mutComments.first,
+                    comment.loc <= loc {
+                    line += comment.raw.components(separatedBy: "\n").count - 1
+                    col = comment.tail
+                    loc += comment.length
+                    mutComments.removeFirst()
+                }
+            }
+
             for (pattern, generator) in tokenList {
                 if let (m, _, _) = content.match(regex: pattern, mustStart: true) {
                     if let t = generator(m, line, col, loc) {
@@ -198,6 +209,8 @@ public class Lexer {
                         mutComments.removeFirst()
                     }
 
+                    adjustForComments()
+
                     break
                 }
             }
@@ -208,8 +221,11 @@ public class Lexer {
                 tokens.append(Token(type: .Other(str), line: line, col: col, loc: loc, raw: str))
                 content = String(content[index...])
 
-                col += 1
+                col += str.utf8.count
+                loc += str.utf8.count
             }
+
+            adjustForComments()
         }
         return (tokens: tokens, comments: comments)
     }

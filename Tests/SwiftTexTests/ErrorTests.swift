@@ -221,4 +221,51 @@ class ErrorTests: XCTestCase {
         }
         XCTAssertEqual(ast.count, 0)
     }
+
+    func testTwoErrors() throws {
+        let source = """
+                     \\
+
+                     % comment
+
+                     \\
+                     """
+        let lexer = Lexer(input: source)
+        let (tokens, comments) = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let (expressions: ast, errors: errors) = try parser.parse()
+
+        guard comments.count == 1 else { XCTFail("wrong comment count"); return }
+        XCTAssertEqual(comments[0].raw, "% comment\n\n")
+        XCTAssertEqual(comments[0].line, 3)
+        XCTAssertEqual(comments[0].col, 0)
+        XCTAssertEqual(comments[0].loc, 3)
+
+        guard tokens.count == 3 else { XCTFail("wrong token count"); return }
+        XCTAssertNotNil(tokens[0].type == .Other("\\"))
+        XCTAssertNotNil(tokens[1].type == .EOL)
+        XCTAssertNotNil(tokens[2].type == .Other("\\"))
+
+        XCTAssertEqual(errors.count, 2)
+
+        if case .ExpectedExpression(let token) = errors.first {
+            XCTAssertEqual(token.line, 1)
+            XCTAssertEqual(token.col, 0)
+            XCTAssertEqual(token.loc, 0)
+            XCTAssertEqual(token.raw, tokens[0].raw)
+        } else {
+            XCTFail()
+        }
+
+        if case .ExpectedExpression(let token) = errors.last {
+            XCTAssertEqual(token.line, 5)
+            XCTAssertEqual(token.col, 0)
+            XCTAssertEqual(token.loc, 14)
+            XCTAssertEqual(token.raw, tokens[2].raw)
+        } else {
+            XCTFail()
+        }
+
+        XCTAssertEqual(ast.count, 0)
+    }
 }

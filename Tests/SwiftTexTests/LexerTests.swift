@@ -49,6 +49,42 @@ class LexerTests: XCTestCase {
         XCTAssertEqual(tokens[6].loc, 11)
     }
 
+    func testTokensAfterComment() throws {
+        let source = """
+                     x + y
+
+                     % comment
+
+                     z * h
+                     """
+        let lexer = Lexer(input: source)
+        let (tokens, _) = lexer.tokenize()
+
+        XCTAssertEqual(tokens[0].line, 1)
+        XCTAssertEqual(tokens[1].line, 1)
+        XCTAssertEqual(tokens[2].line, 1)
+        XCTAssertEqual(tokens[3].line, 1)
+        XCTAssertEqual(tokens[4].line, 5)
+        XCTAssertEqual(tokens[5].line, 5)
+        XCTAssertEqual(tokens[6].line, 5)
+
+        XCTAssertEqual(tokens[0].col, 0)
+        XCTAssertEqual(tokens[1].col, 2)
+        XCTAssertEqual(tokens[2].col, 4)
+        XCTAssertEqual(tokens[3].col, 5)
+        XCTAssertEqual(tokens[4].col, 0)
+        XCTAssertEqual(tokens[5].col, 2)
+        XCTAssertEqual(tokens[6].col, 4)
+
+        XCTAssertEqual(tokens[0].loc, 0)
+        XCTAssertEqual(tokens[1].loc, 2)
+        XCTAssertEqual(tokens[2].loc, 4)
+        XCTAssertEqual(tokens[3].loc, 5)
+        XCTAssertEqual(tokens[4].loc, 18)
+        XCTAssertEqual(tokens[5].loc, 20)
+        XCTAssertEqual(tokens[6].loc, 22)
+    }
+
     func testTokens2() throws {
         let source = """
                      x + y\\\\
@@ -218,5 +254,40 @@ class LexerTests: XCTestCase {
         XCTAssertEqual(tokens[4].line, 4)
         XCTAssertEqual(tokens[4].col, 5)
         XCTAssertEqual(tokens[4].loc, 44)
+    }
+
+    func testTwoErrors() throws {
+        let source = """
+                     \\
+
+                     % comment
+
+                     \\
+                     """
+        let lexer = Lexer(input: source)
+        let (tokens, comments) = lexer.tokenize()
+
+        guard comments.count == 1 else { XCTFail("wrong comment count"); return }
+        XCTAssertEqual(comments[0].raw, "% comment\n\n")
+        XCTAssertEqual(comments[0].line, 3)
+        XCTAssertEqual(comments[0].col, 0)
+        XCTAssertEqual(comments[0].loc, 3)
+
+        guard tokens.count == 3 else { XCTFail("wrong token count"); return }
+        XCTAssertNotNil(tokens[0].type == .Other("\\"))
+        XCTAssertNotNil(tokens[1].type == .EOL)
+        XCTAssertNotNil(tokens[2].type == .Other("\\"))
+
+        XCTAssertEqual(tokens[0].line, 1)
+        XCTAssertEqual(tokens[0].col, 0)
+        XCTAssertEqual(tokens[0].loc, 0)
+
+        XCTAssertEqual(tokens[1].line, 1)
+        XCTAssertEqual(tokens[1].col, 1)
+        XCTAssertEqual(tokens[1].loc, 1)
+
+        XCTAssertEqual(tokens[2].line, 5)
+        XCTAssertEqual(tokens[2].col, 0)
+        XCTAssertEqual(tokens[2].loc, 14)
     }
 }
