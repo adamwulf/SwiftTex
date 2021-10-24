@@ -24,6 +24,21 @@ public class Interpreter: Visitor {
         return scopes.last ?? globalScope
     }
 
+    private func pushScope(in block: () -> Void) {
+        scopes.append([:])
+        block()
+        scopes.removeLast()
+    }
+
+    private func lookup(variable: VariableNode) -> ExprNode? {
+        for scope in ([globalScope] + scopes).reversed() {
+            if let val = scope[variable] {
+                return val
+            }
+        }
+        return nil
+    }
+
     func setScope(_ variable: VariableNode, _ expr: ExprNode) {
         if var last = scopes.last {
             last[variable] = expr
@@ -39,7 +54,7 @@ public class Interpreter: Visitor {
         case let item as NumberNode:
             return .success(item)
         case let item as VariableNode:
-            if let val = currentScope[item] {
+            if let val = lookup(variable: item) {
                 return .success(val)
             } else {
                 return .success(item)
