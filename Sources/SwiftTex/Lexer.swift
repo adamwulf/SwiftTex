@@ -18,7 +18,7 @@ public struct Comment {
     let tail: Int
 }
 
-public struct Token {
+public struct Token: Equatable {
     public enum Symbol {
         case plus
         case minus

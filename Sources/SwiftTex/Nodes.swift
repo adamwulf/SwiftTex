@@ -86,6 +86,21 @@ public struct TexNode: ExprNode {
     }
 }
 
+extension VariableNode: Hashable {
+    public static func == (lhs: VariableNode, rhs: VariableNode) -> Bool {
+        return lhs.startToken == rhs.startToken
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(startToken.col)
+        hasher.combine(startToken.line)
+        hasher.combine(startToken.loc)
+        hasher.combine(startToken.raw)
+        hasher.combine(startToken.range.lowerBound)
+        hasher.combine(startToken.range.upperBound)
+    }
+}
+
 public struct TexListNode: ExprNode {
     public let name: String
     public let arguments: [String]

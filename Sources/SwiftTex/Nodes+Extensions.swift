@@ -42,4 +42,31 @@ extension NumberNode {
         let string = formatter.string(from: (left.value / right) as NSNumber)!
         return NumberNode(string: string, startToken: left.startToken)
     }
+
+    static func ^ (left: NumberNode, right: Float) -> NumberNode {
+        let formatter = NumberFormatter()
+        formatter.minimumFractionDigits = left.fractionalDigits
+        let string = formatter.string(from: pow(left.value, right) as NSNumber)!
+        return NumberNode(string: string, startToken: left.startToken)
+    }
+
+    static func + (left: NumberNode, right: NumberNode) -> NumberNode {
+        return left + right.value
+    }
+
+    static func - (left: NumberNode, right: NumberNode) -> NumberNode {
+        return left - right.value
+    }
+
+    static func * (left: NumberNode, right: NumberNode) -> NumberNode {
+        return left * right.value
+    }
+
+    static func / (left: NumberNode, right: NumberNode) -> NumberNode {
+        return left / right.value
+    }
+
+    static func ^ (left: NumberNode, right: NumberNode) -> NumberNode {
+        return left ^ right.value
+    }
 }
