@@ -10,6 +10,7 @@ import Foundation
 public enum InterpreterError: Error {
     case UnhandledExpression(token: Token)
     case InvalidOperator(token: Token)
+    case UnexpectedBrace(token: Token)
 }
 
 public class Interpreter: Visitor {
@@ -21,6 +22,16 @@ public class Interpreter: Visitor {
 
     private var currentScope: [VariableNode: ExprNode] {
         return scopes.last ?? globalScope
+    }
+
+    func setScope(_ variable: VariableNode, _ expr: ExprNode) {
+        if var last = scopes.last {
+            last[variable] = expr
+            scopes.removeLast()
+            scopes.append(last)
+        } else {
+            globalScope[variable] = expr
+        }
     }
 
     public func visit(_ item: ExprNode) -> Result {
@@ -73,12 +84,13 @@ public class Interpreter: Visitor {
                 return right
             }
         case let item as BracedNode:
-            return .success(item)
+            return .failure(.UnexpectedBrace(token: item.startToken))
         case let item as TexNode:
             return .success(item)
         case let item as TexListNode:
             return .success(item)
         case let item as FunctionNode:
+            setScope(item.prototype.name, item)
             return .success(item)
         case let item as CallNode:
             return .success(item)
