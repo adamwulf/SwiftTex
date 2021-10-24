@@ -112,6 +112,7 @@ class InterpreterTests: XCTestCase {
         let parser = Parser(tokens: tokens)
         let (expressions: ast, errors: errors) = try parser.parse()
         let interpreter = Interpreter()
+        let printer = PrintVisitor()
 
         XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? FunctionNode)
@@ -121,6 +122,10 @@ class InterpreterTests: XCTestCase {
         for expr in ast {
             guard case .success(let result) = expr.accept(visitor: interpreter) else { XCTFail(); return }
             results.append(result)
+        }
+
+        for (key, val) in interpreter.environment {
+            print("\(key.accept(visitor: printer)) => \(val.accept(visitor: printer))")
         }
 
         guard let result = ast.last as? NumberNode else { XCTFail(); return }

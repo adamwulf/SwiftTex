@@ -10,7 +10,7 @@ import Foundation
 public enum InterpreterError: Error {
     case UnhandledExpression(token: Token)
     case InvalidOperator(token: Token)
-    case UnexpectedBrace(token: Token)
+    case UnexpectedNode(token: Token, node: ExprNode)
 }
 
 public class Interpreter: Visitor {
@@ -24,10 +24,24 @@ public class Interpreter: Visitor {
         return scopes.last ?? globalScope
     }
 
-    private func pushScope(in block: () -> Void) {
+    public var environment: [VariableNode: ExprNode] {
+        let allScopes = [globalScope] + scopes
+        var ret: [VariableNode: ExprNode] = [:]
+        for scope in allScopes.reversed() {
+            for (variable, val) in scope {
+                if ret[variable] == nil {
+                    ret[variable] = val
+                }
+            }
+        }
+        return ret
+    }
+
+    private func pushScope<T>(in block: () -> T) -> T {
         scopes.append([:])
-        block()
+        let ret = block()
         scopes.removeLast()
+        return ret
     }
 
     private func lookup(variable: VariableNode) -> ExprNode? {
@@ -99,14 +113,29 @@ public class Interpreter: Visitor {
                 return right
             }
         case let item as BracedNode:
-            return .failure(.UnexpectedBrace(token: item.startToken))
+            return .failure(.UnexpectedNode(token: item.startToken, node: item))
         case let item as TexNode:
-            return .success(item)
+            return .failure(.UnexpectedNode(token: item.startToken, node: item))
         case let item as TexListNode:
-            return .success(item)
+            return .failure(.UnexpectedNode(token: item.startToken, node: item))
         case let item as FunctionNode:
-            setScope(item.prototype.name, item)
-            return .success(item)
+            let simplified = pushScope { () -> Result in
+                for arg in item.prototype.argumentNames {
+                    setScope(arg, arg)
+                }
+                let result = item.body.accept(visitor: self)
+                if case .success(let simpleBody) = result {
+                    return .success(FunctionNode(prototype: item.prototype, body: simpleBody, startToken: item.startToken))
+                } else {
+                    return result
+                }
+            }
+            if case .success(let expr) = simplified {
+                setScope(item.prototype.name, expr)
+                return .success(expr)
+            } else {
+                return simplified
+            }
         case let item as CallNode:
             return .success(item)
         default:
