@@ -16,7 +16,7 @@ import XCTest
 #endif
 
 class InterpreterTests: XCTestCase {
-    func testSimpleFoil() throws {
+    func testCantSimplify() throws {
         let source = "(x + 1)(x + 2)"
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
@@ -35,7 +35,7 @@ class InterpreterTests: XCTestCase {
         }
     }
 
-    func testSimpleFoil2() throws {
+    func testSimplify() throws {
         let source = "(4 + 1)(x + 2)"
         let lexer = Lexer(input: source)
         let (tokens, _) = lexer.tokenize()
@@ -52,5 +52,50 @@ class InterpreterTests: XCTestCase {
         case .failure(_):
             XCTFail()
         }
+    }
+
+    func testNegation() throws {
+        let source = "-100"
+        let lexer = Lexer(input: source)
+        let (tokens, _) = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let (expressions: ast, errors: _) = try parser.parse()
+        let interpreter = Interpreter()
+
+        XCTAssertNotNil(ast.first as? UnaryOpNode)
+
+        guard let negate = ast.first as? UnaryOpNode else { XCTFail(); return }
+
+        XCTAssertEqual(negate.op, .minus)
+        XCTAssertEqual((negate.expression as? NumberNode)?.value, 100)
+
+        let ret = ast.first!.accept(visitor: interpreter)
+
+        guard case .success(let val) = ret else { XCTFail(); return }
+        guard let val = val as? NumberNode else { XCTFail(); return }
+
+        XCTAssertEqual(val.value, -100)
+    }
+
+    func testBinaryUnary() throws {
+        let source = "2*-100"
+        let lexer = Lexer(input: source)
+        let (tokens, _) = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let (expressions: ast, errors: _) = try parser.parse()
+        let interpreter = Interpreter()
+
+        XCTAssertNotNil(ast.first as? BinaryOpNode)
+
+        guard let mult = ast.first as? BinaryOpNode else { XCTFail(); return }
+
+        XCTAssertEqual(mult.op, .mult(implicit: false))
+
+        let ret = ast.first!.accept(visitor: interpreter)
+
+        guard case .success(let val) = ret else { XCTFail(); return }
+        guard let val = val as? NumberNode else { XCTFail(); return }
+
+        XCTAssertEqual(val.value, -200)
     }
 }
