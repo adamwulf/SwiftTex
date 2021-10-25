@@ -16,7 +16,7 @@ public protocol ExprNode: Visitable, CustomStringConvertible {
 }
 
 extension ExprNode {
-    var description: String {
+    var asTex: String {
         return accept(visitor: PrintVisitor())
     }
 }
@@ -102,7 +102,8 @@ public struct VariableNode: ExprNode {
     public func matches(_ other: ExprNode) -> Bool {
         guard
             let other = other as? VariableNode,
-            subscripts.count == other.subscripts.count
+            subscripts.count == other.subscripts.count,
+            name == other.name
         else { return false }
         var otherSubs = other.subscripts
         for child in subscripts {

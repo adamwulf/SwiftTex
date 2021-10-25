@@ -15,9 +15,7 @@ public enum InterpreterError: Error {
     case IncorrectArgumentCount(token: Token)
 }
 
-public class Interpreter: Visitor {
-    public typealias Result = Swift.Result<ExprNode, InterpreterError>
-
+struct Environment {
     private var globalScope: [VariableNode: ExprNode] = [:]
 
     private var scopes: [[VariableNode: ExprNode]] = []
@@ -26,7 +24,7 @@ public class Interpreter: Visitor {
         return scopes.last ?? globalScope
     }
 
-    public var environment: [VariableNode: ExprNode] {
+    var environment: [VariableNode: ExprNode] {
         let allScopes = [globalScope] + scopes
         var ret: [VariableNode: ExprNode] = [:]
         for scope in allScopes.reversed() {
@@ -39,14 +37,21 @@ public class Interpreter: Visitor {
         return ret
     }
 
-    private func pushScope<T>(in block: () -> T) -> T {
-        scopes.append([:])
-        let ret = block()
-        scopes.removeLast()
-        return ret
+    var description: String {
+        environment.reduce("") { (partialResult: String, pair: (key: VariableNode, value: ExprNode)) -> String in
+            return partialResult + (partialResult.isEmpty ? "" : "\n") + pair.key.asTex + " => " + pair.value.asTex
+        }
     }
 
-    private func lookup(variable: VariableNode) -> ExprNode? {
+    mutating func pushScope() {
+        scopes.append([:])
+    }
+
+    mutating func popScope() {
+        scopes.removeLast()
+    }
+
+    func lookup(variable: VariableNode) -> ExprNode? {
         for scope in ([globalScope] + scopes).reversed() {
             for (scoped, val) in scope {
                 if scoped.matches(variable) {
@@ -57,7 +62,7 @@ public class Interpreter: Visitor {
         return nil
     }
 
-    func setScope(_ variable: VariableNode, _ expr: ExprNode) {
+    mutating func setScope(_ variable: VariableNode, _ expr: ExprNode) {
         if var last = scopes.last {
             last[variable] = expr
             scopes.removeLast()
@@ -66,13 +71,26 @@ public class Interpreter: Visitor {
             globalScope[variable] = expr
         }
     }
+}
+
+public class Interpreter: Visitor {
+    public typealias Result = Swift.Result<ExprNode, InterpreterError>
+
+    var env = Environment()
+
+    func pushScope<T>(_ block: () -> T) -> T {
+        env.pushScope()
+        let ret = block()
+        env.popScope()
+        return ret
+    }
 
     public func visit(_ item: ExprNode) -> Result {
         switch item {
         case let item as NumberNode:
             return .success(item)
         case let item as VariableNode:
-            if let val = lookup(variable: item) {
+            if let val = env.lookup(variable: item) {
                 return .success(val)
             } else {
                 return .success(item)
@@ -135,7 +153,7 @@ public class Interpreter: Visitor {
         case let item as FunctionNode:
             let simplified = pushScope { () -> Result in
                 for arg in item.prototype.argumentNames {
-                    setScope(arg, arg)
+                    env.setScope(arg, arg)
                 }
                 let result = item.body.accept(visitor: self)
                 if case .success(let simpleBody) = result {
@@ -145,14 +163,14 @@ public class Interpreter: Visitor {
                 }
             }
             if case .success(let expr) = simplified {
-                setScope(item.prototype.name, expr)
+                env.setScope(item.prototype.name, expr)
                 return .success(expr)
             } else {
                 return simplified
             }
         case let item as CallNode:
             guard
-                let function = lookup(variable: item.callee) as? FunctionNode
+                let function = env.lookup(variable: item.callee) as? FunctionNode
             else {
                 return .failure(.UnknownFunctionName(token: item.startToken, node: item.callee))
             }
@@ -165,7 +183,12 @@ public class Interpreter: Visitor {
                     for i in 0..<item.arguments.count {
                         let arg = item.arguments[i]
                         let name = function.prototype.argumentNames[i]
-                        setScope(name, arg)
+                        let argResult = arg.accept(visitor: self)
+                        if case .success(let argResult) = argResult {
+                            env.setScope(name, argResult)
+                        } else {
+                            return argResult
+                        }
                     }
                     return function.body.accept(visitor: self)
                 }
