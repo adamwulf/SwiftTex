@@ -109,9 +109,9 @@ public class Interpreter: Visitor {
                 return .success(item)
             }
         case let item as BinaryOpNode:
-            let left = item.lhs.accept(visitor: self)
-            let right = item.rhs.accept(visitor: self)
-            switch (left, right) {
+            let leftResult = item.lhs.accept(visitor: self)
+            let rightResult = item.rhs.accept(visitor: self)
+            switch (leftResult, rightResult) {
             case (.success(let lnum as NumberNode), .success(let rnum as NumberNode)):
                 switch item.op {
                 case .plus:
@@ -128,21 +128,11 @@ public class Interpreter: Visitor {
                     return .success(BinaryOpNode(op: item.op, lhs: lnum, rhs: rnum, startToken: item.startToken))
                 }
             case (.success(let left), .success(let right)):
-                let simpleLeft = left.accept(visitor: self)
-                let simpleRight = right.accept(visitor: self)
-                if case .success(let simpleLeft) = simpleLeft {
-                    if case .success(let simpleRight) = simpleRight {
-                        return .success(BinaryOpNode(op: item.op, lhs: simpleLeft, rhs: simpleRight, startToken: item.startToken))
-                    } else {
-                        return simpleRight
-                    }
-                } else {
-                    return simpleLeft
-                }
+                return .success(BinaryOpNode(op: item.op, lhs: left, rhs: right, startToken: item.startToken))
             case (.failure, _):
-                return left
+                return leftResult
             case (_, .failure):
-                return right
+                return rightResult
             }
         case let item as BracedNode:
             return .failure(.UnexpectedNode(token: item.startToken, node: item))
