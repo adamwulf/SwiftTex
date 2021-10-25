@@ -11,6 +11,8 @@ public enum InterpreterError: Error {
     case UnhandledExpression(token: Token)
     case InvalidOperator(token: Token)
     case UnexpectedNode(token: Token, node: ExprNode)
+    case UnknownFunctionName(token: Token, node: VariableNode)
+    case IncorrectArgumentCount(token: Token)
 }
 
 public class Interpreter: Visitor {
@@ -46,8 +48,10 @@ public class Interpreter: Visitor {
 
     private func lookup(variable: VariableNode) -> ExprNode? {
         for scope in ([globalScope] + scopes).reversed() {
-            if let val = scope[variable] {
-                return val
+            for (scoped, val) in scope {
+                if scoped.matches(variable) {
+                    return val
+                }
             }
         }
         return nil
@@ -106,7 +110,17 @@ public class Interpreter: Visitor {
                     return .success(BinaryOpNode(op: item.op, lhs: lnum, rhs: rnum, startToken: item.startToken))
                 }
             case (.success(let left), .success(let right)):
-                return .success(BinaryOpNode(op: item.op, lhs: left, rhs: right, startToken: item.startToken))
+                let simpleLeft = left.accept(visitor: self)
+                let simpleRight = right.accept(visitor: self)
+                if case .success(let simpleLeft) = simpleLeft {
+                    if case .success(let simpleRight) = simpleRight {
+                        return .success(BinaryOpNode(op: item.op, lhs: simpleLeft, rhs: simpleRight, startToken: item.startToken))
+                    } else {
+                        return simpleRight
+                    }
+                } else {
+                    return simpleLeft
+                }
             case (.failure, _):
                 return left
             case (_, .failure):
@@ -137,7 +151,27 @@ public class Interpreter: Visitor {
                 return simplified
             }
         case let item as CallNode:
-            return .success(item)
+            guard
+                let function = lookup(variable: item.callee) as? FunctionNode
+            else {
+                return .failure(.UnknownFunctionName(token: item.startToken, node: item.callee))
+            }
+            guard item.arguments.count <= function.prototype.argumentNames.count else {
+                return .failure(.IncorrectArgumentCount(token: item.startToken))
+            }
+
+            if item.arguments.count == function.prototype.argumentNames.count {
+                return pushScope { () -> Result in
+                    for i in 0..<item.arguments.count {
+                        let arg = item.arguments[i]
+                        let name = function.prototype.argumentNames[i]
+                        setScope(name, arg)
+                    }
+                    return function.body.accept(visitor: self)
+                }
+            } else {
+                return .success(item)
+            }
         default:
             return .failure(.UnhandledExpression(token: item.startToken))
         }

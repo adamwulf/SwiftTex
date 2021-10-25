@@ -11,6 +11,14 @@ import Foundation
 public protocol ExprNode: Visitable, CustomStringConvertible {
     var startToken: Token { get }
     var children: [ExprNode] { get }
+
+    func matches(_ other: ExprNode) -> Bool
+}
+
+extension ExprNode {
+    var description: String {
+        return accept(visitor: PrintVisitor())
+    }
 }
 
 public protocol Visitor {
@@ -47,6 +55,10 @@ public struct NumberNode: ExprNode {
     public var description: String {
         return "NumberNode(\(value))"
     }
+    public func matches(_ other: ExprNode) -> Bool {
+        guard let other = other as? NumberNode else { return false }
+        return value == other.value
+    }
 }
 
 public struct BracedNode: ExprNode {
@@ -64,6 +76,18 @@ public struct BracedNode: ExprNode {
         }
         return self
     }
+    public func matches(_ other: ExprNode) -> Bool {
+        guard
+            let other = other as? BracedNode,
+            children.count == other.children.count
+        else { return false }
+        var otherKids = other.children
+        for child in children {
+            guard let index = otherKids.firstIndex(where: { $0.matches(child) }) else { return false }
+            otherKids.remove(at: index)
+        }
+        return true
+    }
 }
 
 public struct VariableNode: ExprNode {
@@ -74,6 +98,19 @@ public struct VariableNode: ExprNode {
     public var description: String {
         return "VariableNode(\(name))"
     }
+
+    public func matches(_ other: ExprNode) -> Bool {
+        guard
+            let other = other as? VariableNode,
+            subscripts.count == other.subscripts.count
+        else { return false }
+        var otherSubs = other.subscripts
+        for child in subscripts {
+            guard let index = otherSubs.firstIndex(where: { $0.matches(child) }) else { return false }
+            otherSubs.remove(at: index)
+        }
+        return true
+    }
 }
 
 public struct TexNode: ExprNode {
@@ -83,6 +120,10 @@ public struct TexNode: ExprNode {
     public let children: [ExprNode] = []
     public var description: String {
         return "TexNode(\(name))"
+    }
+    public func matches(_ other: ExprNode) -> Bool {
+        assertionFailure()
+        return false
     }
 }
 
@@ -109,6 +150,10 @@ public struct TexListNode: ExprNode {
     public var description: String {
         return "TexListNode(\(name))"
     }
+    public func matches(_ other: ExprNode) -> Bool {
+        assertionFailure()
+        return false
+    }
 }
 
 public struct BinaryOpNode: ExprNode {
@@ -122,6 +167,10 @@ public struct BinaryOpNode: ExprNode {
     public var description: String {
         return "BinaryOpNode(\(op), lhs: \(lhs), rhs: \(rhs))"
     }
+    public func matches(_ other: ExprNode) -> Bool {
+        guard let other = other as? BinaryOpNode else { return false }
+        return op == other.op && lhs.matches(other.lhs) && rhs.matches(other.rhs)
+    }
 }
 
 public struct UnaryOpNode: ExprNode {
@@ -133,6 +182,10 @@ public struct UnaryOpNode: ExprNode {
     public let startToken: Token
     public var description: String {
         return "UnaryOpNode(\(op))"
+    }
+    public func matches(_ other: ExprNode) -> Bool {
+        guard let other = other as? UnaryOpNode else { return false }
+        return op == other.op && expression.matches(other.expression)
     }
 }
 
@@ -146,6 +199,10 @@ public struct CallNode: ExprNode {
     public var description: String {
         return "CallNode(name: \(callee), argument: \(arguments))"
     }
+    public func matches(_ other: ExprNode) -> Bool {
+        assertionFailure()
+        return false
+    }
 }
 
 public struct PrototypeNode: ExprNode {
@@ -158,6 +215,19 @@ public struct PrototypeNode: ExprNode {
     public var description: String {
         return "PrototypeNode(name: \(name), argumentNames: \(argumentNames))"
     }
+    public func matches(_ other: ExprNode) -> Bool {
+        guard let other = other as? PrototypeNode else { return false }
+        guard
+            name.matches(other.name),
+            argumentNames.count == other.argumentNames.count
+        else { return false }
+        var otherArgs = other.argumentNames
+        for arg in argumentNames {
+            guard let index = otherArgs.firstIndex(where: { $0.matches(arg) }) else { return false }
+            otherArgs.remove(at: index)
+        }
+        return true
+    }
 }
 
 public struct FunctionNode: ExprNode {
@@ -169,5 +239,9 @@ public struct FunctionNode: ExprNode {
     }
     public var description: String {
         return "FunctionNode(prototype: \(prototype), body: \(body))"
+    }
+    public func matches(_ other: ExprNode) -> Bool {
+        guard let other = other as? FunctionNode else { return false }
+        return prototype.matches(other.prototype) && body.matches(other.body)
     }
 }

@@ -99,6 +99,38 @@ class InterpreterTests: XCTestCase {
         XCTAssertEqual(val.value, -200)
     }
 
+    func testApplyFunctionTooManyArgs() throws {
+        let source = """
+                     \\func
+                     { f(x) }
+                     { x^2 }
+
+                     f(4, 4)
+                     """
+        let lexer = Lexer(input: source)
+        let (tokens, _) = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let (expressions: ast, errors: errors) = try parser.parse()
+        let interpreter = Interpreter()
+
+        XCTAssert(errors.isEmpty)
+        XCTAssertNotNil(ast.first as? FunctionNode)
+        XCTAssertNotNil(ast.last as? CallNode)
+
+        guard let first = ast.first, let last = ast.last else { XCTFail(); return }
+
+        let result1 = first.accept(visitor: interpreter)
+
+        guard case .success = result1 else { XCTFail(); return }
+
+        let result2 = last.accept(visitor: interpreter)
+
+        guard
+            case .failure(let error) = result2,
+            case InterpreterError.IncorrectArgumentCount = error
+        else { XCTFail(); return }
+    }
+
     func testApplyFunction() throws {
         let source = """
                      \\func
@@ -112,24 +144,31 @@ class InterpreterTests: XCTestCase {
         let parser = Parser(tokens: tokens)
         let (expressions: ast, errors: errors) = try parser.parse()
         let interpreter = Interpreter()
-        let printer = PrintVisitor()
 
         XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? FunctionNode)
         XCTAssertNotNil(ast.last as? CallNode)
 
-        var results: [ExprNode] = []
-        for expr in ast {
-            guard case .success(let result) = expr.accept(visitor: interpreter) else { XCTFail(); return }
-            results.append(result)
-        }
+        guard let first = ast.first, let last = ast.last else { XCTFail(); return }
 
-        for (key, val) in interpreter.environment {
-            print("\(key.accept(visitor: printer)) => \(val.accept(visitor: printer))")
-        }
+        let result1 = first.accept(visitor: interpreter)
 
-        guard let result = ast.last as? NumberNode else { XCTFail(); return }
+        guard case .success = result1 else { XCTFail(); return }
+
+        let result2 = last.accept(visitor: interpreter)
+
+        guard case .success(let result) = result2 else { XCTFail(); return }
+
+//        var results: [ExprNode] = []
+//        for expr in ast {
+//            results.append(result)
+//        }
+//
+//        for (key, val) in interpreter.environment {
+//            print("\(key.accept(visitor: printer)) => \(val.accept(visitor: printer))")
+//        }
+//
+        guard let result = result as? NumberNode else { XCTFail(); return }
         XCTAssertEqual(result.value, 16)
     }
-
 }
