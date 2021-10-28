@@ -100,4 +100,116 @@ class TypeCheckerTests: XCTestCase {
             case TypeCheckerError.InvalidArgumentCount = error
         else { XCTFail(); return }
     }
+
+    func testApplyFunction() throws {
+        let source = """
+                     \\func
+                     { f(x) }
+                     { x^2 }
+
+                     f(4)
+                     """
+        let lexer = Lexer(input: source)
+        let (tokens, _) = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let (expressions: ast, errors: errors) = try parser.parse()
+        let typeChecker = TypeChecker()
+
+        XCTAssert(errors.isEmpty)
+        XCTAssertNotNil(ast.first as? FunctionNode)
+        XCTAssertNotNil(ast.last as? CallNode)
+
+        guard let first = ast.first, let last = ast.last else { XCTFail(); return }
+
+        let result1 = first.accept(visitor: typeChecker)
+
+        guard case .success = result1 else { XCTFail(); return }
+
+        let result2 = last.accept(visitor: typeChecker)
+
+        guard case .success(let result) = result2 else { XCTFail(); return }
+        guard case .number = result else { XCTFail(); return }
+    }
+
+    func testApplyFunction2() throws {
+        let source = """
+                     \\func
+                     { f(x) }
+                     { x^2 }
+                     \\func
+                     { g(x) }
+                     { x + 7 }
+
+                     f(g(3))
+                     """
+        let lexer = Lexer(input: source)
+        let (tokens, _) = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let (expressions: ast, errors: errors) = try parser.parse()
+        let typeChecker = TypeChecker()
+
+        XCTAssert(errors.isEmpty)
+        XCTAssertNotNil(ast.first as? FunctionNode)
+        XCTAssertNotNil(ast[1] as? FunctionNode)
+        XCTAssertNotNil(ast.last as? CallNode)
+
+        guard
+            let first = ast.first,
+            case let second = ast[1],
+            let last = ast.last
+        else { XCTFail(); return }
+
+        let result1 = first.accept(visitor: typeChecker)
+        guard case .success = result1 else { XCTFail(); return }
+
+        let result2 = second.accept(visitor: typeChecker)
+        guard case .success = result2 else { XCTFail(); return }
+
+        let result3 = last.accept(visitor: typeChecker)
+
+        guard case .success(let result) = result3 else { XCTFail(); return }
+        guard case .number = result else { XCTFail(); return }
+    }
+
+    func testCurryFunction1() throws {
+        let source = """
+                     \\func{ f(x, y) }{ x + y }
+
+                     \\let { g }{ f(2) }
+
+                     g(5)
+                     """
+        let lexer = Lexer(input: source)
+        let (tokens, _) = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let (expressions: ast, errors: errors) = try parser.parse()
+        let typeChecker = TypeChecker()
+
+        XCTAssert(errors.isEmpty)
+        XCTAssertNotNil(ast.first as? FunctionNode)
+        XCTAssertNotNil(ast[1] as? LetNode)
+        XCTAssertNotNil(ast.last as? BinaryOpNode)
+
+        guard
+            let first = ast.first,
+            case let second = ast[1],
+            let last = ast.last
+        else { XCTFail(); return }
+
+        let result1 = first.accept(visitor: typeChecker)
+        guard case .success = result1 else { XCTFail(); return }
+
+        let result2 = second.accept(visitor: typeChecker)
+        guard case .success = result2 else { XCTFail(); return }
+
+        let result3 = last.accept(visitor: typeChecker)
+
+        guard case .success(let result1) = result1 else { XCTFail(); return }
+        guard case .success(let result2) = result2 else { XCTFail(); return }
+        guard case .success(let result3) = result3 else { XCTFail(); return }
+
+        guard case .function = result1 else { XCTFail(); return }
+        guard case .function = result2 else { XCTFail(); return }
+        guard case .number = result3 else { XCTFail(); return }
+    }
 }

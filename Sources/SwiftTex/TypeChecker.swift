@@ -89,10 +89,16 @@ public class TypeChecker: Visitor {
                     fallthrough
                 case (.variable, .function):
                     return .failure(.UnexpectedType(token: item.rhs.startToken, given: rnum))
-                case (.function, .number):
+                case (.function(let node, _), .number):
                     fallthrough
-                case (.function, .variable):
-                    return .failure(.UnexpectedType(token: item.lhs.startToken, given: rnum))
+                case (.function(let node, _), .variable):
+                    if case .mult(let implicit) = item.op,
+                       implicit {
+                        let callNode = CallNode(callee: node.prototype.name, arguments: [item.rhs], startToken: item.startToken)
+                        return callNode.accept(visitor: self)
+                    } else {
+                        return .failure(.UnexpectedType(token: item.lhs.startToken, given: rnum))
+                    }
                 default:
                     return .success(.number(node: item))
                 }
@@ -149,7 +155,7 @@ public class TypeChecker: Visitor {
                     return function.body.accept(visitor: self)
                 }
             } else {
-                return pushScope { () -> Result in
+                let thunk = pushScope { () -> Result in
                     var closedLet: [VariableNode: ExprNode] = [:]
                     for i in 0..<item.arguments.count {
                         let arg = item.arguments[i]
@@ -178,6 +184,12 @@ public class TypeChecker: Visitor {
                                              closed: closedLet,
                                              startToken: item.startToken)
                     return .success(.function(node: thunk, arguments: thunk.prototype.argumentNames.count))
+                }
+                if case .success(.function(let node, let argCount)) = thunk {
+                    env.set(node.prototype.name, to: .function(node: node, arguments: argCount))
+                    return thunk
+                } else {
+                    return thunk
                 }
             }
         default:
