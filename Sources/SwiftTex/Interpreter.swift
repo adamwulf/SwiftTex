@@ -16,64 +16,6 @@ public enum InterpreterError: Error {
     case EmptyListNode(token: Token)
 }
 
-struct Environment {
-    private var globalScope: [VariableNode: ExprNode] = [:]
-
-    private var scopes: [[VariableNode: ExprNode]] = []
-
-    private var currentScope: [VariableNode: ExprNode] {
-        return scopes.last ?? globalScope
-    }
-
-    var environment: [VariableNode: ExprNode] {
-        let allScopes = [globalScope] + scopes
-        var ret: [VariableNode: ExprNode] = [:]
-        for scope in allScopes.reversed() {
-            for (variable, val) in scope {
-                if ret[variable] == nil {
-                    ret[variable] = val
-                }
-            }
-        }
-        return ret
-    }
-
-    var description: String {
-        environment.reduce("") { (partialResult: String, pair: (key: VariableNode, value: ExprNode)) -> String in
-            return partialResult + (partialResult.isEmpty ? "" : "\n") + pair.key.asTex + " => " + pair.value.asTex
-        }
-    }
-
-    mutating func pushScope() {
-        scopes.append([:])
-    }
-
-    mutating func popScope() {
-        scopes.removeLast()
-    }
-
-    func lookup(variable: VariableNode) -> ExprNode? {
-        for scope in ([globalScope] + scopes).reversed() {
-            for (scoped, val) in scope {
-                if scoped.matches(variable) {
-                    return val
-                }
-            }
-        }
-        return nil
-    }
-
-    mutating func set(_ variable: VariableNode, to expr: ExprNode) {
-        if var last = scopes.last {
-            last[variable] = expr
-            scopes.removeLast()
-            scopes.append(last)
-        } else {
-            globalScope[variable] = expr
-        }
-    }
-}
-
 public class Interpreter: Visitor {
     public typealias Result = Swift.Result<ExprNode, InterpreterError>
 
@@ -155,7 +97,7 @@ public class Interpreter: Visitor {
                 }
                 let result = item.body.accept(visitor: self)
                 if case .success(let simpleBody) = result {
-                    return .success(FunctionNode(prototype: item.prototype, body: simpleBody, startToken: item.startToken))
+                    return .success(FunctionNode(prototype: item.prototype, body: simpleBody, closed: [:], startToken: item.startToken))
                 } else {
                     return result
                 }

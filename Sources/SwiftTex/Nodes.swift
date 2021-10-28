@@ -250,6 +250,7 @@ public struct PrototypeNode: ExprNode {
 public struct FunctionNode: ExprNode {
     public let prototype: PrototypeNode
     public let body: ExprNode
+    public let closed: [VariableNode: ExprNode]
     public let startToken: Token
     public var children: [ExprNode] {
         return [prototype, body]

@@ -6,7 +6,6 @@
 //
 
 import Foundation
-
 import XCTest
 #if canImport(SwiftTexMac)
 @testable import SwiftTexMac
@@ -322,5 +321,97 @@ class InterpreterTests: XCTestCase {
         guard let result = result as? NumberNode else { XCTFail(); return }
 
         XCTAssertEqual(result.asTex, "144")
+    }
+
+    func testCurryFunction1() throws {
+        let source = """
+                     \\func{ f(x, y) }{ x + y }
+
+                     \\let { g }{ f(2) }
+
+                     g(5)
+                     """
+        let lexer = Lexer(input: source)
+        let (tokens, _) = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let (expressions: ast, errors: errors) = try parser.parse()
+        let interpreter = Interpreter()
+
+        XCTAssert(errors.isEmpty)
+        XCTAssertNotNil(ast.first as? FunctionNode)
+        XCTAssertNotNil(ast[1] as? LetNode)
+        XCTAssertNotNil(ast.last as? CallNode)
+
+        guard
+            let first = ast.first,
+            case let second = ast[1],
+            let last = ast.last
+        else { XCTFail(); return }
+
+        let result1 = first.accept(visitor: interpreter)
+        guard case .success = result1 else { XCTFail(); return }
+
+        let result2 = second.accept(visitor: interpreter)
+        guard case .success = result2 else { XCTFail(); return }
+
+        let result3 = last.accept(visitor: interpreter)
+
+        guard case .success(let result1) = result1 else { XCTFail(); return }
+        guard case .success(let result2) = result2 else { XCTFail(); return }
+        guard case .success(let result3) = result3 else { XCTFail(); return }
+
+        guard result1 as? NumberNode != nil else { XCTFail(); return }
+        guard result2 as? NumberNode != nil else { XCTFail(); return }
+        guard result3 as? NumberNode != nil else { XCTFail(); return }
+
+        XCTAssertEqual(result2.asTex, "\\let { g }{ f(2) }")
+        XCTAssertEqual(result3.asTex, "7")
+    }
+
+    func testCurryFunction2() throws {
+        let source = """
+                     \\func{ f(x, y, z) }{ x + y + z }
+
+                     \\let { g }{ f(2) }
+
+                     g(5, 2)
+
+                     f(2)(5, 2)
+                     """
+        let lexer = Lexer(input: source)
+        let (tokens, _) = lexer.tokenize()
+        let parser = Parser(tokens: tokens)
+        let (expressions: ast, errors: errors) = try parser.parse()
+        let interpreter = Interpreter()
+
+        XCTAssert(errors.isEmpty)
+        XCTAssertNotNil(ast.first as? FunctionNode)
+        XCTAssertNotNil(ast[1] as? LetNode)
+        XCTAssertNotNil(ast.last as? CallNode)
+
+        guard
+            let first = ast.first,
+            case let second = ast[1],
+            let last = ast.last
+        else { XCTFail(); return }
+
+        let result1 = first.accept(visitor: interpreter)
+        guard case .success = result1 else { XCTFail(); return }
+
+        let result2 = second.accept(visitor: interpreter)
+        guard case .success = result2 else { XCTFail(); return }
+
+        let result3 = last.accept(visitor: interpreter)
+
+        guard case .success(let result1) = result1 else { XCTFail(); return }
+        guard case .success(let result2) = result2 else { XCTFail(); return }
+        guard case .success(let result3) = result3 else { XCTFail(); return }
+
+        guard result1 as? NumberNode != nil else { XCTFail(); return }
+        guard result2 as? NumberNode != nil else { XCTFail(); return }
+        guard result3 as? NumberNode != nil else { XCTFail(); return }
+
+        XCTAssertEqual(result2.asTex, "\\let { g }{ f(2) }")
+        XCTAssertEqual(result3.asTex, "7")
     }
 }

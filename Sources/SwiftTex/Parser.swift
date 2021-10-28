@@ -268,7 +268,7 @@ public class Parser {
         if
             let body = body.unwrap(),
             body as? BracedNode == nil {
-            return FunctionNode(prototype: prototype, body: body, startToken: token)
+            return FunctionNode(prototype: prototype, body: body, closed: [:], startToken: token)
         }
 
         throw ParseError.InvalidFunctionBody(token: openBrace)
@@ -513,7 +513,7 @@ public class Parser {
         let body = try parseExpression()
         let token = body.startToken
         let prototype = PrototypeNode(name: VariableNode(name: "", subscripts: [], startToken: token), argumentNames: [], startToken: token)
-        return FunctionNode(prototype: prototype, body: body, startToken: token)
+        return FunctionNode(prototype: prototype, body: body, closed: [:], startToken: token)
     }
 
     func parseCall(function: VariableNode) throws -> ExprNode {
