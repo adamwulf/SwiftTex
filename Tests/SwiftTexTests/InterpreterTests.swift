@@ -300,7 +300,7 @@ class InterpreterTests: XCTestCase {
         let interpreter = Interpreter()
 
         XCTAssert(errors.isEmpty)
-        XCTAssertNotNil(ast.first as? TexNode)
+        XCTAssertNotNil(ast.first as? LetNode)
         XCTAssertNotNil(ast[1] as? FunctionNode)
         XCTAssertNotNil(ast.last as? CallNode)
 
@@ -319,8 +319,8 @@ class InterpreterTests: XCTestCase {
         let result3 = last.accept(visitor: interpreter)
 
         guard case .success(let result) = result3 else { XCTFail(); return }
-        guard let result = result as? BinaryOpNode else { XCTFail(); return }
+        guard let result = result as? NumberNode else { XCTFail(); return }
 
-        XCTAssertEqual(result.asTex, "(x + 7) ^ 2")
+        XCTAssertEqual(result.asTex, "144")
     }
 }

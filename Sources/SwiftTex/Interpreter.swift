@@ -13,6 +13,7 @@ public enum InterpreterError: Error {
     case UnexpectedNode(token: Token, node: ExprNode)
     case UnknownFunctionName(token: Token, node: VariableNode)
     case IncorrectArgumentCount(token: Token)
+    case EmptyListNode(token: Token)
 }
 
 struct Environment {
@@ -62,7 +63,7 @@ struct Environment {
         return nil
     }
 
-    mutating func setScope(_ variable: VariableNode, _ expr: ExprNode) {
+    mutating func set(_ variable: VariableNode, to expr: ExprNode) {
         if var last = scopes.last {
             last[variable] = expr
             scopes.removeLast()
@@ -136,14 +137,21 @@ public class Interpreter: Visitor {
             }
         case let item as BracedNode:
             return .failure(.UnexpectedNode(token: item.startToken, node: item))
+        case let item as LetNode:
+            env.set(item.variable, to: item.value)
+            return .success(item.variable)
         case let item as TexNode:
             return .failure(.UnexpectedNode(token: item.startToken, node: item))
         case let item as TexListNode:
-            return .failure(.UnexpectedNode(token: item.startToken, node: item))
+            if let result = item.children.map({ $0.accept(visitor: self) }).last {
+                return result
+            } else {
+                return .failure(.EmptyListNode(token: item.startToken))
+            }
         case let item as FunctionNode:
             let simplified = pushScope { () -> Result in
                 for arg in item.prototype.argumentNames {
-                    env.setScope(arg, arg)
+                    env.set(arg, to: arg)
                 }
                 let result = item.body.accept(visitor: self)
                 if case .success(let simpleBody) = result {
@@ -153,7 +161,7 @@ public class Interpreter: Visitor {
                 }
             }
             if case .success(let expr) = simplified {
-                env.setScope(item.prototype.name, expr)
+                env.set(item.prototype.name, to: expr)
                 return .success(expr)
             } else {
                 return simplified
@@ -175,7 +183,7 @@ public class Interpreter: Visitor {
                         let name = function.prototype.argumentNames[i]
                         let argResult = arg.accept(visitor: self)
                         if case .success(let argResult) = argResult {
-                            env.setScope(name, argResult)
+                            env.set(name, to: argResult)
                         } else {
                             return argResult
                         }

@@ -20,6 +20,8 @@ public enum ParseError: Error {
     case InvalidArgumentCount(token: Token)
     case InvalidFunctionBody(token: Token)
     case InvalidSubscript(token: Token)
+    case InvalidLetVariable(token: Token)
+    case InvalidLetValue(token: Token)
     case EOF
 
     public var token: Token? {
@@ -35,6 +37,8 @@ public enum ParseError: Error {
         case .InvalidArgumentCount(let token): return token
         case .InvalidFunctionBody(let token): return token
         case .InvalidSubscript(let token): return token
+        case .InvalidLetVariable(token: let token): return token
+        case .InvalidLetValue(token: let token): return token
         case .EOF: return nil
         }
     }
@@ -293,6 +297,37 @@ public class Parser {
         return BinaryOpNode(op: .div, lhs: numerator, rhs: denominator, startToken: token)
     }
 
+    func parseLet() throws -> LetNode {
+        guard let token = peekCurrentToken() else { throw ParseError.EOF }
+        guard case let Token.Case.Tex(name) = token.type,
+              name == "\\let"
+              else {
+            throw ParseError.UnexpectedToken(token: token)
+        }
+
+        try popCurrentToken()
+
+        let arguments = try parseBraceList()
+
+        guard
+            arguments.count == 2,
+            arguments.first?.children.count == 1,
+            let numerator = arguments.first?.unwrap()
+        else {
+            throw ParseError.InvalidArgumentCount(token: token)
+        }
+
+        guard let variable = numerator as? VariableNode else { throw ParseError.InvalidLetVariable(token: numerator.startToken) }
+        guard
+            arguments.last?.children.count == 1,
+            let value = arguments.last?.unwrap()
+        else {
+            throw ParseError.InvalidLetValue(token: variable.startToken)
+        }
+
+        return LetNode(variable: variable, value: value, startToken: token)
+    }
+
     func parseTex() throws -> ExprNode {
         guard let token = peekCurrentToken() else { throw ParseError.EOF }
         guard case let Token.Case.Tex(name) = token.type else { throw ParseError.UnexpectedToken(token: token) }
@@ -304,6 +339,8 @@ public class Parser {
             return try parseFunc()
         case "\\frac":
             return try parseFrac()
+        case "\\let":
+            return try parseLet()
         default:
             let token = try popCurrentToken()
             let arguments = try parseBraceList()

@@ -114,6 +114,22 @@ public struct VariableNode: ExprNode {
     }
 }
 
+public struct LetNode: ExprNode {
+    public let variable: VariableNode
+    public let value: ExprNode
+    public let startToken: Token
+    public var children: [ExprNode] {
+        return [variable, value]
+    }
+    public var description: String {
+        return "LetNode(\(variable.name))"
+    }
+    public func matches(_ other: ExprNode) -> Bool {
+        assertionFailure()
+        return false
+    }
+}
+
 public struct TexNode: ExprNode {
     public let name: String
     public let arguments: [BracedNode]

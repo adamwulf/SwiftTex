@@ -548,12 +548,12 @@ class ParserTests: XCTestCase {
 
         XCTAssert(errors.isEmpty)
         XCTAssertEqual(ast.count, 7)
-        XCTAssertNotNil(ast[0] as? TexNode)
-        XCTAssertNotNil(ast[1] as? TexNode)
-        XCTAssertNotNil(ast[2] as? TexNode)
-        XCTAssertNotNil(ast[3] as? TexNode)
-        XCTAssertNotNil(ast[4] as? TexNode)
-        XCTAssertNotNil(ast[5] as? TexNode)
+        XCTAssertNotNil(ast[0] as? LetNode)
+        XCTAssertNotNil(ast[1] as? LetNode)
+        XCTAssertNotNil(ast[2] as? LetNode)
+        XCTAssertNotNil(ast[3] as? LetNode)
+        XCTAssertNotNil(ast[4] as? LetNode)
+        XCTAssertNotNil(ast[5] as? LetNode)
         XCTAssertNotNil(ast[6] as? FunctionNode)
     }
 

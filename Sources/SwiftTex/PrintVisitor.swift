@@ -80,19 +80,12 @@ public class PrintVisitor: Visitor {
             }
         case let item as BracedNode:
             return "{" + self.visit(items: item.children).joined(separator: " ") + "}"
+        case let item as LetNode:
+            let arg1 = self.visit(item.variable)
+            let arg2 = self.visit(item.value)
+            return "\\text{let } \(arg1) \(alignedLevel > 0 ? "&" : "")= \(arg2)"
         case let item as TexNode:
-            if item.name == "\\let",
-               item.arguments.count == 2 {
-                let arg1 = self.visit(item.arguments[0])
-                let start1 = arg1.index(arg1.startIndex, offsetBy: 1)
-                let end1 = arg1.index(arg1.endIndex, offsetBy: -1)
-                let arg2 = self.visit(item.arguments[1])
-                let start2 = arg2.index(arg2.startIndex, offsetBy: 1)
-                let end2 = arg2.index(arg2.endIndex, offsetBy: -1)
-                return "\\text{let } \(String(arg1[start1..<end1])) \(alignedLevel > 0 ? "&" : "")= \(String(arg2[start2..<end2]))"
-            } else {
-                return "\(item.name)" + self.visit(items: item.arguments).joined()
-            }
+            return "\(item.name)" + self.visit(items: item.arguments).joined()
         case let item as TexListNode:
             let begin = "\\begin{\(item.name)}"
             let end = "\\end{\(item.name)}"
