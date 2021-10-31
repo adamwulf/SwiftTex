@@ -207,14 +207,14 @@ public struct UnaryOpNode: ExprNode {
 }
 
 public struct CallNode: ExprNode {
-    public let callee: VariableNode
+    public let callee: ExprNode
     public let arguments: [ExprNode]
     public var children: [ExprNode] {
         return [callee] + arguments
     }
     public let startToken: Token
     public var description: String {
-        return "CallNode(name: \(callee), argument: \(arguments))"
+        return "CallNode(closure: \(callee), argument: \(arguments))"
     }
     public func matches(_ other: ExprNode) -> Bool {
         assertionFailure()
@@ -223,19 +223,17 @@ public struct CallNode: ExprNode {
 }
 
 public struct PrototypeNode: ExprNode {
-    public let name: VariableNode
     public let argumentNames: [VariableNode]
     public let startToken: Token
     public var children: [ExprNode] {
-        return [name] + argumentNames
+        return argumentNames
     }
     public var description: String {
-        return "PrototypeNode(name: \(name), argumentNames: \(argumentNames))"
+        return "PrototypeNode(\(argumentNames))"
     }
     public func matches(_ other: ExprNode) -> Bool {
         guard let other = other as? PrototypeNode else { return false }
         guard
-            name.matches(other.name),
             argumentNames.count == other.argumentNames.count
         else { return false }
         var otherArgs = other.argumentNames
@@ -247,7 +245,7 @@ public struct PrototypeNode: ExprNode {
     }
 }
 
-public struct FunctionNode: ExprNode {
+public struct ClosureNode: ExprNode {
     public let prototype: PrototypeNode
     public let body: ExprNode
     public let closed: [VariableNode: ExprNode]
@@ -256,10 +254,10 @@ public struct FunctionNode: ExprNode {
         return [prototype, body]
     }
     public var description: String {
-        return "FunctionNode(prototype: \(prototype), body: \(body))"
+        return "ClosureNode(prototype: \(prototype), body: \(body))"
     }
     public func matches(_ other: ExprNode) -> Bool {
-        guard let other = other as? FunctionNode else { return false }
+        guard let other = other as? ClosureNode else { return false }
         return prototype.matches(other.prototype) && body.matches(other.body)
     }
 }

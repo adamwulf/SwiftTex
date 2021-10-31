@@ -45,23 +45,21 @@ public class IdentityVisitor: Visitor {
                                arguments: item.arguments,
                                children: item.children.accept(visitor: self),
                                startToken: item.startToken)
-        case let item as FunctionNode:
+        case let item as ClosureNode:
             guard
-                let name = item.prototype.name.accept(visitor: self) as? VariableNode,
                 let arguments = item.prototype.argumentNames.accept(visitor: self) as? [VariableNode]
             else { return item }
-            return FunctionNode(prototype: PrototypeNode(name: name,
-                                                         argumentNames: arguments,
-                                                         startToken: item.prototype.startToken),
-                                body: item.body.accept(visitor: self),
-                                closed: item.closed.mapValues({ $0.accept(visitor: self) }),
-                                startToken: item.startToken)
+            return ClosureNode(prototype: PrototypeNode(argumentNames: arguments,
+                                                        startToken: item.prototype.startToken),
+                               body: item.body.accept(visitor: self),
+                               closed: item.closed.mapValues({ $0.accept(visitor: self) }),
+                               startToken: item.startToken)
         case let item as CallNode:
             guard
-                let name = item.callee.accept(visitor: self) as? VariableNode,
+                let callee = item.callee.accept(visitor: self) as? ClosureNode,
                 let arguments = item.arguments.accept(visitor: self) as? [VariableNode]
             else { return item }
-            return CallNode(callee: name, arguments: arguments, startToken: item.startToken)
+            return CallNode(callee: callee, arguments: arguments, startToken: item.startToken)
         default:
             return item
         }

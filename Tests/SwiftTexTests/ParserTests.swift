@@ -465,11 +465,14 @@ class ParserTests: XCTestCase {
         let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
-        XCTAssertNotNil(ast.first as? FunctionNode)
+        XCTAssertNotNil(ast.first as? LetNode)
 
-        guard let thunk = ast.first as? FunctionNode else { XCTFail(); return }
+        guard
+            let assignment = ast.first as? LetNode,
+            let thunk = assignment.value as? ClosureNode
+        else { XCTFail(); return }
 
-        XCTAssertEqual(thunk.prototype.name.name, "f")
+        XCTAssertEqual(assignment.variable.name, "f")
         XCTAssertEqual(thunk.prototype.argumentNames.count, 1)
 
         guard let arg1 = thunk.prototype.argumentNames.first else { XCTFail(); return }
@@ -486,7 +489,8 @@ class ParserTests: XCTestCase {
 
         guard let call = ast.last as? CallNode else { XCTFail(); return }
 
-        XCTAssertEqual(call.callee.name, "f")
+        XCTAssertNotNil(call.callee as? VariableNode)
+        XCTAssertEqual((call.callee as? VariableNode)?.name, "f")
         XCTAssertNotNil(call.arguments.first as? NumberNode)
     }
 
@@ -523,15 +527,16 @@ class ParserTests: XCTestCase {
         let (expressions: ast, errors: errors) = try parser.parse()
 
         XCTAssert(errors.isEmpty)
-        XCTAssertNotNil(ast.first as? FunctionNode)
+        XCTAssertNotNil(ast.first as? LetNode)
 
         guard
-            let texList = ast.first as? FunctionNode
+            let texList = ast.first as? LetNode,
+            let thunk = texList.value as? ClosureNode
         else { XCTFail(); return }
 
-        XCTAssertEqual(texList.prototype.name.name, "f")
-        XCTAssertEqual(texList.prototype.argumentNames.count, 1)
-        XCTAssertNotNil(texList.body as? BinaryOpNode)
+        XCTAssertEqual(texList.variable.name, "f")
+        XCTAssertEqual(thunk.prototype.argumentNames.count, 1)
+        XCTAssertNotNil(thunk.body as? BinaryOpNode)
     }
 
     func testFileInput() throws {
@@ -554,7 +559,7 @@ class ParserTests: XCTestCase {
         XCTAssertNotNil(ast[3] as? LetNode)
         XCTAssertNotNil(ast[4] as? LetNode)
         XCTAssertNotNil(ast[5] as? LetNode)
-        XCTAssertNotNil(ast[6] as? FunctionNode)
+        XCTAssertNotNil(ast[6] as? LetNode)
     }
 
     func testFileInput2() throws {

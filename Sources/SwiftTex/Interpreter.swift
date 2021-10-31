@@ -90,39 +90,37 @@ public class Interpreter: Visitor {
             } else {
                 return .failure(.EmptyListNode(token: item.startToken))
             }
-        case let item as FunctionNode:
+        case let item as ClosureNode:
             let simplified = pushScope { () -> Result in
                 for arg in item.prototype.argumentNames {
                     env.set(arg, to: arg)
                 }
                 let result = item.body.accept(visitor: self)
                 if case .success(let simpleBody) = result {
-                    return .success(FunctionNode(prototype: item.prototype, body: simpleBody, closed: [:], startToken: item.startToken))
+                    return .success(ClosureNode(prototype: item.prototype, body: simpleBody, closed: [:], startToken: item.startToken))
                 } else {
                     return result
                 }
             }
             if case .success(let expr) = simplified {
-                env.set(item.prototype.name, to: expr)
                 return .success(expr)
             } else {
                 return simplified
             }
         case let item as CallNode:
             guard
-                let function = env.lookup(variable: item.callee) as? FunctionNode
-            else {
-                return .failure(.UnknownFunctionName(token: item.startToken, node: item.callee))
-            }
-            guard item.arguments.count <= function.prototype.argumentNames.count else {
+                case .success(let callee) = item.callee.accept(visitor: self),
+                let callee = callee as? ClosureNode
+            else { return .success(item) }
+            guard item.arguments.count <= callee.prototype.argumentNames.count else {
                 return .failure(.IncorrectArgumentCount(token: item.startToken))
             }
 
-            if item.arguments.count == function.prototype.argumentNames.count {
+            if item.arguments.count == callee.prototype.argumentNames.count {
                 return pushScope { () -> Result in
                     for i in 0..<item.arguments.count {
                         let arg = item.arguments[i]
-                        let name = function.prototype.argumentNames[i]
+                        let name = callee.prototype.argumentNames[i]
                         let argResult = arg.accept(visitor: self)
                         if case .success(let argResult) = argResult {
                             env.set(name, to: argResult)
@@ -130,7 +128,7 @@ public class Interpreter: Visitor {
                             return argResult
                         }
                     }
-                    return function.body.accept(visitor: self)
+                    return callee.body.accept(visitor: self)
                 }
             } else {
                 return .success(item)

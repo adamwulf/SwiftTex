@@ -30,7 +30,7 @@ public class TypeChecker: Visitor {
     public enum ValueType: CustomStringConvertible {
         case number(node: ExprNode)
         case variable(node: ExprNode)
-        case function(node: FunctionNode, arguments: Int)
+        case closure(node: ClosureNode, arguments: Int)
         case unknown(node: ExprNode)
 
         public var description: String {
@@ -39,8 +39,8 @@ public class TypeChecker: Visitor {
                 return "number(\(node.asTex))"
             case .variable(let node):
                 return "variable(\(node.asTex))"
-            case .function(let node, let args):
-                return "function(\(node.asTex), \(args)"
+            case .closure(let node, let args):
+                return "closure(\(node.asTex), \(args)"
             case .unknown(let node):
                 return "unknown(\(node.asTex))"
             }
@@ -85,16 +85,16 @@ public class TypeChecker: Visitor {
             switch (leftResult, rightResult) {
             case (.success(let lnum), .success(let rnum)):
                 switch (lnum, rnum) {
-                case (.number, .function):
+                case (.number, .closure):
                     fallthrough
-                case (.variable, .function):
+                case (.variable, .closure):
                     return .failure(.UnexpectedType(token: item.rhs.startToken, given: rnum))
-                case (.function(let node, _), .number):
+                case (.closure(let node, _), .number):
                     fallthrough
-                case (.function(let node, _), .variable):
+                case (.closure(let node, _), .variable):
                     if case .mult(let implicit) = item.op,
                        implicit {
-                        let callNode = CallNode(callee: node.prototype.name, arguments: [item.rhs], startToken: item.startToken)
+                        let callNode = CallNode(callee: node, arguments: [item.rhs], startToken: item.startToken)
                         return callNode.accept(visitor: self)
                     } else {
                         return .failure(.UnexpectedType(token: item.lhs.startToken, given: rnum))
@@ -121,21 +121,15 @@ public class TypeChecker: Visitor {
             } else {
                 return last
             }
-        case let item as FunctionNode:
-            let val = ValueType.function(node: item, arguments: item.prototype.argumentNames.count)
-            env.set(item.prototype.name, to: val)
+        case let item as ClosureNode:
+            let val = ValueType.closure(node: item, arguments: item.prototype.argumentNames.count)
             return .success(val)
         case let item as CallNode:
-            let envValue = env.lookup(variable: item.callee)
-            guard
-                case .function(let function, let argCount) = envValue
-            else {
-                if let envValue = envValue {
-                    return .failure(.ExpectedFunction(token: item.startToken, given: envValue))
-                } else {
-                    return .success(.unknown(node: item))
-                }
-            }
+            let result = item.callee.accept(visitor: self)
+            guard case .success(let result) = result else { return result }
+            guard case .closure(let callee, _) = result else { return .failure(.ExpectedFunction(token: item.startToken, given: result)) }
+
+            let argCount = callee.prototype.argumentNames.count
             guard item.arguments.count <= argCount else {
                 return .failure(.InvalidArgumentCount(token: item.startToken, given: item.arguments.count, expected: argCount))
             }
@@ -144,7 +138,7 @@ public class TypeChecker: Visitor {
                 return pushScope { () -> Result in
                     for i in 0..<item.arguments.count {
                         let arg = item.arguments[i]
-                        let name = function.prototype.argumentNames[i]
+                        let name = callee.prototype.argumentNames[i]
                         let argResult = arg.accept(visitor: self)
                         if case .success(let argResult) = argResult {
                             env.set(name, to: argResult)
@@ -152,14 +146,14 @@ public class TypeChecker: Visitor {
                             return argResult
                         }
                     }
-                    return function.body.accept(visitor: self)
+                    return callee.body.accept(visitor: self)
                 }
             } else {
                 let thunk = pushScope { () -> Result in
                     var closedLet: [VariableNode: ExprNode] = [:]
                     for i in 0..<item.arguments.count {
                         let arg = item.arguments[i]
-                        let name = function.prototype.argumentNames[i]
+                        let name = callee.prototype.argumentNames[i]
                         let argResult = arg.accept(visitor: self)
                         if case .success(let argResult) = argResult {
                             switch argResult {
@@ -167,7 +161,7 @@ public class TypeChecker: Visitor {
                                 closedLet[name] = node
                             case .number(let node):
                                 closedLet[name] = node
-                            case .function(let node, _):
+                            case .closure(let node, _):
                                 closedLet[name] = node
                             case .unknown(let node):
                                 closedLet[name] = node
@@ -176,21 +170,15 @@ public class TypeChecker: Visitor {
                             return argResult
                         }
                     }
-                    let args = function.prototype.argumentNames[item.arguments.count...]
-                    let thunk = FunctionNode(prototype: PrototypeNode(name: VariableNode(name: anonName(), subscripts: [], startToken: function.startToken),
-                                                                      argumentNames: Array(args),
-                                                                      startToken: function.startToken),
-                                             body: function.body,
-                                             closed: closedLet,
-                                             startToken: item.startToken)
-                    return .success(.function(node: thunk, arguments: thunk.prototype.argumentNames.count))
+                    let args = callee.prototype.argumentNames[item.arguments.count...]
+                    let thunk = ClosureNode(prototype: PrototypeNode(argumentNames: Array(args),
+                                                                     startToken: item.callee.startToken),
+                                            body: callee.body,
+                                            closed: closedLet,
+                                            startToken: item.startToken)
+                    return .success(.closure(node: thunk, arguments: thunk.prototype.argumentNames.count))
                 }
-                if case .success(.function(let node, let argCount)) = thunk {
-                    env.set(node.prototype.name, to: .function(node: node, arguments: argCount))
-                    return thunk
-                } else {
-                    return thunk
-                }
+                return thunk
             }
         default:
             return .failure(.UnhandledExpression(token: item.startToken))

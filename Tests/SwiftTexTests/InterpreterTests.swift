@@ -113,7 +113,7 @@ class InterpreterTests: XCTestCase {
         let interpreter = Interpreter()
 
         XCTAssert(errors.isEmpty)
-        XCTAssertNotNil(ast.first as? FunctionNode)
+        XCTAssertNotNil(ast.first as? LetNode)
         XCTAssertNotNil(ast.last as? CallNode)
 
         guard let first = ast.first, let last = ast.last else { XCTFail(); return }
@@ -145,7 +145,7 @@ class InterpreterTests: XCTestCase {
         let interpreter = Interpreter()
 
         XCTAssert(errors.isEmpty)
-        XCTAssertNotNil(ast.first as? FunctionNode)
+        XCTAssertNotNil(ast.first as? LetNode)
         XCTAssertNotNil(ast.last as? CallNode)
 
         guard let first = ast.first, let last = ast.last else { XCTFail(); return }
@@ -180,8 +180,8 @@ class InterpreterTests: XCTestCase {
         let interpreter = Interpreter()
 
         XCTAssert(errors.isEmpty)
-        XCTAssertNotNil(ast.first as? FunctionNode)
-        XCTAssertNotNil(ast[1] as? FunctionNode)
+        XCTAssertNotNil(ast.first as? LetNode)
+        XCTAssertNotNil(ast[1] as? LetNode)
         XCTAssertNotNil(ast.last as? CallNode)
 
         guard
@@ -222,8 +222,8 @@ class InterpreterTests: XCTestCase {
         let interpreter = Interpreter()
 
         XCTAssert(errors.isEmpty)
-        XCTAssertNotNil(ast.first as? FunctionNode)
-        XCTAssertNotNil(ast[1] as? FunctionNode)
+        XCTAssertNotNil(ast.first as? LetNode)
+        XCTAssertNotNil(ast[1] as? LetNode)
         XCTAssertNotNil(ast.last as? CallNode)
 
         guard
@@ -261,7 +261,7 @@ class InterpreterTests: XCTestCase {
         let interpreter = Interpreter()
 
         XCTAssert(errors.isEmpty)
-        XCTAssertNotNil(ast.first as? FunctionNode)
+        XCTAssertNotNil(ast.first as? LetNode)
         XCTAssertNotNil(ast.last as? CallNode)
 
         guard
@@ -300,7 +300,7 @@ class InterpreterTests: XCTestCase {
 
         XCTAssert(errors.isEmpty)
         XCTAssertNotNil(ast.first as? LetNode)
-        XCTAssertNotNil(ast[1] as? FunctionNode)
+        XCTAssertNotNil(ast[1] as? LetNode)
         XCTAssertNotNil(ast.last as? CallNode)
 
         guard
@@ -338,7 +338,7 @@ class InterpreterTests: XCTestCase {
         let interpreter = Interpreter()
 
         XCTAssert(errors.isEmpty)
-        XCTAssertNotNil(ast.first as? FunctionNode)
+        XCTAssertNotNil(ast.first as? LetNode)
         XCTAssertNotNil(ast[1] as? LetNode)
         XCTAssertNotNil(ast.last as? CallNode)
 
@@ -385,7 +385,7 @@ class InterpreterTests: XCTestCase {
         let interpreter = Interpreter()
 
         XCTAssert(errors.isEmpty)
-        XCTAssertNotNil(ast.first as? FunctionNode)
+        XCTAssertNotNil(ast.first as? LetNode)
         XCTAssertNotNil(ast[1] as? LetNode)
         XCTAssertNotNil(ast.last as? CallNode)
 

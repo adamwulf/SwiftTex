@@ -51,7 +51,7 @@ public class Parser {
 
     let tokens: [Token]
     var index = 0
-    var functions: [PrototypeNode] = []
+    var functionNames: [VariableNode] = []
 
     // MARK: - Settings
 
@@ -239,7 +239,7 @@ public class Parser {
         return TexListNode(name: beginName, arguments: arguments, children: expressions, startToken: beginToken)
     }
 
-    func parseFunc() throws -> FunctionNode {
+    func parseFunc() throws -> LetNode {
         guard let token = peekCurrentToken() else { throw ParseError.EOF }
         guard case let Token.Case.Tex(name) = token.type,
               name == "\\func"
@@ -262,13 +262,14 @@ public class Parser {
             throw ParseError.UnexpectedToken(token: closeBrace)
         }
 
-        functions.append(prototype)
+        functionNames.append(prototype.name)
 
         let body = try parseBraceExpr()
         if
             let body = body.unwrap(),
             body as? BracedNode == nil {
-            return FunctionNode(prototype: prototype, body: body, closed: [:], startToken: token)
+            let thunk = ClosureNode(prototype: prototype.prototype, body: body, closed: [:], startToken: token)
+            return LetNode(variable: prototype.name, value: thunk, startToken: prototype.name.startToken)
         }
 
         throw ParseError.InvalidFunctionBody(token: openBrace)
@@ -472,7 +473,7 @@ public class Parser {
         }
     }
 
-    func parsePrototype() throws -> PrototypeNode {
+    func parsePrototype() throws -> (name: VariableNode, prototype: PrototypeNode) {
         guard let maybeToken = peekCurrentToken() else { throw ParseError.EOF }
         guard case Token.Case.Identifier = maybeToken.type else {
             throw ParseError.ExpectedFunctionName(token: maybeToken)
@@ -506,14 +507,7 @@ public class Parser {
         // remove ")"
         try popCurrentToken()
 
-        return PrototypeNode(name: name, argumentNames: argumentNames, startToken: token)
-    }
-
-    func parseFunction() throws -> FunctionNode {
-        let body = try parseExpression()
-        let token = body.startToken
-        let prototype = PrototypeNode(name: VariableNode(name: "", subscripts: [], startToken: token), argumentNames: [], startToken: token)
-        return FunctionNode(prototype: prototype, body: body, closed: [:], startToken: token)
+        return (name, PrototypeNode(argumentNames: argumentNames, startToken: token))
     }
 
     func parseCall(function: VariableNode) throws -> ExprNode {
@@ -565,11 +559,11 @@ public class Parser {
     func parseExpression() throws -> ExprNode {
         var node = try parsePrimary()
 
-        guard node as? FunctionNode == nil else { return node }
+        guard node as? LetNode == nil else { return node }
 
         if
             let function = node as? VariableNode,
-            functions.contains(where: { $0.name.name == function.name }) {
+            functionNames.contains(where: { $0.name == function.name }) {
             node = try parseCall(function: function)
         }
 

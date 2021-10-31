@@ -84,7 +84,7 @@ class TypeCheckerTests: XCTestCase {
         let typeChecker = TypeChecker()
 
         XCTAssert(errors.isEmpty)
-        XCTAssertNotNil(ast.first as? FunctionNode)
+        XCTAssertNotNil(ast.first as? ClosureNode)
         XCTAssertNotNil(ast.last as? CallNode)
 
         guard let first = ast.first, let last = ast.last else { XCTFail(); return }
@@ -116,7 +116,7 @@ class TypeCheckerTests: XCTestCase {
         let typeChecker = TypeChecker()
 
         XCTAssert(errors.isEmpty)
-        XCTAssertNotNil(ast.first as? FunctionNode)
+        XCTAssertNotNil(ast.first as? ClosureNode)
         XCTAssertNotNil(ast.last as? CallNode)
 
         guard let first = ast.first, let last = ast.last else { XCTFail(); return }
@@ -149,8 +149,8 @@ class TypeCheckerTests: XCTestCase {
         let typeChecker = TypeChecker()
 
         XCTAssert(errors.isEmpty)
-        XCTAssertNotNil(ast.first as? FunctionNode)
-        XCTAssertNotNil(ast[1] as? FunctionNode)
+        XCTAssertNotNil(ast.first as? ClosureNode)
+        XCTAssertNotNil(ast[1] as? ClosureNode)
         XCTAssertNotNil(ast.last as? CallNode)
 
         guard
@@ -186,7 +186,7 @@ class TypeCheckerTests: XCTestCase {
         let typeChecker = TypeChecker()
 
         XCTAssert(errors.isEmpty)
-        XCTAssertNotNil(ast.first as? FunctionNode)
+        XCTAssertNotNil(ast.first as? ClosureNode)
         XCTAssertNotNil(ast[1] as? LetNode)
         XCTAssertNotNil(ast.last as? BinaryOpNode)
 
@@ -208,8 +208,8 @@ class TypeCheckerTests: XCTestCase {
         guard case .success(let result2) = result2 else { XCTFail(); return }
         guard case .success(let result3) = result3 else { XCTFail(); return }
 
-        guard case .function = result1 else { XCTFail(); return }
-        guard case .function = result2 else { XCTFail(); return }
+        guard case .closure = result1 else { XCTFail(); return }
+        guard case .closure = result2 else { XCTFail(); return }
         guard case .number = result3 else { XCTFail(); return }
     }
 }

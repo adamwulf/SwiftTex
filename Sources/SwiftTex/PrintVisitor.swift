@@ -83,7 +83,14 @@ public class PrintVisitor: Visitor {
         case let item as LetNode:
             let arg1 = self.visit(item.variable)
             let arg2 = self.visit(item.value)
-            return "\\text{let } \(arg1) \(alignedLevel > 0 ? "&" : "")= \(arg2)"
+            if let thunk = item.value as? ClosureNode {
+                let name = item.variable.accept(visitor: self)
+                let args = self.visit(items: thunk.prototype.argumentNames).joined(separator: ", ")
+                let body = thunk.body.accept(visitor: self)
+                return "\(name)(\(args)) = \(body)"
+            } else {
+                return "\\text{let } \(arg1) \(alignedLevel > 0 ? "&" : "")= \(arg2)"
+            }
         case let item as TexNode:
             return "\(item.name)" + self.visit(items: item.arguments).joined()
         case let item as TexListNode:
@@ -103,11 +110,10 @@ public class PrintVisitor: Visitor {
                 alignedLevel -= 1
             }
             return ([begin + args] + expStr + [end]).joined(separator: "\\\\\n")
-        case let item as FunctionNode:
-            let name = item.prototype.name.accept(visitor: self)
+        case let item as ClosureNode:
             let args = self.visit(items: item.prototype.argumentNames).joined(separator: ", ")
             let body = item.body.accept(visitor: self)
-            return "\(name)(\(args)) = \(body)"
+            return "(\(args))(\(body))"
         case let item as CallNode:
             let name = item.callee.accept(visitor: self)
             let args = self.visit(items: item.arguments).joined(separator: ", ")
