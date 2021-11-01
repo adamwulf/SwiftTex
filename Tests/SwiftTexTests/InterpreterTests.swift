@@ -331,41 +331,27 @@ class InterpreterTests: XCTestCase {
 
                      g(5)
                      """
-        let lexer = Lexer(input: source)
-        let (tokens, _) = lexer.tokenize()
-        let parser = Parser(tokens: tokens)
-        let (expressions: ast, errors: errors) = try parser.parse()
-        let interpreter = Interpreter()
+        let evaluated = try Runtime.run(source: source).map { result -> (ExprNode, ExprNode) in
+            switch result {
+            case .success((let parsed, let eval)):
+                return (parsed, eval)
+            case .failure(let error):
+                throw error
+            }
+        }
+        let ast = evaluated.map({ $0.0 })
+        let results = evaluated.map({ $0.1 })
 
-        XCTAssert(errors.isEmpty)
-        XCTAssertNotNil(ast.first as? LetNode)
+        XCTAssertNotNil(ast[0] as? LetNode)
         XCTAssertNotNil(ast[1] as? LetNode)
-        XCTAssertNotNil(ast.last as? CallNode)
+        XCTAssertNotNil(ast[2] as? CallNode)
 
-        guard
-            let first = ast.first,
-            case let second = ast[1],
-            let last = ast.last
-        else { XCTFail(); return }
+        guard results[0] as? LetNode != nil else { XCTFail(); return }
+        guard results[1] as? LetNode != nil else { XCTFail(); return }
+        guard results[2] as? NumberNode != nil else { XCTFail(); return }
 
-        let result1 = first.accept(visitor: interpreter)
-        guard case .success = result1 else { XCTFail(); return }
-
-        let result2 = second.accept(visitor: interpreter)
-        guard case .success = result2 else { XCTFail(); return }
-
-        let result3 = last.accept(visitor: interpreter)
-
-        guard case .success(let result1) = result1 else { XCTFail(); return }
-        guard case .success(let result2) = result2 else { XCTFail(); return }
-        guard case .success(let result3) = result3 else { XCTFail(); return }
-
-        guard result1 as? NumberNode != nil else { XCTFail(); return }
-        guard result2 as? NumberNode != nil else { XCTFail(); return }
-        guard result3 as? NumberNode != nil else { XCTFail(); return }
-
-        XCTAssertEqual(result2.asTex, "\\let { g }{ f(2) }")
-        XCTAssertEqual(result3.asTex, "7")
+        XCTAssertEqual(results[1].asTex, "g(y) = 2 + y")
+        XCTAssertEqual(results[2].asTex, "7")
     }
 
     func testCurryFunction2() throws {
@@ -378,41 +364,22 @@ class InterpreterTests: XCTestCase {
 
                      f(2)(5, 2)
                      """
-        let lexer = Lexer(input: source)
-        let (tokens, _) = lexer.tokenize()
-        let parser = Parser(tokens: tokens)
-        let (expressions: ast, errors: errors) = try parser.parse()
-        let interpreter = Interpreter()
+        let evaluated = try Runtime.run(source: source).map { result -> (ExprNode, ExprNode) in
+            switch result {
+            case .success((let parsed, let eval)):
+                return (parsed, eval)
+            case .failure(let error):
+                throw error
+            }
+        }
+        let ast = evaluated.map({ $0.0 })
+        let results = evaluated.map({ $0.1 })
 
-        XCTAssert(errors.isEmpty)
-        XCTAssertNotNil(ast.first as? LetNode)
-        XCTAssertNotNil(ast[1] as? LetNode)
-        XCTAssertNotNil(ast.last as? CallNode)
+        XCTAssertEqual(results[0].asTex, "f(x, y, z) = x + y + z")
+        XCTAssertEqual(results[1].asTex, "g(y, z) = 2 + y + z")
+        XCTAssertEqual(results[2].asTex, "9")
+        XCTAssertEqual(results[3].asTex, "9")
 
-        guard
-            let first = ast.first,
-            case let second = ast[1],
-            let last = ast.last
-        else { XCTFail(); return }
-
-        let result1 = first.accept(visitor: interpreter)
-        guard case .success = result1 else { XCTFail(); return }
-
-        let result2 = second.accept(visitor: interpreter)
-        guard case .success = result2 else { XCTFail(); return }
-
-        let result3 = last.accept(visitor: interpreter)
-
-        guard case .success(let result1) = result1 else { XCTFail(); return }
-        guard case .success(let result2) = result2 else { XCTFail(); return }
-        guard case .success(let result3) = result3 else { XCTFail(); return }
-
-        guard result1 as? NumberNode != nil else { XCTFail(); return }
-        guard result2 as? NumberNode != nil else { XCTFail(); return }
-        guard result3 as? NumberNode != nil else { XCTFail(); return }
-
-        XCTAssertEqual(result2.asTex, "\\let { g }{ f(2) }")
-        XCTAssertEqual(result3.asTex, "7")
     }
 
     func testCurryFunction1_1() throws {

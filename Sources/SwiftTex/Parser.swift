@@ -13,6 +13,7 @@ public enum ParseError: Error {
     case UndefinedOperator(String, token: Token)
     case ExpectedCharacter(Character, token: Token)
     case ExpectedExpression(token: Token)
+    case ExpectedParameterList(token: Token)
     case ExpectedArgumentList(token: Token)
     case ExpectedFunctionName(token: Token)
     case MismatchedName(token: Token)
@@ -30,6 +31,7 @@ public enum ParseError: Error {
         case .UndefinedOperator(_, let token): return token
         case .ExpectedCharacter(_, let token): return token
         case .ExpectedExpression(let token): return token
+        case .ExpectedParameterList(let token): return token
         case .ExpectedArgumentList(let token): return token
         case .ExpectedFunctionName(let token): return token
         case .MismatchedName(let token): return token
@@ -211,7 +213,7 @@ public class Parser {
         try popCurrentToken()
         let arguments = try parseBraceTextList()
 
-        guard let beginName = arguments.first else { throw ParseError.ExpectedArgumentList(token: beginToken)}
+        guard let beginName = arguments.first else { throw ParseError.ExpectedParameterList(token: beginToken)}
         var expressions: [ExprNode] = []
 
         while true {
@@ -503,7 +505,7 @@ public class Parser {
 
             let token = try popCurrentToken()
             guard case Token.Case.Comma = token.type else {
-                throw ParseError.ExpectedArgumentList(token: token)
+                throw ParseError.ExpectedParameterList(token: token)
             }
         }
 
@@ -555,6 +557,8 @@ public class Parser {
         case .ParensOpen:
             return try parseParens()
         default:
+            // get rid of the wrong token and throw an error
+            try popCurrentToken()
             throw ParseError.ExpectedExpression(token: token)
         }
     }
