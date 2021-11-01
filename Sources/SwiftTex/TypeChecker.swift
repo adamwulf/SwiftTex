@@ -150,7 +150,7 @@ public class TypeChecker: Visitor {
                 }
             } else {
                 let thunk = pushScope { () -> Result in
-                    var closedLet: [VariableNode: ExprNode] = [:]
+                    var closedLet = Environment()
                     for i in 0..<item.arguments.count {
                         let arg = item.arguments[i]
                         let name = callee.prototype.argumentNames[i]
@@ -158,13 +158,13 @@ public class TypeChecker: Visitor {
                         if case .success(let argResult) = argResult {
                             switch argResult {
                             case .variable(let node):
-                                closedLet[name] = node
+                                closedLet.set(name, to: node)
                             case .number(let node):
-                                closedLet[name] = node
+                                closedLet.set(name, to: node)
                             case .closure(let node, _):
-                                closedLet[name] = node
+                                closedLet.set(name, to: node)
                             case .unknown(let node):
-                                closedLet[name] = node
+                                closedLet.set(name, to: node)
                             }
                         } else {
                             return argResult

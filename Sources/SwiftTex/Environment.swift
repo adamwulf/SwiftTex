@@ -7,17 +7,17 @@
 
 import Foundation
 
-struct Environment {
+public struct Environment: CustomStringConvertible {
     private var globalScope: [VariableNode: ExprNode] = [:]
 
-    private var scopes: [[VariableNode: ExprNode]] = []
+    private var subScopes: [[VariableNode: ExprNode]] = []
 
     private var currentScope: [VariableNode: ExprNode] {
-        return scopes.last ?? globalScope
+        return subScopes.last ?? globalScope
     }
 
-    var environment: [VariableNode: ExprNode] {
-        let allScopes = [globalScope] + scopes
+    public var environment: [VariableNode: ExprNode] {
+        let allScopes = [globalScope] + subScopes
         var ret: [VariableNode: ExprNode] = [:]
         for scope in allScopes.reversed() {
             for (variable, val) in scope {
@@ -29,22 +29,22 @@ struct Environment {
         return ret
     }
 
-    var description: String {
+    public var description: String {
         environment.reduce("") { (partialResult: String, pair: (key: VariableNode, value: ExprNode)) -> String in
             return partialResult + (partialResult.isEmpty ? "" : "\n") + pair.key.asTex + " => " + pair.value.asTex
         }
     }
 
-    mutating func pushScope() {
-        scopes.append([:])
+    mutating public func pushScope() {
+        subScopes.append([:])
     }
 
-    mutating func popScope() {
-        scopes.removeLast()
+    mutating public func popScope() {
+        subScopes.removeLast()
     }
 
-    func lookup(variable: VariableNode) -> ExprNode? {
-        for scope in ([globalScope] + scopes).reversed() {
+    public func lookup(variable: VariableNode) -> ExprNode? {
+        for scope in ([globalScope] + subScopes).reversed() {
             for (scoped, val) in scope {
                 if scoped.matches(variable) {
                     return val
@@ -54,11 +54,11 @@ struct Environment {
         return nil
     }
 
-    mutating func set(_ variable: VariableNode, to expr: ExprNode) {
-        if var last = scopes.last {
+    mutating public func set(_ variable: VariableNode, to expr: ExprNode) {
+        if var last = subScopes.last {
             last[variable] = expr
-            scopes.removeLast()
-            scopes.append(last)
+            subScopes.removeLast()
+            subScopes.append(last)
         } else {
             globalScope[variable] = expr
         }

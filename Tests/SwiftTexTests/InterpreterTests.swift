@@ -414,4 +414,28 @@ class InterpreterTests: XCTestCase {
         XCTAssertEqual(result2.asTex, "\\let { g }{ f(2) }")
         XCTAssertEqual(result3.asTex, "7")
     }
+
+    func testCurryFunction1_1() throws {
+        let source = """
+                     \\func{ f(x, y) }{ x + y }
+
+                     \\let { g }{ f(2) }
+
+                     g(5)
+                     """
+        let results = Runtime.run(source: source)
+
+        guard case .success(let result1) = results[0] else { XCTFail(); return }
+        guard case .success(let result2) = results[1] else { XCTFail(); return }
+        guard case .success(let result3) = results[2] else { XCTFail(); return }
+
+        guard result1.evaluated as? LetNode != nil else { XCTFail(); return }
+        guard result2.evaluated as? LetNode != nil else { XCTFail(); return }
+        guard result3.evaluated as? NumberNode != nil else { XCTFail(); return }
+
+        _ = result2.evaluated.asTex
+
+        XCTAssertEqual(result2.evaluated.asTex, "g(y) = 2 + y")
+        XCTAssertEqual(result3.evaluated.asTex, "7")
+    }
 }

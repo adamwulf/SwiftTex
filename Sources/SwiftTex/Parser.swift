@@ -80,9 +80,12 @@ public class Parser {
 
     // MARK: - Init
 
-    public init(tokens: [Token]) {
+    let currentEnvironment: () -> Environment
+
+    public init(tokens: [Token], currentEnvironment: (() -> Environment)? = nil) {
         self.settingsStack = [Settings(allowImplicitMult: true)]
         self.tokens = tokens
+        self.currentEnvironment = currentEnvironment ?? { Environment() }
     }
 
     // MARK: - Tokens
@@ -268,7 +271,7 @@ public class Parser {
         if
             let body = body.unwrap(),
             body as? BracedNode == nil {
-            let thunk = ClosureNode(prototype: prototype.prototype, body: body, closed: [:], startToken: token)
+            let thunk = ClosureNode(prototype: prototype.prototype, body: body, closed: currentEnvironment(), startToken: token)
             return LetNode(variable: prototype.name, value: thunk, startToken: prototype.name.startToken)
         }
 
@@ -563,14 +566,15 @@ public class Parser {
 
         if
             let function = node as? VariableNode,
-            functionNames.contains(where: { $0.name == function.name }) {
+            case let env = currentEnvironment(),
+            env.lookup(variable: function) as? ClosureNode != nil {
             node = try parseCall(function: function)
         }
 
         return try parseBinaryOp(node: node)
     }
 
-    func parseTopLevelExpression() throws -> ExprNode? {
+    public func parseTopLevelExpression() throws -> ExprNode? {
         // ignore line endings between statements
         while Token.Case.EOL == peekCurrentToken()?.type {
             try popCurrentToken()
@@ -582,6 +586,10 @@ public class Parser {
     }
 
     // MARK: - Public API
+
+    // TODO: Move parse() into a Runtime class that will parse a single expression -> type check -> interpret -> create array of results
+    // then the Parser is only responsible for parseTopLevelExpression() so parse a single expression at a time.
+    // the Runtime is responsible for parsing each line -> interpreting it -> looping until the file is done.
 
     public func parse() throws -> Result {
         index = 0

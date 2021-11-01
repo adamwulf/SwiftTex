@@ -52,7 +52,7 @@ public class IdentityVisitor: Visitor {
             return ClosureNode(prototype: PrototypeNode(argumentNames: arguments,
                                                         startToken: item.prototype.startToken),
                                body: item.body.accept(visitor: self),
-                               closed: item.closed.mapValues({ $0.accept(visitor: self) }),
+                               closed: item.closed,
                                startToken: item.startToken)
         case let item as CallNode:
             guard

@@ -80,8 +80,14 @@ public class Interpreter: Visitor {
         case let item as BracedNode:
             return .failure(.UnexpectedNode(token: item.startToken, node: item))
         case let item as LetNode:
-            env.set(item.variable, to: item.value)
-            return .success(item.variable)
+            let result = item.value.accept(visitor: self)
+            switch result {
+            case .success(let result):
+                env.set(item.variable, to: result)
+                return .success(LetNode(variable: item.variable, value: result, startToken: item.startToken))
+            case .failure:
+                return result
+            }
         case let item as TexNode:
             return .failure(.UnexpectedNode(token: item.startToken, node: item))
         case let item as TexListNode:
@@ -97,7 +103,7 @@ public class Interpreter: Visitor {
                 }
                 let result = item.body.accept(visitor: self)
                 if case .success(let simpleBody) = result {
-                    return .success(ClosureNode(prototype: item.prototype, body: simpleBody, closed: [:], startToken: item.startToken))
+                    return .success(ClosureNode(prototype: item.prototype, body: simpleBody, closed: env, startToken: item.startToken))
                 } else {
                     return result
                 }
@@ -118,6 +124,9 @@ public class Interpreter: Visitor {
 
             if item.arguments.count == callee.prototype.argumentNames.count {
                 return pushScope { () -> Result in
+                    for (variable, value) in callee.closed.environment {
+                        env.set(variable, to: value)
+                    }
                     for i in 0..<item.arguments.count {
                         let arg = item.arguments[i]
                         let name = callee.prototype.argumentNames[i]
@@ -131,7 +140,36 @@ public class Interpreter: Visitor {
                     return callee.body.accept(visitor: self)
                 }
             } else {
-                return .success(item)
+                var closed = Environment()
+
+                for i in 0..<item.arguments.count {
+                    let arg = item.arguments[i]
+                    let name = callee.prototype.argumentNames[i]
+                    let argResult = arg.accept(visitor: self)
+                    if case .success(let argResult) = argResult {
+                        closed.set(name, to: argResult)
+                    } else {
+                        return argResult
+                    }
+                }
+
+                return pushScope {
+                    for (variable, value) in closed.environment {
+                        env.set(variable, to: value)
+                    }
+                    let bodyResult = callee.body.accept(visitor: self)
+
+                    switch bodyResult {
+                    case .success(let updatedBody):
+                        let updatedArgs = Array(callee.prototype.argumentNames[item.arguments.count...])
+                        return .success(ClosureNode(prototype: PrototypeNode(argumentNames: updatedArgs, startToken: updatedArgs.first!.startToken),
+                                                    body: updatedBody,
+                                                    closed: closed,
+                                                    startToken: callee.startToken))
+                    case .failure:
+                        return bodyResult
+                    }
+                }
             }
         default:
             return .failure(.UnhandledExpression(token: item.startToken))
