@@ -567,7 +567,7 @@ public class Parser {
         if
             let function = node as? VariableNode,
             case let env = currentEnvironment(),
-            env.lookup(variable: function) as? ClosureNode != nil {
+            functionNames.contains(where: { $0.name == function.name }) || env.lookup(variable: function) as? ClosureNode != nil {
             node = try parseCall(function: function)
         }
 
@@ -586,10 +586,6 @@ public class Parser {
     }
 
     // MARK: - Public API
-
-    // TODO: Move parse() into a Runtime class that will parse a single expression -> type check -> interpret -> create array of results
-    // then the Parser is only responsible for parseTopLevelExpression() so parse a single expression at a time.
-    // the Runtime is responsible for parsing each line -> interpreting it -> looping until the file is done.
 
     public func parse() throws -> Result {
         index = 0

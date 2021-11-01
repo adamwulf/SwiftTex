@@ -30,33 +30,33 @@ public class Interpreter: Visitor {
 
     public func visit(_ item: ExprNode) -> Result {
         switch item {
-        case let item as NumberNode:
-            return .success(item)
-        case let item as VariableNode:
-            if let val = env.lookup(variable: item) {
+        case let num as NumberNode:
+            return .success(num)
+        case let variable as VariableNode:
+            if let val = env.lookup(variable: variable) {
                 return .success(val)
             } else {
-                return .success(item)
+                return .success(variable)
             }
-        case let item as UnaryOpNode:
-            if let num = item.children.first as? NumberNode {
-                switch item.op {
+        case let unop as UnaryOpNode:
+            if let num = unop.children.first as? NumberNode {
+                switch unop.op {
                 case .plus:
                     return .success(num)
                 case .minus:
                     return .success(-num)
                 default:
-                    return .failure(.InvalidOperator(token: item.startToken))
+                    return .failure(.InvalidOperator(token: unop.startToken))
                 }
             } else {
-                return .success(item)
+                return .success(unop)
             }
-        case let item as BinaryOpNode:
-            let leftResult = item.lhs.accept(visitor: self)
-            let rightResult = item.rhs.accept(visitor: self)
+        case let binop as BinaryOpNode:
+            let leftResult = binop.lhs.accept(visitor: self)
+            let rightResult = binop.rhs.accept(visitor: self)
             switch (leftResult, rightResult) {
             case (.success(let lnum as NumberNode), .success(let rnum as NumberNode)):
-                switch item.op {
+                switch binop.op {
                 case .plus:
                     return .success(lnum + rnum)
                 case .minus:
@@ -68,42 +68,42 @@ public class Interpreter: Visitor {
                 case .exp:
                     return .success(lnum ^ rnum)
                 case .equal:
-                    return .success(BinaryOpNode(op: item.op, lhs: lnum, rhs: rnum, startToken: item.startToken))
+                    return .success(BinaryOpNode(op: binop.op, lhs: lnum, rhs: rnum, startToken: binop.startToken))
                 }
             case (.success(let left), .success(let right)):
-                return .success(BinaryOpNode(op: item.op, lhs: left, rhs: right, startToken: item.startToken))
+                return .success(BinaryOpNode(op: binop.op, lhs: left, rhs: right, startToken: binop.startToken))
             case (.failure, _):
                 return leftResult
             case (_, .failure):
                 return rightResult
             }
-        case let item as BracedNode:
-            return .failure(.UnexpectedNode(token: item.startToken, node: item))
-        case let item as LetNode:
-            let result = item.value.accept(visitor: self)
+        case let braced as BracedNode:
+            return .failure(.UnexpectedNode(token: braced.startToken, node: braced))
+        case let letnode as LetNode:
+            let result = letnode.value.accept(visitor: self)
             switch result {
             case .success(let result):
-                env.set(item.variable, to: result)
-                return .success(LetNode(variable: item.variable, value: result, startToken: item.startToken))
+                env.set(letnode.variable, to: result)
+                return .success(LetNode(variable: letnode.variable, value: result, startToken: letnode.startToken))
             case .failure:
                 return result
             }
-        case let item as TexNode:
-            return .failure(.UnexpectedNode(token: item.startToken, node: item))
-        case let item as TexListNode:
-            if let result = item.children.map({ $0.accept(visitor: self) }).last {
+        case let tex as TexNode:
+            return .failure(.UnexpectedNode(token: tex.startToken, node: tex))
+        case let texlist as TexListNode:
+            if let result = texlist.children.map({ $0.accept(visitor: self) }).last {
                 return result
             } else {
-                return .failure(.EmptyListNode(token: item.startToken))
+                return .failure(.EmptyListNode(token: texlist.startToken))
             }
-        case let item as ClosureNode:
+        case let closure as ClosureNode:
             let simplified = pushScope { () -> Result in
-                for arg in item.prototype.argumentNames {
+                for arg in closure.prototype.argumentNames {
                     env.set(arg, to: arg)
                 }
-                let result = item.body.accept(visitor: self)
+                let result = closure.body.accept(visitor: self)
                 if case .success(let simpleBody) = result {
-                    return .success(ClosureNode(prototype: item.prototype, body: simpleBody, closed: env, startToken: item.startToken))
+                    return .success(ClosureNode(prototype: closure.prototype, body: simpleBody, closed: env, startToken: closure.startToken))
                 } else {
                     return result
                 }
@@ -113,37 +113,43 @@ public class Interpreter: Visitor {
             } else {
                 return simplified
             }
-        case let item as CallNode:
+        case let call as CallNode:
             guard
-                case .success(let callee) = item.callee.accept(visitor: self),
+                case .success(let callee) = call.callee.accept(visitor: self),
                 let callee = callee as? ClosureNode
-            else { return .success(item) }
-            guard item.arguments.count <= callee.prototype.argumentNames.count else {
-                return .failure(.IncorrectArgumentCount(token: item.startToken))
+            else { return .success(call) }
+            guard call.arguments.count <= callee.prototype.argumentNames.count else {
+                return .failure(.IncorrectArgumentCount(token: call.startToken))
             }
 
-            if item.arguments.count == callee.prototype.argumentNames.count {
+            if call.arguments.count == callee.prototype.argumentNames.count {
+                var arguments: [VariableNode: ExprNode] = [:]
+                for i in 0..<call.arguments.count {
+                    let arg = call.arguments[i]
+                    let name = callee.prototype.argumentNames[i]
+                    let argResult = arg.accept(visitor: self)
+                    if case .success(let argResult) = argResult {
+                        arguments[name] = argResult
+                    } else {
+                        return argResult
+                    }
+                }
+
                 return pushScope { () -> Result in
                     for (variable, value) in callee.closed.environment {
                         env.set(variable, to: value)
                     }
-                    for i in 0..<item.arguments.count {
-                        let arg = item.arguments[i]
-                        let name = callee.prototype.argumentNames[i]
-                        let argResult = arg.accept(visitor: self)
-                        if case .success(let argResult) = argResult {
-                            env.set(name, to: argResult)
-                        } else {
-                            return argResult
-                        }
+                    for (variable, value) in arguments {
+                        env.set(variable, to: value)
                     }
+
                     return callee.body.accept(visitor: self)
                 }
             } else {
                 var closed = Environment()
 
-                for i in 0..<item.arguments.count {
-                    let arg = item.arguments[i]
+                for i in 0..<call.arguments.count {
+                    let arg = call.arguments[i]
                     let name = callee.prototype.argumentNames[i]
                     let argResult = arg.accept(visitor: self)
                     if case .success(let argResult) = argResult {
@@ -161,7 +167,7 @@ public class Interpreter: Visitor {
 
                     switch bodyResult {
                     case .success(let updatedBody):
-                        let updatedArgs = Array(callee.prototype.argumentNames[item.arguments.count...])
+                        let updatedArgs = Array(callee.prototype.argumentNames[call.arguments.count...])
                         return .success(ClosureNode(prototype: PrototypeNode(argumentNames: updatedArgs, startToken: updatedArgs.first!.startToken),
                                                     body: updatedBody,
                                                     closed: closed,

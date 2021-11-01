@@ -84,7 +84,7 @@ class TypeCheckerTests: XCTestCase {
         let typeChecker = TypeChecker()
 
         XCTAssert(errors.isEmpty)
-        XCTAssertNotNil(ast.first as? ClosureNode)
+        XCTAssertNotNil(ast.first as? LetNode)
         XCTAssertNotNil(ast.last as? CallNode)
 
         guard let first = ast.first, let last = ast.last else { XCTFail(); return }
@@ -116,7 +116,7 @@ class TypeCheckerTests: XCTestCase {
         let typeChecker = TypeChecker()
 
         XCTAssert(errors.isEmpty)
-        XCTAssertNotNil(ast.first as? ClosureNode)
+        XCTAssertNotNil(ast.first as? LetNode)
         XCTAssertNotNil(ast.last as? CallNode)
 
         guard let first = ast.first, let last = ast.last else { XCTFail(); return }
@@ -149,8 +149,8 @@ class TypeCheckerTests: XCTestCase {
         let typeChecker = TypeChecker()
 
         XCTAssert(errors.isEmpty)
-        XCTAssertNotNil(ast.first as? ClosureNode)
-        XCTAssertNotNil(ast[1] as? ClosureNode)
+        XCTAssertNotNil(ast.first as? LetNode)
+        XCTAssertNotNil(ast[1] as? LetNode)
         XCTAssertNotNil(ast.last as? CallNode)
 
         guard
@@ -186,7 +186,7 @@ class TypeCheckerTests: XCTestCase {
         let typeChecker = TypeChecker()
 
         XCTAssert(errors.isEmpty)
-        XCTAssertNotNil(ast.first as? ClosureNode)
+        XCTAssertNotNil(ast.first as? LetNode)
         XCTAssertNotNil(ast[1] as? LetNode)
         XCTAssertNotNil(ast.last as? BinaryOpNode)
 
